@@ -75,21 +75,29 @@ class HardwareController extends Controller
     {
         $validatedData = $request->validate([
             'hardware_no' => "required|string|unique:hardwares,hardware_no,{$hardware->id}",
-            'hardware_serial_no' => "nullable|string",
+            'hardware_serial_no' => 'nullable|string',
             'assigned_user_id' => 'nullable|exists:assigned_users,id',
             'hardware_type_id' => 'required|exists:hardware_types,id',
             'hardware_status_id' => 'required|exists:hardware_statuses,id',
         ]);
 
+        $changes = [];
+        foreach ($validatedData as $key => $value) {
+            if ($hardware->{$key} != $value) {
+                $changes[] = ucfirst(str_replace('_', ' ', $key)) . " changed from '{$hardware->{$key}}' to '{$value}'";
+            }
+        }
+
         $hardware->update($validatedData);
 
-        // Insert update record
-        UpdateRecord::create([
-            'record_name' => 'Hardware Updated',
-            'record_desc' => "Hardware (No: {$hardware->hardware_no}) was updated.",
-            'record_last_updated' => now(),
-            'hardware_id' => $hardware->id,
-        ]);
+        if (!empty($changes)) {
+            UpdateRecord::create([
+                'record_name' => 'Hardware Updated',
+                'record_desc' => "Hardware (No: {$hardware->hardware_no}) was updated. " . implode(', ', $changes),
+                'record_last_updated' => now(),
+                'hardware_id' => $hardware->id,
+            ]);
+        }
 
         return Redirect::route('hardwares.index')->with('success', 'Hardware updated successfully.');
     }
