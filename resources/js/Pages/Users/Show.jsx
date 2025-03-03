@@ -69,6 +69,39 @@ export default function Show({ user }) {
                 </div>
             </div>
 
+            {/* Assigned Hardware Section */}
+            <div className="mx-4 mt-4 bg-base-300 p-4 rounded-lg shadow">
+                <p className="text-xl font-semibold text-primary">Assigned Hardware</p>
+                {user.hardwares && user.hardwares.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="table table-zebra w-full mt-2">
+                            <thead>
+                                <tr>
+                                    <th>Hardware No</th>
+                                    <th>Hardware Serial No</th>
+                                    <th>Hardware Type</th>
+                                    <th>Status</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {user.hardwares.map((hw) => (
+                                    <tr key={hw.id}>
+                                        <td>{hw.hardware_no}</td>
+                                        <td>{hw.hardware_serial_no}</td>
+                                        <td>{hw?.hardware_type?.hardware_type_name || "N/A"}</td>
+                                        <td>{hw?.hardware_status?.hardware_status_name || "N/A"}</td>
+                                        <td>{new Date(hw.updated_at).toLocaleString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <p className="text-sm text-gray-500 mt-2">No hardware assigned to this user.</p>
+                )}
+            </div>
+
             {/* Delete Confirmation Alert */}
             {showAlert && (
                 <AlertComponent

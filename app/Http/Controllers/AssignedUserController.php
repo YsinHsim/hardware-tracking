@@ -69,7 +69,13 @@ class AssignedUserController extends Controller
 
     public function show($id)
     {
-        $user = AssignedUser::with(['userPosition', 'estate.region'])->findOrFail($id);
+        $user = AssignedUser::with([
+            'userPosition',
+            'estate.region',
+            'hardwares.hardwareType',
+            'hardwares.hardwareStatus'  // Include hardwareStatus relationship
+        ])->findOrFail($id);
+
         return Inertia::render('Users/Show', [
             'user' => $user
         ]);
