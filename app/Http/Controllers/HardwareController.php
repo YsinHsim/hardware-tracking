@@ -59,4 +59,53 @@ class HardwareController extends Controller
 
         return Redirect::route('hardwares.index')->with('success', 'Hardware created successfully.');
     }
+
+    public function edit(Hardware $hardware)
+    {
+        return Inertia::render('Hardwares/Edit', [
+            'hardware' => $hardware->load(['assignedUser.estate', 'hardwareType', 'hardwareStatus']),
+            'hardwareTypes' => HardwareType::all(),
+            'hardwareStatuses' => HardwareStatus::all(),
+            'estates' => Estate::all(),
+            'assignedUsers' => AssignedUser::with('estate')->get()->groupBy('estate_id'),
+        ]);
+    }
+
+    public function update(Request $request, Hardware $hardware)
+    {
+        $validatedData = $request->validate([
+            'hardware_no' => "required|string|unique:hardwares,hardware_no,{$hardware->id}",
+            'hardware_serial_no' => "nullable|string",
+            'assigned_user_id' => 'nullable|exists:assigned_users,id',
+            'hardware_type_id' => 'required|exists:hardware_types,id',
+            'hardware_status_id' => 'required|exists:hardware_statuses,id',
+        ]);
+
+        $hardware->update($validatedData);
+
+        // Insert update record
+        UpdateRecord::create([
+            'record_name' => 'Hardware Updated',
+            'record_desc' => "Hardware (No: {$hardware->hardware_no}) was updated.",
+            'record_last_updated' => now(),
+            'hardware_id' => $hardware->id,
+        ]);
+
+        return Redirect::route('hardwares.index')->with('success', 'Hardware updated successfully.');
+    }
+
+    public function destroy(Hardware $hardware)
+    {
+        // Insert delete record
+        UpdateRecord::create([
+            'record_name' => 'Hardware Deleted',
+            'record_desc' => "Hardware (No: {$hardware->hardware_no}) was deleted.",
+            'record_last_updated' => now(),
+            'hardware_id' => $hardware->id,
+        ]);
+
+        $hardware->delete();
+
+        return Redirect::route('hardwares.index')->with('success', 'Hardware deleted successfully.');
+    }
 }
