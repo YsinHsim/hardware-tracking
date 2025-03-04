@@ -122,5 +122,6 @@ export default function Index({ hardwares }) {
                 />
             </div>
         </Layout>
+        /* uodated */
     );
 }
