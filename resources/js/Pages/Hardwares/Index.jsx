@@ -46,13 +46,14 @@ export default function Index({ hardwares }) {
 
             {hardwares.data.length > 0 ? (
                 <>
-                    <div className="mx-4">
-                        <div className="flex">
-                            <p className="text-xl font-semibold">Hardware List</p>
-                            <Link href="/hardwares/create" className="btn btn-sm btn-neutral px-4 ml-auto">
-                                Add Hardware
-                            </Link>
-                        </div>
+                <div className="mx-4">
+                    <div className="flex">
+                        <p className="text-xl font-semibold">Hardware List</p>
+                        <Link href="/hardwares/create" className="btn btn-sm btn-neutral px-4 ml-auto">
+                            Add Hardware
+                        </Link>
+                    </div>
+
 
                         <div className="overflow-x-auto bg-base-300 mt-2">
                             <table className="table table-sm">
@@ -109,7 +110,7 @@ export default function Index({ hardwares }) {
                             </table>
                         </div>
                     </div>
-
+                
                     {/* Pagination */}
                     <div className="flex items-center mt-3 justify-end">
                         {hardwares.links?.map((link, index) => (
