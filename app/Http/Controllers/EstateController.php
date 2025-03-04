@@ -15,7 +15,7 @@ class EstateController extends Controller
      */
     public function index()
     {
-        $estates = Estate::with('region')->get();
+        $estates = Estate::with('region')->paginate(2);
         return Inertia::render('Estates/Index', [
             'estates' => $estates,
         ]);

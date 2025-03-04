@@ -49,7 +49,7 @@ export default function Index({ estates }) {
 
                 <div className="divider" />
 
-                {estates?.length > 0 ? (
+                {estates.data.length > 0 ? (
                     <div className="mx-4">
                         <div className="flex">
                             <p className="text-xl font-semibold">Estate List</p>
@@ -58,11 +58,10 @@ export default function Index({ estates }) {
                             </Link>
                         </div>
 
-
                         {/* Table for Estate */}
                         <div className="overflow-x-auto bg-base-300 mt-2">
                             <table className="table">
-                                {/* head */}
+                                {/* Table Head */}
                                 <thead>
                                     <tr className="text-primary border-b-2 border-b-base-100">
                                         <th>Estate</th>
@@ -71,7 +70,7 @@ export default function Index({ estates }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {estates.map((estate) => (
+                                    {estates.data.map((estate) => (
                                         <tr key={estate.id}>
                                             <td>{estate.estate_name}</td>
                                             <td>{estate.region.region_name}</td>
@@ -92,6 +91,29 @@ export default function Index({ estates }) {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Pagination Controls */}
+                        <div className="mt-4 flex justify-end items-center">
+                            {estates.prev_page_url ? (
+                                <Link href={estates.prev_page_url} className="btn btn-sm btn-ghost">
+                                    Previous
+                                </Link>
+                            ) : (
+                                <span className="btn btn-sm btn-disabled">Previous</span>
+                            )}
+
+                            <span className="text-sm mx-2">
+                                Page {estates.current_page} of {estates.last_page}
+                            </span>
+
+                            {estates.next_page_url ? (
+                                <Link href={estates.next_page_url} className="btn btn-sm btn-ghost">
+                                    Next
+                                </Link>
+                            ) : (
+                                <span className="btn btn-sm btn-disabled">Next</span>
+                            )}
                         </div>
                     </div>
                 ) : (
