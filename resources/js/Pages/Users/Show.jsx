@@ -5,6 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AlertComponent from '../Components/AlertComponent';
 import ToastComponent from '../Components/ToastComponent';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function Show({ user }) {
     const [showAlert, setShowAlert] = useState(false);
@@ -54,9 +55,13 @@ export default function Show({ user }) {
                         <p><span className="font-semibold">Region:</span> {user.estate?.region?.region_name || "N/A"}</p>
                     </div>
                     <div className="flex flex-col space-y-2">
+                        {/* Add Hardware Button */}
+                        <Link href="/hardwares/create" className="btn btn-ghost btn-sm rounded-md">
+                            <AddIcon className="text-primary hover:text-primary/75" />
+                        </Link>
                         {/* Edit Button */}
                         <Link href={`/users/${user.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
-                            <EditIcon className="text-primary hover:text-primary/75" />
+                            <EditIcon className="text-accent hover:text-primary/75" />
                         </Link>
                         {/* Delete Button */}
                         <button
