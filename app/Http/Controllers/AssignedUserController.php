@@ -15,7 +15,7 @@ class AssignedUserController extends Controller
     // Display a listing of users
     public function index()
     {
-        $users = AssignedUser::with(['userPosition', 'estate'])->get();
+        $users = AssignedUser::with(['userPosition', 'estate'])->paginate(5);
 
         return Inertia::render('Users/Index', [
             'users' => $users
