@@ -46,13 +46,13 @@ export default function Index({ hardwares }) {
 
             {hardwares.data.length > 0 ? (
                 <>
-                <div className="mx-4">
-                    <div className="flex">
-                        <p className="text-xl font-semibold">Hardware List</p>
-                        <Link href="/hardwares/create" className="btn btn-sm btn-neutral px-4 ml-auto">
-                            Add Hardware
-                        </Link>
-                    </div>
+                    <div className="mx-4">
+                        <div className="flex">
+                            <p className="text-xl font-semibold">Hardware List</p>
+                            <Link href="/hardwares/create" className="btn btn-sm btn-neutral px-4 ml-auto">
+                                Add Hardware
+                            </Link>
+                        </div>
 
 
                         <div className="overflow-x-auto bg-base-300 mt-2">
@@ -70,7 +70,14 @@ export default function Index({ hardwares }) {
                                 <tbody>
                                     {hardwares.data.map((hardware) => (
                                         <tr key={hardware.id}>
-                                            <td>{hardware.hardware_no}</td>
+                                            <td>
+                                                <Link
+                                                    href={`/hardwares/${hardware.id}`}
+                                                    className="btn btn-ghost btn-sm rounded-md hover:text-accent"
+                                                >
+                                                    {hardware.hardware_no}
+                                                </Link>
+                                            </td>
                                             <td>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</td>
                                             <td>{hardware.hardware_status?.hardware_status_name || "Unknown Status"}</td>
                                             <td>
@@ -110,7 +117,7 @@ export default function Index({ hardwares }) {
                             </table>
                         </div>
                     </div>
-                
+
                     {/* Pagination */}
                     <div className="flex items-center mt-3 justify-end">
                         {hardwares.links?.map((link, index) => (

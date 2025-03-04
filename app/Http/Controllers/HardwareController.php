@@ -17,7 +17,7 @@ class HardwareController extends Controller
     public function index()
     {
         $hardwares = Hardware::with([
-            'assignedUser.estate',  
+            'assignedUser.estate',
             'hardwareType',
             'hardwareStatus'
         ])->paginate(5);
@@ -100,6 +100,15 @@ class HardwareController extends Controller
         }
 
         return Redirect::route('hardwares.index')->with('success', 'Hardware updated successfully.');
+    }
+
+    public function show(Hardware $hardware)
+    {
+        $hardware->load(['assignedUser.estate', 'hardwareType', 'hardwareStatus', 'updateRecords']);
+
+        return Inertia::render('Hardwares/Show', [
+            'hardware' => $hardware
+        ]);
     }
 
     public function destroy(Hardware $hardware)
