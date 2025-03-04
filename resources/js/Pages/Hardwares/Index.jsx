@@ -196,5 +196,6 @@ export default function Index({ hardwares }) {
 
             <ToastComponent message={toastMessage} type={toastType} onClose={() => setToastMessage("")} />
         </Layout>
+        /* uodated */
     );
 }
