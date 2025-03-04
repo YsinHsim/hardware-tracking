@@ -20,4 +20,8 @@ export default function Welcome() {
         </div>
         </>
     );
+
+    {/* AN=Hardware_Tracking */}
+    {/* AK=base64:d7nRNcsZPIV4FYzsAOyj1iul6jrj+noWO69tT9Y1E/4= */}
+    {/* DBP=root */}
 }
