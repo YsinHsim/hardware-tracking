@@ -10,6 +10,11 @@ export default function Show({ hardware }) {
     const [showAlert, setShowAlert] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastType, setToastType] = useState("");
+    const [viewMode, setViewMode] = useState("table"); // "table" or "timeline"
+
+    const toggleView = () => {
+        setViewMode((prev) => (prev === "table" ? "timeline" : "table"));
+    };
 
     const handleDelete = () => {
         setShowAlert(true);
@@ -58,7 +63,7 @@ export default function Show({ hardware }) {
                             </Link>
                         </p>
                     </div>
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-2 justify-end">
                         {/* Edit Button */}
                         <Link href={`/hardwares/${hardware.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
                             <EditIcon className="text-primary hover:text-primary/75" />
@@ -76,29 +81,46 @@ export default function Show({ hardware }) {
 
             {/* Update Records Section */}
             <div className="mx-4 mt-4 bg-base-300 p-4 rounded-lg shadow">
-                <p className="text-xl font-semibold text-primary">Update Records</p>
-                {hardware.update_records && hardware.update_records.length > 0 ? (
-                    <div className="overflow-x-auto">
-                        <table className="table table-zebra w-full mt-2">
-                            <thead>
-                                <tr className="text-primary">
-                                    <th>Record Name</th>
-                                    <th>Remarks</th>
-                                    <th>Date</th>
+                <div className="flex justify-between">
+                    <p className="text-xl font-semibold text-primary">Hardware History</p>
+                    <button className="btn btn-sm btn-ghost rounded-md" onClick={toggleView}>
+                        {viewMode === "table" ? "Switch to Timeline" : "Switch to Table"}
+                    </button>
+                </div>
 
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {hardware.update_records.map((record) => (
-                                    <tr key={record.id}>
-                                        <td>{record.record_name}</td>
-                                        <td>{record.record_desc}</td>
-                                        <td>{new Date(record.created_at).toLocaleString()}</td>
+                {hardware.update_records && hardware.update_records.length > 0 ? (
+                    viewMode === "table" ? (
+                        <div className="overflow-x-auto">
+                            <table className="table table-zebra w-full mt-2">
+                                <thead>
+                                    <tr className="text-primary">
+                                        <th>Record Name</th>
+                                        <th>Remarks</th>
+                                        <th>Date</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {hardware.update_records.map((record) => (
+                                        <tr key={record.id}>
+                                            <td>{record.record_name}</td>
+                                            <td>{record.record_desc}</td>
+                                            <td>{new Date(record.created_at).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                            {hardware.update_records.map((record) => (
+                                <div key={record.id} className="bg-base-200 p-4 rounded-lg hover:shadow-xl border-2 border-transparent hover:border-dotted hover:border-neutral">
+                                    <p className="font-bold text-primary">{record.record_name}</p>
+                                    <p className="text-sm">{record.record_desc}</p>
+                                    <p className="text-xs mt-2">{new Date(record.created_at).toLocaleString()}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )
                 ) : (
                     <p className="text-sm text-gray-500 mt-2">No update records available.</p>
                 )}
