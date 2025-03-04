@@ -17,10 +17,10 @@ class HardwareController extends Controller
     public function index()
     {
         $hardwares = Hardware::with([
-            'assignedUser.estate',  // Ensure estate is loaded inside assignedUser
+            'assignedUser.estate',  
             'hardwareType',
             'hardwareStatus'
-        ])->get();
+        ])->paginate(5);
 
         return Inertia::render('Hardwares/Index', [
             'hardwares' => $hardwares,
