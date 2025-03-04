@@ -76,7 +76,7 @@ export default function Show({ user }) {
                     <div className="overflow-x-auto">
                         <table className="table table-zebra w-full mt-2">
                             <thead>
-                                <tr>
+                                <tr className="text-primary">
                                     <th>Hardware No</th>
                                     <th>Hardware Serial No</th>
                                     <th>Hardware Type</th>

@@ -55,7 +55,7 @@ export default function Index({ hardwares }) {
                         </div>
 
                         <div className="overflow-x-auto bg-base-300 mt-2">
-                            <table className="table">
+                            <table className="table table-sm">
                                 <thead>
                                     <tr className="text-primary border-b-2 border-b-base-100">
                                         <th>Hardware No</th>
@@ -72,7 +72,11 @@ export default function Index({ hardwares }) {
                                             <td>{hardware.hardware_no}</td>
                                             <td>{hardware.hardware_type?.hardware_type_name || 'Unknown Type'}</td>
                                             <td>{hardware.hardware_status?.hardware_status_name || 'Unknown Status'}</td>
-                                            <td>{hardware.assigned_user?.user_name || 'Unassigned'}</td>
+                                            <td>
+                                                <Link href={`/users/${hardware.assigned_user?.id}`} className="btn btn-ghost btn-sm rounded-md">
+                                                    {hardware.assigned_user?.user_name}
+                                                </Link>
+                                            </td>
                                             <td>{hardware.assigned_user?.estate?.estate_name || 'Unknown Estate'}</td>
                                             <td>
                                                 <div className="flex gap-1 justify-center">
