@@ -46,7 +46,7 @@ export default function Index({ hardwares }) {
 
             {hardwares.data.length > 0 ? (
                 <>
-                    <div className="mx-4">
+                <div className="mx-4">
                     <div className="flex">
                         <p className="text-xl font-semibold">Hardware List</p>
                         <Link href="/hardwares/create" className="btn btn-sm btn-neutral px-4 ml-auto">
@@ -110,60 +110,7 @@ export default function Index({ hardwares }) {
                             </table>
                         </div>
                     </div>
-
-                    <div className="overflow-x-auto bg-base-300 mt-2">
-                        <table className="table table-sm">
-                            <thead>
-                                <tr className="text-primary border-b-2 border-b-base-100">
-                                    <th>Hardware No</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th>Assigned User</th>
-                                    <th>Estate</th>
-                                    <th className="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {hardwares.map((hardware) => (
-                                    <tr key={hardware.id}>
-                                        <td>{hardware.hardware_no}</td>
-                                        <td>{hardware.hardware_type?.hardware_type_name || 'Unknown Type'}</td>
-                                        <td>{hardware.hardware_status?.hardware_status_name || 'Unknown Status'}</td>
-                                        <td>
-                                            <Link href={`/users/${hardware.assigned_user?.id}`} className="btn btn-ghost btn-sm rounded-md">
-                                                {hardware.assigned_user?.user_name}
-                                            </Link>
-                                        </td>
-                                        <td>{hardware.assigned_user?.estate?.estate_name || 'Unknown Estate'}</td>
-                                        <td>
-                                            <div className="flex gap-1 justify-center">
-                                                <Link href={`/hardwares/${hardware.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
-                                                    <EditIcon className="text-primary hover:text-primary/75" />
-                                                </Link>
-                                                <button
-                                                    className="btn btn-ghost btn-sm rounded-md"
-                                                    onClick={() => handleDelete(hardware)}
-                                                >
-                                                    <DeleteIcon className="text-error hover:text-error/75" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                ) : (
-                    <div className="mx-4">
-                        <p className="text-xl mb-2">No hardware data exists.</p>
-                        <Link href="/hardwares/create" className="btn btn-sm btn-primary px-4">
-                            Add Hardware
-                        </Link>
-                    </div>
-                )}
-
-
+                
                     {/* Pagination */}
                     <div className="flex items-center mt-3 justify-end">
                         {hardwares.links?.map((link, index) => (

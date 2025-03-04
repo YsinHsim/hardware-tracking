@@ -93,27 +93,16 @@ export default function Index({ estates }) {
                             </table>
                         </div>
 
-                        {/* Pagination Controls */}
-                        <div className="mt-4 flex justify-end items-center">
-                            {estates.prev_page_url ? (
-                                <Link href={estates.prev_page_url} className="btn btn-sm btn-ghost">
-                                    Previous
-                                </Link>
-                            ) : (
-                                <span className="btn btn-sm btn-disabled">Previous</span>
-                            )}
-
-                            <span className="text-sm mx-2">
-                                Page {estates.current_page} of {estates.last_page}
-                            </span>
-
-                            {estates.next_page_url ? (
-                                <Link href={estates.next_page_url} className="btn btn-sm btn-ghost">
-                                    Next
-                                </Link>
-                            ) : (
-                                <span className="btn btn-sm btn-disabled">Next</span>
-                            )}
+                        {/* Pagination */}
+                        <div className="flex items-center mt-3 justify-end">
+                            {estates.links?.map((link, index) => (
+                                <Link
+                                    key={index}
+                                    href={link.url || "#"}
+                                    className={`btn btn-sm mx-1 ${link.active ? "btn-primary" : "btn-neutral"}`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ))}
                         </div>
                     </div>
                 ) : (
