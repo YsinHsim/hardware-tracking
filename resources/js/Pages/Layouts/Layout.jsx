@@ -6,6 +6,7 @@ import ComputerIcon from '@mui/icons-material/Computer';
 import LanIcon from '@mui/icons-material/Lan';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 export default function Layout({ children }) {
     const [isNavVisible, setIsNavVisible] = useState(false);
@@ -23,17 +24,22 @@ export default function Layout({ children }) {
                         </button>
                     </div>
                     <nav className="space-y-2">
-                        <Link href="/hardwares" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 transition">
+                        <Link href="/hardwares" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-primary transition-all duration-500">
                             <ComputerIcon className="mr-3" /> Hardwares
                         </Link>
-                        <Link href="/users" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 transition">
+                        <Link href="/users" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-primary transition-all duration-500">
                             <PeopleIcon className="mr-3" /> Users
                         </Link>
-                        <Link href="/estates" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 transition">
+                        <Link href="/estates" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-primary transition-all duration-500">
                             <HomeIcon className="mr-3" /> Estates
                         </Link>
-                        <Link href="/system-data" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 transition">
+                        <Link href="/system-data" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-primary transition-all duration-500">
                             <LanIcon className="mr-3" /> System Data
+                        </Link>
+                    </nav>
+                    <nav className="space-y-2 flex flex-col align-bottom justify-end h-2/4">
+                        <Link href="/documentation" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-accent transition-all duration-1000">
+                            <DescriptionIcon className="mr-3" /> Documentation
                         </Link>
                     </nav>
                 </aside>
