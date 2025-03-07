@@ -55,7 +55,7 @@ export default function Index({ hardwares }) {
                         </div>
 
 
-                        <div className="overflow-x-auto bg-base-300 mt-2">
+                        <div className="w-full bg-base-300 mt-2">
                             <table className="table table-sm">
                                 <thead>
                                     <tr className="text-primary border-b-2 border-b-base-100">
@@ -93,22 +93,28 @@ export default function Index({ hardwares }) {
                                                 )}
                                             </td>
                                             <td>
-                                                {hardware.assigned_user?.estate?.estate_name || "Unknown Estate"}
+                                                <span className="overflow-auto whitespace-nowrap">
+                                                    {hardware.assigned_user?.estate?.estate_name || "Unknown Estate"}
+                                                </span>
                                             </td>
                                             <td>
                                                 <div className="flex gap-1 justify-center">
-                                                    <Link
-                                                        href={`/hardwares/${hardware.id}/edit`}
-                                                        className="btn btn-ghost btn-sm rounded-md"
-                                                    >
-                                                        <EditIcon className="text-primary hover:text-primary/75" />
-                                                    </Link>
-                                                    <button
-                                                        className="btn btn-ghost btn-sm rounded-md"
-                                                        onClick={() => handleDelete(hardware)}
-                                                    >
-                                                        <DeleteIcon className="text-error hover:text-error/75" />
-                                                    </button>
+                                                    <div className="tooltip tooltip-left" data-tip="Edit">
+                                                        <Link
+                                                            href={`/hardwares/${hardware.id}/edit`}
+                                                            className="btn btn-ghost btn-sm rounded-md"
+                                                        >
+                                                            <EditIcon className="text-primary hover:text-primary/75" />
+                                                        </Link>
+                                                    </div>
+                                                    <div className="tooltip tooltip-right" data-tip="Delete">
+                                                        <button
+                                                            className="btn btn-ghost btn-sm rounded-md"
+                                                            onClick={() => handleDelete(hardware)}
+                                                        >
+                                                            <DeleteIcon className="text-error hover:text-error/75" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>

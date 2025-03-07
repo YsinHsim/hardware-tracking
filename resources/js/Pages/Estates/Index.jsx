@@ -76,15 +76,19 @@ export default function Index({ estates }) {
                                             <td>{estate.region.region_name}</td>
                                             <td>
                                                 <div className="flex gap-1 justify-center">
-                                                    <Link href={`/estates/${estate.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
-                                                        <EditIcon className="text-primary hover:text-primary/75" />
-                                                    </Link>
-                                                    <button
-                                                        className="btn btn-ghost btn-sm rounded-md"
-                                                        onClick={() => handleDelete(estate)}
-                                                    >
-                                                        <DeleteIcon className="text-error hover:text-error/75" />
-                                                    </button>
+                                                    <div className="tooltip tooltip-left" data-tip="Edit">
+                                                        <Link href={`/estates/${estate.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
+                                                            <EditIcon className="text-primary hover:text-primary/75" />
+                                                        </Link>
+                                                    </div>
+                                                    <div className="tooltip tooltip-right" data-tip="Delete">
+                                                        <button
+                                                            className="btn btn-ghost btn-sm rounded-md"
+                                                            onClick={() => handleDelete(estate)}
+                                                        >
+                                                            <DeleteIcon className="text-error hover:text-error/75" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>

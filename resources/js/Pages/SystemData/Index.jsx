@@ -56,7 +56,7 @@ export default function Index({ userPositions = [], hardwareStatuses = [], hardw
                     { label: 'Hardware Types', data: hardwareTypes, type: 'hardware_types' }].map(({ label, data, type }) => (
                         <div key={type} className="bg-base-200 mb-4 shadow-lg rounded-lg">
                             {/* Toggle Button (Medium Drop Box) */}
-                            <button 
+                            <button
                                 onClick={() => toggleSection(type)}
                                 className="w-full text-left px-5 py-4 bg-base-300 rounded-t-lg text-xl font-semibold text-primary min-h-[60px]"
                             >
@@ -87,12 +87,16 @@ export default function Index({ userPositions = [], hardwareStatuses = [], hardw
                                                             <td className="px-4 py-2">{item.name}</td>
                                                             <td className="px-4 py-2">
                                                                 <div className="flex gap-2 justify-center">
-                                                                    <Link href={`/system-data/${type}/${item.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
-                                                                        <EditIcon className="text-primary hover:text-primary/75" />
-                                                                    </Link>
-                                                                    <button className="btn btn-ghost btn-sm rounded-md" onClick={() => handleDeleteClick(item, type)}>
-                                                                        <DeleteIcon className="text-error hover:text-error/75" />
-                                                                    </button>
+                                                                    <div className="tooltip tooltip-left" data-tip="Edit">
+                                                                        <Link href={`/system-data/${type}/${item.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
+                                                                            <EditIcon className="text-primary hover:text-primary/75" />
+                                                                        </Link>
+                                                                    </div>
+                                                                    <div className="tooltip tooltip-right" data-tip="Delete">
+                                                                        <button className="btn btn-ghost btn-sm rounded-md" onClick={() => handleDeleteClick(item, type)}>
+                                                                            <DeleteIcon className="text-error hover:text-error/75" />
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -113,11 +117,11 @@ export default function Index({ userPositions = [], hardwareStatuses = [], hardw
             </div>
 
             {selectedItem && (
-                <SystemDataDeleteAlert 
-                    item={selectedItem} 
-                    type={itemType} 
-                    onDelete={handleDeleteConfirm} 
-                    onCancel={() => setSelectedItem(null)} 
+                <SystemDataDeleteAlert
+                    item={selectedItem}
+                    type={itemType}
+                    onDelete={handleDeleteConfirm}
+                    onCancel={() => setSelectedItem(null)}
                 />
             )}
 

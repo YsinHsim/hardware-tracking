@@ -100,22 +100,26 @@ export default function Index({ users }) {
                                                 </td>
                                                 <td>
                                                     <div className="flex gap-1 justify-center">
-                                                        <Link
-                                                            href={`/users/${user.id}`}
-                                                            className="btn btn-ghost btn-sm rounded-md"
-                                                        >
-                                                            <ReadMoreIcon className="text-primary hover:text-primary/75" />
-                                                        </Link>
-                                                        <button
-                                                            className="btn btn-ghost btn-sm rounded-md"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    user
-                                                                )
-                                                            }
-                                                        >
-                                                            <DeleteIcon className="text-error hover:text-error/75" />
-                                                        </button>
+                                                        <div className="tooltip tooltip-left" data-tip="More Info">
+                                                            <Link
+                                                                href={`/users/${user.id}`}
+                                                                className="btn btn-ghost btn-sm rounded-md"
+                                                            >
+                                                                <ReadMoreIcon className="text-primary hover:text-primary/75" />
+                                                            </Link>
+                                                        </div>
+                                                        <div className="tooltip tooltip-right" data-tip="Delete">
+                                                            <button
+                                                                className="btn btn-ghost btn-sm rounded-md"
+                                                                onClick={() =>
+                                                                    handleDelete(
+                                                                        user
+                                                                    )
+                                                                }
+                                                            >
+                                                                <DeleteIcon className="text-error hover:text-error/75" />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -131,11 +135,10 @@ export default function Index({ users }) {
                                 <Link
                                     key={index}
                                     href={link.url || "#"}
-                                    className={`btn btn-sm mx-1 ${
-                                        link.active
+                                    className={`btn btn-sm mx-1 ${link.active
                                             ? "btn-primary"
                                             : "btn-neutral"
-                                    }`}
+                                        }`}
                                     dangerouslySetInnerHTML={{
                                         __html: link.label,
                                     }}
