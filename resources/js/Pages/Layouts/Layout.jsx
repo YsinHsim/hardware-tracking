@@ -15,7 +15,7 @@ export default function Layout({ children }) {
     return (
         <>
             <Head title="Hardware Tracking" />
-            <div className="flex h-screen bg-base-200 relative">
+            <div className="flex min-h-screen bg-base-200 relative">
                 {/* Sidebar (Overlay) */}
                 <aside className={`fixed inset-0 bg-base-300 shadow-lg w-64 min-h-screen p-6 transition-transform transform ${isNavVisible ? 'translate-x-0' : '-translate-x-full'} z-50`}>
                     <div className="flex justify-between items-center mb-6">
