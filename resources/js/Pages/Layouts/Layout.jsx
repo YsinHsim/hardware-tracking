@@ -7,6 +7,7 @@ import LanIcon from '@mui/icons-material/Lan';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import DescriptionIcon from '@mui/icons-material/Description';
+import ThemeSwitcher from '@/Pages/Components/ThemeSwitcher';
 
 export default function Layout({ children }) {
     const [isNavVisible, setIsNavVisible] = useState(false);
@@ -59,6 +60,9 @@ export default function Layout({ children }) {
                             <MenuIcon />
                         </button>
                         <h1 className="text-xl font-bold text-primary ml-4">Hardware Tracking</h1>
+                        <div className="flex justify-end flex-grow">
+                            <ThemeSwitcher />
+                        </div>
                     </div>
                     <main className="p-6">{children}</main>
                 </div>
