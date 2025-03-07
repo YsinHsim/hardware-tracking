@@ -65,16 +65,20 @@ export default function Show({ hardware }) {
                     </div>
                     <div className="flex flex-col space-y-2 justify-end">
                         {/* Edit Button */}
-                        <Link href={`/hardwares/${hardware.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
-                            <EditIcon className="text-primary hover:text-primary/75" />
-                        </Link>
+                        <div className="tooltip tooltip-left" data-tip="Edit">
+                            <Link href={`/hardwares/${hardware.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
+                                <EditIcon className="text-primary hover:text-primary/75" />
+                            </Link>
+                        </div>
                         {/* Delete Button */}
-                        <button
-                            className="btn btn-ghost btn-sm rounded-md"
-                            onClick={handleDelete}
-                        >
-                            <DeleteIcon className="text-error hover:text-error/75" />
-                        </button>
+                        <div className="tooltip tooltip-left" data-tip="Delete">
+                            <button
+                                className="btn btn-ghost btn-sm rounded-md"
+                                onClick={handleDelete}
+                            >
+                                <DeleteIcon className="text-error hover:text-error/75" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,7 +88,7 @@ export default function Show({ hardware }) {
                 <div className="flex justify-between">
                     <p className="text-xl font-semibold text-primary">Hardware History</p>
                     <button className="btn btn-sm btn-ghost rounded-md" onClick={toggleView}>
-                        {viewMode === "table" ? "Switch to Timeline" : "Switch to Table"}
+                        {viewMode === "table" ? "Switch to Card View" : "Switch to Table"}
                     </button>
                 </div>
 
@@ -113,7 +117,7 @@ export default function Show({ hardware }) {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                             {hardware.update_records.map((record) => (
-                                <div key={record.id} className="bg-base-200 p-4 rounded-lg hover:shadow-xl border-2 border-transparent hover:border-dotted hover:border-neutral">
+                                <div key={record.id} className="bg-base-200 p-4 rounded-lg hover:shadow-xl border-2 border-transparent hover:border-dotted hover:border-primary transition duration-1000">
                                     <p className="font-bold text-primary">{record.record_name}</p>
                                     <p className="text-sm">{record.record_desc}</p>
                                     <p className="text-xs mt-2">{new Date(record.created_at).toLocaleString()}</p>

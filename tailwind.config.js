@@ -20,4 +20,7 @@ export default {
     plugins: [
         require('daisyui'),
     ],
+    daisyui: {
+        themes: ["light", "dark", "winter", "business", "valentine", "acid"],
+      },
 };
