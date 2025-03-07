@@ -13,6 +13,10 @@ Route::get('/', function() {
     return Inertia::render('Welcome');
 });
 
+Route::get('/documentation', function() {
+    return Inertia::render('Documentation');
+});
+
 
 Route::resource('estates', EstateController::class);
 Route::resource('regions', RegionController::class);
