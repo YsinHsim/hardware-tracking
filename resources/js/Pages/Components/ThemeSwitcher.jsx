@@ -5,7 +5,7 @@ const ThemeSwitcher = () => {
   const { theme, setTheme } = useContext(ThemeContext);
 
   // Available themes
-  const themes = ["light", "dark", "winter", "business", "valentine", "acid"];
+  const themes = ["light", "dark", "winter", "business", "coffee", "acid", "synthwave"];
 
   return (
     <div className="flex gap-2 items-center">
