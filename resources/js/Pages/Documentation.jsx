@@ -68,9 +68,18 @@ export default function Documentation() {
                             <ol className="list-decimal list-inside text-sm ml-4">
                                 <li>Go to the <Link href="/hardwares" className="text-primary hover:text-accent transition duration-500">Hardware</Link> page.</li>
                                 <li>Click the <strong>Add Hardware</strong> button.</li>
-                                <li>Fill out the form with the hardware details (e.g., name, serial number, status).</li>
+                                <li>
+                                    Fill out the form with the hardware details:
+                                    <ul className="list-disc list-inside ml-6">
+                                        <li>Hardware No</li>
+                                        <li>Serial No</li>
+                                        <li>Select Estate</li>
+                                        <li>Select Hardware Type</li>
+                                        <li>Select Hardware Status</li>
+                                    </ul>
+                                </li>
                                 <li>Select the assigned user for the hardware.</li>
-                                <li>Click <strong>Save</strong> to add the hardware.</li>
+                                <li>Click <strong>Create</strong> to add the hardware.</li>
                             </ol>
                         </div>
                     </div>
