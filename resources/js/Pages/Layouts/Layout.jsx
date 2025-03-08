@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, Head } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
+import { Link, Head, usePage } from '@inertiajs/react';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import ComputerIcon from '@mui/icons-material/Computer';
@@ -11,6 +11,15 @@ import ThemeSwitcher from '@/Pages/Components/ThemeSwitcher';
 
 export default function Layout({ children }) {
     const [isNavVisible, setIsNavVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const { props } = usePage(); // Reactively track Inertia props
+
+    // Show loading animation when navigating
+    useEffect(() => {
+        setIsLoading(true);
+        const timeout = setTimeout(() => setIsLoading(false), 500); // Prevent flickering
+        return () => clearTimeout(timeout);
+    }, [props]); // Runs when page props change (on navigation)
 
     return (
         <>
@@ -67,6 +76,13 @@ export default function Layout({ children }) {
                     <main className="p-6">{children}</main>
                 </div>
             </div>
+
+            {/* Loading Spinner */}
+            {isLoading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+                    <span className="loading loading-spinner loading-lg text-primary"></span>
+                </div>
+            )}
         </>
     );
 }
