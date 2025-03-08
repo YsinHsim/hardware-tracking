@@ -49,7 +49,7 @@ export default function Index({ hardwares }) {
                     <div className="mx-4">
                         <div className="flex">
                             <p className="text-xl font-semibold">Hardware List</p>
-                            <Link href="/hardwares/create" className="btn btn-sm btn-neutral px-4 ml-auto">
+                            <Link href="/hardwares/create" className="btn btn-sm shadow-md px-4 ml-auto">
                                 Add Hardware
                             </Link>
                         </div>
@@ -130,7 +130,7 @@ export default function Index({ hardwares }) {
                             <Link
                                 key={index}
                                 href={link.url || "#"}
-                                className={`btn btn-sm mx-1 ${link.active ? "btn-primary" : "btn-neutral"}`}
+                                className={`btn btn-sm mx-1 ${link.active ? "btn-active" : "btn"}`}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ))}

@@ -5,6 +5,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ToastComponent from '../Components/ToastComponent';
 import SystemDataDeleteAlert from '../Components/SystemDataDeleteAlert';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 export default function Index({ userPositions = [], hardwareStatuses = [], hardwareTypes = [] }) {
     const [selectedItem, setSelectedItem] = useState(null);
@@ -60,7 +62,13 @@ export default function Index({ userPositions = [], hardwareStatuses = [], hardw
                                 onClick={() => toggleSection(type)}
                                 className="w-full text-left px-5 py-4 bg-base-300 rounded-t-lg text-xl font-semibold text-primary min-h-[60px]"
                             >
-                                {label} {openSections[type] ? "▲" : "▼"}
+                                <div className="flex">
+                                    {label}
+                                    <div className="flex justify-end flex-1">
+                                        {/* {openSections[type] ? "▲" : "▼"} */}
+                                        {openSections[type] ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                    </div>
+                                </div>
                             </button>
 
                             {/* Drop-down Content (Unchanged) */}
@@ -69,7 +77,7 @@ export default function Index({ userPositions = [], hardwareStatuses = [], hardw
                                     <div className="overflow-x-auto bg-base-300 mt-2 rounded-lg">
                                         <div className="flex items-center justify-between bg-base-200 px-4 py-3 rounded-t-lg">
                                             <span className="text-lg font-semibold">{label}'s List</span>
-                                            <Link href={`/system-data/create/${type}`} className="btn btn-sm btn-neutral px-4">
+                                            <Link href={`/system-data/create/${type}`} className="btn btn-sm outline-2 px-4">
                                                 Create {label.slice(0, -1)}
                                             </Link>
                                         </div>

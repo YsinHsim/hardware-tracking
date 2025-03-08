@@ -9,7 +9,6 @@ const ThemeSwitcher = () => {
 
   return (
     <div className="flex gap-2 items-center">
-      <span className="text-sm">Theme:</span>
       <select
         className="select select-bordered select-sm"
         value={theme}

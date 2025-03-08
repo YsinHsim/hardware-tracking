@@ -106,7 +106,7 @@ export default function Create({ estates, regions }) {
                                                             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by recent date
                                                             .slice(0, 3) // Take the first 4 (most recent)
                                                             .map(estate => (
-                                                                <div key={estate.id} className="btn btn-neutral rounded-md">
+                                                                <div key={estate.id} className="btn shadow hover:bg-base-100 hover:shadow-md">
                                                                     {estate.estate_name}
                                                                 </div>
                                                             ))}
@@ -144,7 +144,7 @@ export default function Create({ estates, regions }) {
                                                 <p className="text-xl font-semibold">Region List</p>
                                                 <div className="grid grid-cols-4 gap-2 mt-2">
                                                     {regions.map(region => (
-                                                        <div key={region.id} className="btn btn-neutral rounded-md">{region.region_name}</div>
+                                                        <div key={region.id} className="btn shadow hover:bg-base-100 hover:shadow-md">{region.region_name}</div>
                                                     ))}
                                                 </div>
                                             </div>
