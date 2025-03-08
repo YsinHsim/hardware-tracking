@@ -74,7 +74,7 @@ export default function Create({ positions, estates, users }) {
                                                         <Link
                                                             key={user.id}
                                                             href={`/users/${user.id}`}
-                                                            className="btn btn-neutral rounded-md"
+                                                            className="btn bg-base-100 shadow-md"
                                                         >
                                                             {user.user_name}
                                                         </Link>

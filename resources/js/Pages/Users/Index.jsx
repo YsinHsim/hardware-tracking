@@ -65,7 +65,7 @@ export default function Index({ users }) {
                                 </p>
                                 <Link
                                     href="/users/create"
-                                    className="btn btn-sm btn-neutral px-4 ml-auto"
+                                    className="btn btn-sm shadow-md px-4 ml-auto"
                                 >
                                     Create User
                                 </Link>
@@ -136,8 +136,8 @@ export default function Index({ users }) {
                                     key={index}
                                     href={link.url || "#"}
                                     className={`btn btn-sm mx-1 ${link.active
-                                            ? "btn-primary"
-                                            : "btn-neutral"
+                                            ? "btn-active"
+                                            : "btn"
                                         }`}
                                     dangerouslySetInnerHTML={{
                                         __html: link.label,
