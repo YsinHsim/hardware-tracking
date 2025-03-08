@@ -17,6 +17,10 @@ Route::get('/documentation', function() {
     return Inertia::render('Documentation');
 });
 
+Route::get('/about', function() {
+    return Inertia::render('About');
+});
+
 
 Route::resource('estates', EstateController::class);
 Route::resource('regions', RegionController::class);
