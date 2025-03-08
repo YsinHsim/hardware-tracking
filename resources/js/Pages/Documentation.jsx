@@ -117,7 +117,7 @@ export default function Documentation() {
 
                 {/* Fixed Footer */}
                 <footer className="bottom-0 left-0 w-full bg-base-300 shadow-md flex">
-                    <div className="text-center flex-1 p-4">
+                    <div id="about" className="text-center flex-1 p-4">
                         <p className="text-sm font-light">
                             © {currentYear} Hardware Tracking Application. All rights reserved.
                         </p>
