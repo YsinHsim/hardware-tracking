@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Head, usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/core';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import ComputerIcon from '@mui/icons-material/Computer';
@@ -13,6 +14,10 @@ export default function Layout({ children }) {
     const [isNavVisible, setIsNavVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { props } = usePage(); // Reactively track Inertia props
+
+    function handleLogout() {
+        router.post('/logout'); 
+    }
 
     // Show loading animation when navigating
     useEffect(() => {
@@ -52,6 +57,11 @@ export default function Layout({ children }) {
                             <DescriptionIcon className="mr-3" /> Documentation
                         </Link>
                     </nav>
+                    <div className='flex justify-center mt-4'>
+                        <button onClick={handleLogout} className='btn btn-soft btn-error'>
+                            Logout
+                        </button>
+                    </div>
                 </aside>
 
                 {/* Overlay Background */}
