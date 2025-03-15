@@ -55,12 +55,6 @@ Route::middleware(AuthSession::class)->group(function () {
     Route::resource('users', AssignedUserController::class);
     Route::resource('hardwares', HardwareController::class);
 
-    Route::resource('estates', EstateController::class);
-    Route::resource('regions', RegionController::class);
-    Route::resource('users', AssignedUserController::class);
-    Route::resource('hardwares', HardwareController::class);
-
-
     // System Data Route Group
     // =======================
     Route::resource('system-data', SystemDataController::class);
