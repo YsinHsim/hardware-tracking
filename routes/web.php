@@ -60,6 +60,7 @@ Route::middleware(AuthSession::class)->group(function () {
 
     Route::get('/report/{hardware}' , [HardwareController::class,'report']);
 
+    // System Data Route Group
     Route::resource('system-data', SystemDataController::class);
     Route::get('/system-data/create/{type}', [SystemDataController::class, 'create']);
     Route::post('/system-data/{type}', [SystemDataController::class, 'store']);
