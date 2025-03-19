@@ -24,12 +24,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', function (Request $request) {
         $request->validate([
         'password' => 'required',
-    ]);
+        ]);
 
         if ($request->password === 'abc_123') {
             session(['logged_in' => true]);
             return redirect()->intended('/hardwares');
-    }
+        };
 
         return back()->withErrors(['password' => 'Incorrect password.']);
     });
