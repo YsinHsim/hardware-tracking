@@ -136,7 +136,7 @@ export default function About() {
                                     <p><span className="font-semibold">Persona:</span> Hyper, Mage, Marksman - Mobile Legend</p>
                                 </div>
                             </div>
-                            <p className="font-light italic">Full-time student, part-time gamer. If I'm not writing code, I'm probably stuck in a side quest (in both games and life).</p>
+                            <p className="font-light italic">I'm just a humble Intern.</p>
                             <div className="mt-1 space-x-2">
                                 <a href="https://github.com/khai218" target="_blank" rel="noopener noreferrer" className="btn btn-circle shadow-md hover:animate-pulse hover:bg-base-300 animate duration-500 hover:text-primary">
                                     <GitHubIcon />
