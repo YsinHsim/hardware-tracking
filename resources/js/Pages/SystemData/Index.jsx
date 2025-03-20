@@ -54,7 +54,7 @@ export default function Index({ userPositions = [], hardwareStatuses = [], hardw
             <div className="mx-6 mt-4">
                 <div className="join join-vertical w-full">
                     {[{ label: 'User Positions', data: userPositions, type: 'user_positions' },
-                    { label: 'Hardware Statuses', data: hardwareStatuses, type: 'hardware_statuses' },
+                    { label: 'Hardware Status', data: hardwareStatuses, type: 'hardware_statuses' },
                     { label: 'Hardware Types', data: hardwareTypes, type: 'hardware_types' }].map(({ label, data, type }) => (
                         <div key={type} className="bg-base-200 mb-4 shadow-lg rounded-lg">
                             {/* Toggle Button (Medium Drop Box) */}

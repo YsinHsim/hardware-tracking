@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
+use function Pest\Laravel\options;
+
 class HardwareController extends Controller
 {
     public function index()
@@ -124,5 +126,19 @@ class HardwareController extends Controller
         $hardware->delete();
 
         return Redirect::route('hardwares.index')->with('success', 'Hardware deleted successfully.');
+    }
+
+    public function report(Hardware $hardware)
+    {
+        return Inertia::render('Hardwares/Report', [
+            'hardware_id' => $hardware->id,
+            'hardware_no' => $hardware->hardware_no,
+            'hardware_serial_no' => $hardware->hardware_serial_no,
+            'hardware_user' => optional($hardware->assignedUser)->user_name ?? 'Unassigned',
+            'hardware_type' => optional($hardware->hardwareType)->hardware_type_name ?? 'Unassigned',
+            'hardware_status' => optional($hardware->hardwareStatus)->hardware_status_name ?? 'Unassigned',
+            'hardware_id' => optional($hardware->hardwareStatus)->hardware_status_name ?? 'Unassigned',
+            'estate_name' => optional($hardware->assignedUser->estate)->estate_name ?? 'Unassigned',
+        ]);
     }
 }

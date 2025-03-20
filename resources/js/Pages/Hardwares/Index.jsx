@@ -5,6 +5,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AlertComponent from "../Components/AlertComponent";
 import ToastComponent from "../Components/ToastComponent";
+import ArticleIcon from "@mui/icons-material/Article";
 
 export default function Index({ hardwares }) {
     const [showAlert, setShowAlert] = useState(false);
@@ -38,8 +39,12 @@ export default function Index({ hardwares }) {
     return (
         <Layout>
             <div className="mx-4 mt-1">
-                <p className="text-3xl font-bold text-primary">Hardware Management</p>
-                <p className="text-sm font-normal animate-pulse">View & Manage Hardware Data.</p>
+                <p className="text-3xl font-bold text-primary">
+                    Hardware Management
+                </p>
+                <p className="text-sm font-normal animate-pulse">
+                    View & Manage Hardware Data.
+                </p>
             </div>
 
             <div className="divider" />
@@ -48,12 +53,16 @@ export default function Index({ hardwares }) {
                 <>
                     <div className="mx-4">
                         <div className="flex">
-                            <p className="text-xl font-semibold">Hardware List</p>
-                            <Link href="/hardwares/create" className="btn btn-sm shadow-md px-4 ml-auto">
+                            <p className="text-xl font-semibold">
+                                Hardware List
+                            </p>
+                            <Link
+                                href="/hardwares/create"
+                                className="btn btn-sm shadow-md px-4 ml-auto"
+                            >
                                 Add Hardware
                             </Link>
                         </div>
-
 
                         <div className="w-full bg-base-300 mt-2">
                             <table className="table table-sm">
@@ -61,7 +70,7 @@ export default function Index({ hardwares }) {
                                     <tr className="text-primary border-b-2 border-b-base-100">
                                         <th>Hardware No</th>
                                         <th>Type</th>
-                                        <th>Status</th>
+                                        <th>Condition</th>
                                         <th>Assigned User</th>
                                         <th>Estate</th>
                                         <th className="text-center">Action</th>
@@ -78,15 +87,25 @@ export default function Index({ hardwares }) {
                                                     {hardware.hardware_no}
                                                 </Link>
                                             </td>
-                                            <td>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</td>
-                                            <td>{hardware.hardware_status?.hardware_status_name || "Unknown Status"}</td>
+                                            <td>
+                                                {hardware.hardware_type
+                                                    ?.hardware_type_name ||
+                                                    "Unknown Type"}
+                                            </td>
+                                            <td>
+                                                {hardware.hardware_status
+                                                    ?.hardware_status_name ||
+                                                    "Unknown Status"}
+                                            </td>
                                             <td>
                                                 {hardware.assigned_user?.id ? (
                                                     <Link
                                                         href={`/users/${hardware.assigned_user.id}`}
                                                         className="btn btn-ghost btn-sm rounded-md"
                                                     >
-                                                        {hardware.assigned_user?.user_name || "Unknown User"}
+                                                        {hardware.assigned_user
+                                                            ?.user_name ||
+                                                            "Unknown User"}
                                                     </Link>
                                                 ) : (
                                                     <span>Unassigned</span>
@@ -94,12 +113,17 @@ export default function Index({ hardwares }) {
                                             </td>
                                             <td>
                                                 <span className="overflow-auto whitespace-nowrap">
-                                                    {hardware.assigned_user?.estate?.estate_name || "Unknown Estate"}
+                                                    {hardware.assigned_user
+                                                        ?.estate?.estate_name ||
+                                                        "Unknown Estate"}
                                                 </span>
                                             </td>
                                             <td>
                                                 <div className="flex gap-1 justify-center">
-                                                    <div className="tooltip tooltip-left" data-tip="Edit">
+                                                    <div
+                                                        className="tooltip tooltip-left"
+                                                        data-tip="Edit"
+                                                    >
                                                         <Link
                                                             href={`/hardwares/${hardware.id}/edit`}
                                                             className="btn btn-ghost btn-sm rounded-md"
@@ -107,12 +131,32 @@ export default function Index({ hardwares }) {
                                                             <EditIcon className="text-primary hover:text-primary/75" />
                                                         </Link>
                                                     </div>
-                                                    <div className="tooltip tooltip-right" data-tip="Delete">
+                                                    <div
+                                                        className="tooltip tooltip-right"
+                                                        data-tip="Delete"
+                                                    >
                                                         <button
                                                             className="btn btn-ghost btn-sm rounded-md"
-                                                            onClick={() => handleDelete(hardware)}
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    hardware
+                                                                )
+                                                            }
                                                         >
                                                             <DeleteIcon className="text-error hover:text-error/75" />
+                                                        </button>
+                                                    </div>
+                                                    <div
+                                                        className="tooltip tooltip-right"
+                                                        data-tip="Report"
+                                                    >
+                                                        <button
+                                                            className="btn btn-ghost btn-sm rounded-md"
+                                                            onClick={() =>
+                                                                (window.location.href = `/report/${hardware.id}`)
+                                                            }
+                                                        >
+                                                            <ArticleIcon className="text-primary hover:text-primary/75" />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -130,7 +174,9 @@ export default function Index({ hardwares }) {
                             <Link
                                 key={index}
                                 href={link.url || "#"}
-                                className={`btn btn-sm mx-1 ${link.active ? "btn-active" : "btn"}`}
+                                className={`btn btn-sm mx-1 ${
+                                    link.active ? "btn-active" : "btn"
+                                }`}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ))}
@@ -139,7 +185,10 @@ export default function Index({ hardwares }) {
             ) : (
                 <div className="mx-4">
                     <p className="text-xl mb-2">No hardware data exists.</p>
-                    <Link href="/hardwares/create" className="btn btn-sm btn-primary px-4">
+                    <Link
+                        href="/hardwares/create"
+                        className="btn btn-sm btn-primary px-4"
+                    >
                         Add Hardware
                     </Link>
                 </div>
@@ -154,7 +203,11 @@ export default function Index({ hardwares }) {
                 />
             )}
 
-            <ToastComponent message={toastMessage} type={toastType} onClose={() => setToastMessage("")} />
+            <ToastComponent
+                message={toastMessage}
+                type={toastType}
+                onClose={() => setToastMessage("")}
+            />
         </Layout>
         /* uodated */
     );
