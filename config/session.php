@@ -34,6 +34,19 @@ return [
 
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Session Serialization
+    |--------------------------------------------------------------------------
+    |
+    | This option controls how session data is serialized when it is stored.
+    | When set to "json", session data is stored as JSON rather than as
+    | PHP serialized objects, which is a safer and more portable default.
+    |
+    */
+
+    'serialization' => 'json',
+
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 
     /*
