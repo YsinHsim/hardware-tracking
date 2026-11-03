@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleInertiaRequests::class,
         ]);
+        $middleware->redirectUsersTo('/hardwares');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

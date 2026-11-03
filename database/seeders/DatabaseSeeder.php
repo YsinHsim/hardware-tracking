@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +12,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $name = env('ADMIN_NAME', 'Administrator');
+        $email = env('ADMIN_EMAIL');
+        $password = env('ADMIN_PASSWORD');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        if (empty($email) || empty($password)) {
+            $this->command->error('ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env to seed the admin account.');
+
+            return;
+        }
+
+        User::updateOrCreate(
+            ['email' => $email],
+            ['name' => $name, 'password' => $password]
+        );
+
+        $this->command->info("Admin account seeded for {$email}.");
     }
 }
