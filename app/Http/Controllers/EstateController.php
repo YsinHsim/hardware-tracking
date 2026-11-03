@@ -82,6 +82,12 @@ class EstateController extends Controller
      */
     public function destroy(Estate $estate)
     {
+        $assignedUserCount = $estate->assignedUsers()->count();
+
+        if ($assignedUserCount > 0) {
+            return back()->withErrors(['delete' => "Cannot delete estate \"{$estate->estate_name}\": {$assignedUserCount} assigned users still belong to it. Move or delete them first."]);
+        }
+
         $estate->delete();
         return Redirect::route('estates.index')->with('success', 'Estate deleted successfully.');
     }

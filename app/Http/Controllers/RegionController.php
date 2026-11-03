@@ -41,6 +41,12 @@ class RegionController extends Controller
      */
     public function destroy(Region $region)
     {
+        $estateCount = $region->estates()->count();
+
+        if ($estateCount > 0) {
+            return back()->withErrors(['delete' => "Cannot delete region \"{$region->region_name}\": {$estateCount} estates still belong to it. Move or delete them first."]);
+        }
+
         $region->delete();
 
         return Redirect::back()->with('success', 'Region deleted successfully.');

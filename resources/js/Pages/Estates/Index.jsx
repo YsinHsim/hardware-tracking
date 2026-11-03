@@ -30,8 +30,8 @@ export default function Index({ estates }) {
                     setShowAlert(false);
                     setSelectedEstate(null);
                 },
-                onError: () => {
-                    setToastMessage("Failed to delete estate. Please try again.");
+                onError: (errors) => {
+                    setToastMessage(errors.delete ?? "Failed to delete estate. Please try again.");
                     setToastType("alert-error");
                     setShowAlert(false);
                 }
