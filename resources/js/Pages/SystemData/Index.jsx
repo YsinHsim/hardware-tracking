@@ -38,6 +38,11 @@ export default function Index({ userPositions = [], hardwareStatuses = [], hardw
                 preserveScroll: true,
                 onSuccess: () => {
                     setSelectedItem(null);
+                },
+                onError: (errors) => {
+                    setToastMessage(errors.delete ?? "Failed to delete system data. Please try again.");
+                    setToastType("alert-error");
+                    setSelectedItem(null);
                 }
             });
         }

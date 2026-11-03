@@ -28,8 +28,8 @@ export default function Index({ hardwares }) {
                 setShowAlert(false);
                 setSelectedHardware(null);
             },
-            onError: () => {
-                setToastMessage("Failed to delete hardware. Please try again.");
+            onError: (errors) => {
+                setToastMessage(errors.delete ?? "Failed to delete hardware. Please try again.");
                 setToastType("alert-error");
                 setShowAlert(false);
             },

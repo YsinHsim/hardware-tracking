@@ -33,8 +33,8 @@ export default function Index({ users }) {
                     setShowAlert(false);
                     setSelectedEstate(null);
                 },
-                onError: () => {
-                    setToastMessage("Failed to delete user. Please try again.");
+                onError: (errors) => {
+                    setToastMessage(errors.delete ?? "Failed to delete user. Please try again.");
                     setToastType("alert-error");
                     setShowAlert(false);
                 },

@@ -26,8 +26,8 @@ export default function Show({ user }) {
                     router.visit('/users'); // Redirect to Users list after deletion
                 }, 1500);
             },
-            onError: () => {
-                setToastMessage("Failed to delete user. Please try again.");
+            onError: (errors) => {
+                setToastMessage(errors.delete ?? "Failed to delete user. Please try again.");
                 setToastType("alert-error");
                 setShowAlert(false);
             }

@@ -84,6 +84,15 @@ class AssignedUserController extends Controller
     // Remove the specified user
     public function destroy(AssignedUser $user)
     {
+        $hardwareCount = $user->hardwares()->withTrashed()->count();
+
+        if ($hardwareCount > 0) {
+            $trashedHardwareCount = $user->hardwares()->onlyTrashed()->count();
+            $deletedHardwareNote = $trashedHardwareCount > 0 ? ' (including deleted hardware)' : '';
+
+            return back()->withErrors(['delete' => "Cannot delete user \"{$user->user_name}\": {$hardwareCount} hardware records{$deletedHardwareNote} still belong to it. Move or delete them first."]);
+        }
+
         $user->delete();
         return Redirect::route('users.index')->with('success', 'User deleted successfully!');
     }

@@ -80,6 +80,25 @@ class SystemDataController extends Controller
             return redirect()->back()->with('error', ucfirst(str_replace('_', ' ', $itemType)) . ' not found');
         }
 
+        if ($itemType === 'user_positions') {
+            $dependentCount = $item->assignedUsers()->count();
+
+            if ($dependentCount > 0) {
+                return back()->withErrors(['delete' => "Cannot delete user position \"{$item->position_name}\": {$dependentCount} assigned users still belong to it. Move or delete them first."]);
+            }
+        } else {
+            $dependentCount = $item->hardwares()->withTrashed()->count();
+
+            if ($dependentCount > 0) {
+                $trashedHardwareCount = $item->hardwares()->onlyTrashed()->count();
+                $deletedHardwareNote = $trashedHardwareCount > 0 ? ' (including deleted hardware)' : '';
+                $itemName = $itemType === 'hardware_statuses' ? $item->hardware_status_name : $item->hardware_type_name;
+                $itemLabel = $itemType === 'hardware_statuses' ? 'hardware status' : 'hardware type';
+
+                return back()->withErrors(['delete' => "Cannot delete {$itemLabel} \"{$itemName}\": {$dependentCount} hardware records{$deletedHardwareNote} still belong to it. Move or delete them first."]);
+            }
+        }
+
         $item->delete();
 
         return redirect()->route('system-data.index')->with('success', ucfirst(str_replace('_', ' ', $itemType)) . ' deleted successfully');
