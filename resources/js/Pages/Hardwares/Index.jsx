@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Layout from "../Layouts/Layout";
 import { Link, router } from "@inertiajs/react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -7,7 +7,82 @@ import AlertComponent from "../Components/AlertComponent";
 import ToastComponent from "../Components/ToastComponent";
 import ArticleIcon from "@mui/icons-material/Article";
 
-export default function Index({ hardwares }) {
+export default function Index({ hardwares, filters, estates, hardwareTypes, hardwareStatuses }) {
+    const [search, setSearch] = useState(filters.search ?? "");
+    const latestFilters = useRef(filters);
+    const initialSearch = useRef(true);
+    const searchDebounceTimeout = useRef(null);
+    const hasFilters =
+        filters.search !== "" ||
+        filters.estate_id !== null ||
+        filters.hardware_type_id !== null ||
+        filters.hardware_status_id !== null ||
+        filters.per_page !== 10;
+
+    useEffect(() => {
+        setSearch(filters.search ?? "");
+    }, [filters.search]);
+
+    useEffect(() => {
+        latestFilters.current = filters;
+    }, [filters]);
+
+    useEffect(() => {
+        if (initialSearch.current) {
+            initialSearch.current = false;
+            return;
+        }
+
+        searchDebounceTimeout.current = setTimeout(() => {
+            applyFilters({ ...latestFilters.current, search });
+        }, 300);
+
+        return () => clearTimeout(searchDebounceTimeout.current);
+    }, [search]);
+
+    useEffect(() => () => {
+        if (searchDebounceTimeout.current) {
+            clearTimeout(searchDebounceTimeout.current);
+        }
+    }, []);
+
+    const applyFilters = (values) => {
+        const params = {};
+
+        if (values.search.trim() !== "") params.search = values.search.trim();
+        if (values.estate_id) params.estate_id = values.estate_id;
+        if (values.hardware_type_id) params.hardware_type_id = values.hardware_type_id;
+        if (values.hardware_status_id) params.hardware_status_id = values.hardware_status_id;
+        if (Number(values.per_page) !== 10) params.per_page = values.per_page;
+
+        router.get("/hardwares", params, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    const handleSelect = (key, value) => {
+        applyFilters({
+            ...latestFilters.current,
+            search,
+            [key]: value === ""
+                ? null
+                : key === "per_page"
+                    ? Number(value)
+                    : value,
+        });
+    };
+
+    const clearFilters = () => {
+        setSearch("");
+        router.get("/hardwares", {}, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
     const [showAlert, setShowAlert] = useState(false);
     const [selectedHardware, setSelectedHardware] = useState(null);
     const [toastMessage, setToastMessage] = useState("");
@@ -49,21 +124,87 @@ export default function Index({ hardwares }) {
 
             <div className="divider" />
 
-            {hardwares.data.length > 0 ? (
-                <>
-                    <div className="mx-4">
-                        <div className="flex">
-                            <p className="text-xl font-semibold">
-                                Hardware List
-                            </p>
-                            <Link
-                                href="/hardwares/create"
-                                className="btn btn-sm shadow-md px-4 ml-auto"
-                            >
-                                Add Hardware
-                            </Link>
-                        </div>
+            <div className="mx-4">
+                <div className="flex">
+                    <p className="text-xl font-semibold">
+                        Hardware List
+                    </p>
+                    <Link
+                        href="/hardwares/create"
+                        className="btn btn-sm shadow-md px-4 ml-auto"
+                    >
+                        Add Hardware
+                    </Link>
+                </div>
 
+                <div className="flex flex-wrap gap-2 mt-2">
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder="Search number or serial"
+                        className="input input-bordered input-sm w-full sm:w-64"
+                    />
+                    <select
+                        value={filters.estate_id ?? ""}
+                        onChange={(event) => handleSelect("estate_id", event.target.value)}
+                        className="select select-bordered select-sm"
+                    >
+                        <option value="">All estates</option>
+                        {estates.map((estate) => (
+                            <option key={estate.id} value={estate.id}>
+                                {estate.estate_name}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={filters.hardware_type_id ?? ""}
+                        onChange={(event) => handleSelect("hardware_type_id", event.target.value)}
+                        className="select select-bordered select-sm"
+                    >
+                        <option value="">All types</option>
+                        {hardwareTypes.map((type) => (
+                            <option key={type.id} value={type.id}>
+                                {type.hardware_type_name}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={filters.hardware_status_id ?? ""}
+                        onChange={(event) => handleSelect("hardware_status_id", event.target.value)}
+                        className="select select-bordered select-sm"
+                    >
+                        <option value="">All statuses</option>
+                        {hardwareStatuses.map((status) => (
+                            <option key={status.id} value={status.id}>
+                                {status.hardware_status_name}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={filters.per_page ?? 10}
+                        onChange={(event) => handleSelect("per_page", event.target.value)}
+                        className="select select-bordered select-sm"
+                    >
+                        {[10, 25, 50].map((size) => (
+                            <option key={size} value={size}>
+                                {size} per page
+                            </option>
+                        ))}
+                    </select>
+                    {hasFilters && (
+                        <button
+                            type="button"
+                            onClick={clearFilters}
+                            className="btn btn-ghost btn-sm"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+
+                {hardwares.data.length > 0 ? (
+                    <>
                         <div className="w-full bg-base-300 mt-2">
                             <table className="table table-sm">
                                 <thead>
@@ -166,33 +307,48 @@ export default function Index({ hardwares }) {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
 
-                    {/* Pagination */}
-                    <div className="flex items-center mt-3 justify-end">
-                        {hardwares.links?.map((link, index) => (
-                            <Link
-                                key={index}
-                                href={link.url || "#"}
-                                className={`btn btn-sm mx-1 ${
-                                    link.active ? "btn-active" : "btn"
-                                }`}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                            />
-                        ))}
+                        {/* Pagination */}
+                        <div className="flex items-center mt-3 justify-end">
+                            {hardwares.links?.map((link, index) => (
+                                <Link
+                                    key={index}
+                                    href={link.url || "#"}
+                                    className={`btn btn-sm mx-1 ${
+                                        link.active ? "btn-active" : "btn"
+                                    }`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ))}
+                        </div>
+                    </>
+                ) : (
+                    <div className="mt-4">
+                        {hasFilters ? (
+                            <>
+                                <p className="text-xl mb-2">No hardware matches these filters.</p>
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                    className="btn btn-sm btn-primary px-4"
+                                >
+                                    Clear
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-xl mb-2">No hardware data exists.</p>
+                                <Link
+                                    href="/hardwares/create"
+                                    className="btn btn-sm btn-primary px-4"
+                                >
+                                    Add Hardware
+                                </Link>
+                            </>
+                        )}
                     </div>
-                </>
-            ) : (
-                <div className="mx-4">
-                    <p className="text-xl mb-2">No hardware data exists.</p>
-                    <Link
-                        href="/hardwares/create"
-                        className="btn btn-sm btn-primary px-4"
-                    >
-                        Add Hardware
-                    </Link>
-                </div>
-            )}
+                )}
+            </div>
 
             {showAlert && (
                 <AlertComponent
@@ -209,6 +365,5 @@ export default function Index({ hardwares }) {
                 onClose={() => setToastMessage("")}
             />
         </Layout>
-        /* uodated */
     );
 }
