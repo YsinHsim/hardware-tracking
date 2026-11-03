@@ -43,7 +43,7 @@ class HardwareController extends Controller
     {
         $validatedData = $request->validate([
             'hardware_no' => 'required|string|unique:hardwares,hardware_no',
-            'hardware_serial_no' => 'nullable|string|unique:hardwares,hardware_serial_no',
+            'hardware_serial_no' => 'required|string|max:255|unique:hardwares,hardware_serial_no',
             'assigned_user_id' => 'nullable|exists:assigned_users,id',
             'hardware_type_id' => 'required|exists:hardware_types,id',
             'hardware_status_id' => 'required|exists:hardware_statuses,id',
@@ -77,7 +77,7 @@ class HardwareController extends Controller
     {
         $validatedData = $request->validate([
             'hardware_no' => "required|string|unique:hardwares,hardware_no,{$hardware->id}",
-            'hardware_serial_no' => 'nullable|string',
+            'hardware_serial_no' => "required|string|max:255|unique:hardwares,hardware_serial_no,{$hardware->id}",
             'assigned_user_id' => 'nullable|exists:assigned_users,id',
             'hardware_type_id' => 'required|exists:hardware_types,id',
             'hardware_status_id' => 'required|exists:hardware_statuses,id',
@@ -137,8 +137,7 @@ class HardwareController extends Controller
             'hardware_user' => optional($hardware->assignedUser)->user_name ?? 'Unassigned',
             'hardware_type' => optional($hardware->hardwareType)->hardware_type_name ?? 'Unassigned',
             'hardware_status' => optional($hardware->hardwareStatus)->hardware_status_name ?? 'Unassigned',
-            'hardware_id' => optional($hardware->hardwareStatus)->hardware_status_name ?? 'Unassigned',
-            'estate_name' => optional($hardware->assignedUser->estate)->estate_name ?? 'Unassigned',
+            'estate_name' => optional(optional($hardware->assignedUser)->estate)->estate_name ?? 'Unassigned',
         ]);
     }
 }

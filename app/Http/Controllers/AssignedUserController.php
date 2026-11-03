@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserPosition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class AssignedUserController extends Controller
@@ -90,7 +91,9 @@ class AssignedUserController extends Controller
             $trashedHardwareCount = $user->hardwares()->onlyTrashed()->count();
             $deletedHardwareNote = $trashedHardwareCount > 0 ? ' (including deleted hardware)' : '';
 
-            return back()->withErrors(['delete' => "Cannot delete user \"{$user->user_name}\": {$hardwareCount} hardware records{$deletedHardwareNote} still belong to it. Move or delete them first."]);
+            $hardwareLabel = Str::plural('hardware record', $hardwareCount);
+            $verb = $hardwareCount === 1 ? 'belongs' : 'belong';
+            return back()->withErrors(['delete' => "Cannot delete user \"{$user->user_name}\": {$hardwareCount} {$hardwareLabel}{$deletedHardwareNote} still {$verb} to it. Move or delete them first."]);
         }
 
         $user->delete();

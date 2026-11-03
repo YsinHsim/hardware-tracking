@@ -7,6 +7,7 @@ use App\Models\HardwareType;
 use App\Models\UserPosition;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class SystemDataController extends Controller
@@ -28,6 +29,8 @@ class SystemDataController extends Controller
     public function store(Request $request, $type)
     {
         $request->validate(['name' => 'required|string|max:255']);
+
+        $this->getModel($type);
 
         if ($type === 'user_positions') {
             UserPosition::create(['position_name' => $request->name]);
@@ -56,9 +59,10 @@ class SystemDataController extends Controller
         $model = $this->getModel($type);
         $record = $model::findOrFail($id);
 
-        $record->update($request->all());
+        $validated = $request->validate($this->rulesFor($type));
+        $record->update($validated);
 
-        return redirect()->route('system-data.index')->with('success', ucfirst(str_replace('_', ' ', $request->type)) . ' updated successfully.');
+        return redirect()->route('system-data.index')->with('success', ucfirst(str_replace('_', ' ', $type)) . ' updated successfully.');
     }
 
     public function destroy($itemType, $id): RedirectResponse
@@ -84,7 +88,9 @@ class SystemDataController extends Controller
             $dependentCount = $item->assignedUsers()->count();
 
             if ($dependentCount > 0) {
-                return back()->withErrors(['delete' => "Cannot delete user position \"{$item->position_name}\": {$dependentCount} assigned users still belong to it. Move or delete them first."]);
+                $assignedUserLabel = Str::plural('assigned user', $dependentCount);
+                $verb = $dependentCount === 1 ? 'belongs' : 'belong';
+                return back()->withErrors(['delete' => "Cannot delete user position \"{$item->position_name}\": {$dependentCount} {$assignedUserLabel} still {$verb} to it. Move or delete them first."]);
             }
         } else {
             $dependentCount = $item->hardwares()->withTrashed()->count();
@@ -95,13 +101,33 @@ class SystemDataController extends Controller
                 $itemName = $itemType === 'hardware_statuses' ? $item->hardware_status_name : $item->hardware_type_name;
                 $itemLabel = $itemType === 'hardware_statuses' ? 'hardware status' : 'hardware type';
 
-                return back()->withErrors(['delete' => "Cannot delete {$itemLabel} \"{$itemName}\": {$dependentCount} hardware records{$deletedHardwareNote} still belong to it. Move or delete them first."]);
+                $hardwareLabel = Str::plural('hardware record', $dependentCount);
+                $verb = $dependentCount === 1 ? 'belongs' : 'belong';
+                return back()->withErrors(['delete' => "Cannot delete {$itemLabel} \"{$itemName}\": {$dependentCount} {$hardwareLabel}{$deletedHardwareNote} still {$verb} to it. Move or delete them first."]);
             }
         }
 
         $item->delete();
 
         return redirect()->route('system-data.index')->with('success', ucfirst(str_replace('_', ' ', $itemType)) . ' deleted successfully');
+    }
+
+    private function rulesFor($type)
+    {
+        return match ($type) {
+            'user_positions' => [
+                'position_name' => 'sometimes|required|string|max:255',
+                'position_desc' => 'sometimes|nullable|string|max:255',
+            ],
+            'hardware_statuses' => [
+                'hardware_status_name' => 'sometimes|required|string|max:255',
+            ],
+            'hardware_types' => [
+                'hardware_type_name' => 'sometimes|required|string|max:255',
+                'hardware_type_desc' => 'sometimes|nullable|string|max:255',
+            ],
+            default => abort(400, 'Invalid type provided'),
+        };
     }
 
     private function getModel($type)

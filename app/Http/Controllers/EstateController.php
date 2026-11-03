@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Estate;
 use App\Models\Region;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 
@@ -85,7 +86,9 @@ class EstateController extends Controller
         $assignedUserCount = $estate->assignedUsers()->count();
 
         if ($assignedUserCount > 0) {
-            return back()->withErrors(['delete' => "Cannot delete estate \"{$estate->estate_name}\": {$assignedUserCount} assigned users still belong to it. Move or delete them first."]);
+            $assignedUserLabel = Str::plural('assigned user', $assignedUserCount);
+            $verb = $assignedUserCount === 1 ? 'belongs' : 'belong';
+            return back()->withErrors(['delete' => "Cannot delete estate \"{$estate->estate_name}\": {$assignedUserCount} {$assignedUserLabel} still {$verb} to it. Move or delete them first."]);
         }
 
         $estate->delete();
