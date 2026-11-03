@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 
 class RegionController extends Controller
 {
@@ -44,7 +45,9 @@ class RegionController extends Controller
         $estateCount = $region->estates()->count();
 
         if ($estateCount > 0) {
-            return back()->withErrors(['delete' => "Cannot delete region \"{$region->region_name}\": {$estateCount} estates still belong to it. Move or delete them first."]);
+            $estateLabel = Str::plural('estate', $estateCount);
+            $verb = $estateCount === 1 ? 'belongs' : 'belong';
+            return back()->withErrors(['delete' => "Cannot delete region \"{$region->region_name}\": {$estateCount} {$estateLabel} still {$verb} to it. Move or delete them first."]);
         }
 
         $region->delete();
