@@ -15,14 +15,29 @@ class UpdateRecord extends Model
         'record_desc',
         'record_last_updated',
         'hardware_id',
+        'user_id',
     ];
 
     protected $casts = [
         'record_last_updated' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (UpdateRecord $record) {
+            if (!$record->user_id) {
+                $record->user_id = auth()->id();
+            }
+        });
+    }
+
     public function hardware(): BelongsTo
     {
         return $this->belongsTo(Hardware::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -12,8 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
-use function Pest\Laravel\options;
-
 class HardwareController extends Controller
 {
     public function index()
@@ -86,7 +84,10 @@ class HardwareController extends Controller
         $changes = [];
         foreach ($validatedData as $key => $value) {
             if ($hardware->{$key} != $value) {
-                $changes[] = ucfirst(str_replace('_', ' ', $key)) . " changed from '{$hardware->{$key}}' to '{$value}'";
+                $label = $this->changeFieldLabel($key);
+                $oldValue = $this->changeFieldValue($hardware, $key, $hardware->{$key});
+                $newValue = $this->changeFieldValue($hardware, $key, $value);
+                $changes[] = "{$label} changed from '{$oldValue}' to '{$newValue}'";
             }
         }
 
@@ -106,11 +107,41 @@ class HardwareController extends Controller
 
     public function show(Hardware $hardware)
     {
-        $hardware->load(['assignedUser.estate', 'hardwareType', 'hardwareStatus', 'updateRecords']);
+        $hardware->load(['assignedUser.estate', 'hardwareType', 'hardwareStatus', 'updateRecords.user:id,name']);
 
         return Inertia::render('Hardwares/Show', [
             'hardware' => $hardware
         ]);
+    }
+
+    private function changeFieldLabel(string $key): string
+    {
+        return match ($key) {
+            'hardware_type_id' => 'Hardware type',
+            'hardware_status_id' => 'Hardware status',
+            'assigned_user_id' => 'Assigned user',
+            'hardware_no' => 'Hardware no',
+            'hardware_serial_no' => 'Serial no',
+            default => ucfirst(str_replace('_', ' ', $key)),
+        };
+    }
+
+    private function changeFieldValue(Hardware $hardware, string $key, mixed $value): string
+    {
+        return match ($key) {
+            'hardware_type_id' => (int) $hardware->hardware_type_id === (int) $value
+                ? ($hardware->hardwareType?->hardware_type_name ?? 'Unknown')
+                : (HardwareType::find($value)?->hardware_type_name ?? 'Unknown'),
+            'hardware_status_id' => (int) $hardware->hardware_status_id === (int) $value
+                ? ($hardware->hardwareStatus?->hardware_status_name ?? 'Unknown')
+                : (HardwareStatus::find($value)?->hardware_status_name ?? 'Unknown'),
+            'assigned_user_id' => $value === null
+                ? 'Unassigned'
+                : ((int) $hardware->assigned_user_id === (int) $value
+                    ? ($hardware->assignedUser?->user_name ?? 'Unknown')
+                    : (AssignedUser::find($value)?->user_name ?? 'Unknown')),
+            default => (string) $value,
+        };
     }
 
     public function destroy(Hardware $hardware)

@@ -61,6 +61,7 @@ it('refuses to delete a region with estates', function () {
     $this->from('/regions')->delete("/regions/{$region->id}")
         ->assertRedirect('/regions')
         ->assertSessionHasErrors('delete');
+    expect(session('errors')->first('delete'))->toContain('1 estate still belongs');
 
     $this->assertDatabaseHas('regions', ['id' => $region->id]);
 });
