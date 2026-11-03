@@ -1,47 +1,69 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Test Case
-|--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind a different classes or traits.
-|
-*/
+use App\Models\AssignedUser;
+use App\Models\Estate;
+use App\Models\Hardware;
+use App\Models\HardwareStatus;
+use App\Models\HardwareType;
+use App\Models\Region;
+use App\Models\UserPosition;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->use(RefreshDatabase::class)
+    ->beforeEach(function () {
+        $this->withoutVite();
+    })
     ->in('Feature');
 
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
-
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
-
-function something()
+function makeLookups(): array
 {
-    // ..
+    $region = Region::create(['region_name' => 'West Coast']);
+    $estate = Estate::create([
+        'estate_name' => 'Test Estate',
+        'region_id' => $region->id,
+    ]);
+    $position = UserPosition::create(['position_name' => 'Technician']);
+    $hardwareType = HardwareType::create(['hardware_type_name' => 'Laptop']);
+    $hardwareStatus = HardwareStatus::create(['hardware_status_name' => 'Active']);
+
+    $assignedUser = AssignedUser::create([
+        'user_name' => 'Ahmad',
+        'user_position_id' => $position->id,
+        'estate_id' => $estate->id,
+    ]);
+
+    return [
+        'region' => $region,
+        'estate' => $estate,
+        'position' => $position,
+        'hardwareType' => $hardwareType,
+        'hardwareStatus' => $hardwareStatus,
+        'assignedUser' => $assignedUser,
+    ];
+}
+
+function makeHardware(array $overrides = []): Hardware
+{
+    static $sequence = 0;
+    $sequence++;
+
+    $typeId = $overrides['hardware_type_id'] ?? null;
+    $statusId = $overrides['hardware_status_id'] ?? null;
+
+    if ($typeId === null) {
+        $typeId = HardwareType::create(['hardware_type_name' => 'Desktop ' . $sequence])->id;
+    }
+
+    if ($statusId === null) {
+        $statusId = HardwareStatus::create(['hardware_status_name' => 'Status ' . $sequence])->id;
+    }
+
+    return Hardware::create(array_merge([
+        'hardware_no' => 'HW-' . $sequence,
+        'hardware_serial_no' => 'SN-' . $sequence,
+        'assigned_user_id' => null,
+        'hardware_type_id' => $typeId,
+        'hardware_status_id' => $statusId,
+    ], $overrides));
 }
