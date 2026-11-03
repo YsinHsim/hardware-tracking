@@ -5,7 +5,9 @@ import AlertErrorComponent from "./Components/AlertErrorComponent";
 
 export default function Login() {
     const { errors } = usePage().props;
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [remember, setRemember] = useState(false);
     const [loading, setLoading] = useState(true);
 
     // Hide loading spinner after a brief delay on page refresh.
@@ -19,10 +21,10 @@ export default function Login() {
 
         router.post(
             "/login",
-            { password },
+            { email, password, remember },
             {
                 onError: (error) => {
-                    console.error("Login error:", error.password);
+                    console.error("Login error:", error.email || error.password);
                 },
             }
         );
@@ -40,9 +42,9 @@ export default function Login() {
                 <ThemeSwitcher />
             </div>
 
-            {errors.password && (
+            {(errors.email || errors.password) && (
                 <div className="absolute top-20 w-100 flex justify-center">
-                    <AlertErrorComponent message={errors.password} />
+                    <AlertErrorComponent message={errors.email || errors.password} />
                 </div>
             )}
 
@@ -51,6 +53,20 @@ export default function Login() {
                     <div className="card-body">
                         <h2 className="card-title justify-center">Login</h2>
                         <form onSubmit={handleLogin}>
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text">Email</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Enter your email"
+                                    className="input input-bordered"
+                                    autoComplete="username"
+                                    required
+                                />
+                            </div>
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Password</span>
@@ -63,8 +79,20 @@ export default function Login() {
                                     }
                                     placeholder="Enter your password"
                                     className="input input-bordered"
+                                    autoComplete="current-password"
                                     required
                                 />
+                            </div>
+                            <div className="form-control mt-4">
+                                <label className="label cursor-pointer">
+                                    <span className="label-text">Remember me</span>
+                                    <input
+                                        type="checkbox"
+                                        checked={remember}
+                                        onChange={(e) => setRemember(e.target.checked)}
+                                        className="checkbox"
+                                    />
+                                </label>
                             </div>
                             <div className="form-control mt-6">
                                 <button

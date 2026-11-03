@@ -6,9 +6,7 @@ use App\Http\Controllers\RegionController;
 use App\Http\Controllers\AssignedUserController;
 use App\Http\Controllers\SystemDataController;
 use App\Http\Controllers\HardwareController;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Auth;
-use App\Http\Middleware\AuthSession;
+use App\Http\Controllers\AuthController;
 use Inertia\Inertia;
 
 //Guest Middleware Route Group
@@ -19,31 +17,17 @@ Route::middleware('guest')->group(function () {
         return redirect()->route('login');
     });
 
-    Route::get('/login', [Auth::class, 'index'])->name('login');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 
-    Route::post('/login', function (Request $request) {
-        $request->validate([
-        'password' => 'required',
-        ]);
-
-        if ($request->password === 'abc_123') {
-            session(['logged_in' => true]);
-            return redirect()->intended('/hardwares');
-        };
-
-        return back()->withErrors(['password' => 'Incorrect password.']);
-    });
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
 });
 
 
-//AuthSession Middleware Route Group
+//Auth Middleware Route Group
 
-Route::middleware(AuthSession::class)->group(function () {
-    Route::post('/logout', function () {
-        session()->flush();
-        return redirect()->route('login');
-    });
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/documentation', function() {
         return Inertia::render('Documentation');
@@ -69,8 +53,3 @@ Route::middleware(AuthSession::class)->group(function () {
     Route::delete('/system-data/{itemType}/{id}', [SystemDataController::class, 'destroy']);
 
 });
-
-
-
-
-

@@ -58,6 +58,9 @@ export default function Layout({ children }) {
                         </Link>
                     </nav>
                     <div className='flex justify-center mt-4'>
+                        {props.auth?.user && (
+                            <span className='mr-4 self-center'>{props.auth.user.name}</span>
+                        )}
                         <button onClick={handleLogout} className='btn btn-soft btn-error'>
                             Logout
                         </button>
