@@ -100,6 +100,7 @@ export default function Show({ hardware }) {
                                     <tr className="text-primary">
                                         <th>Record Name</th>
                                         <th>Remarks</th>
+                                        <th>By</th>
                                         <th>Date</th>
                                     </tr>
                                 </thead>
@@ -108,6 +109,7 @@ export default function Show({ hardware }) {
                                         <tr key={record.id}>
                                             <td>{record.record_name}</td>
                                             <td>{record.record_desc}</td>
+                                            <td>{record.user?.name ?? "Unknown"}</td>
                                             <td>{new Date(record.created_at).toLocaleString()}</td>
                                         </tr>
                                     ))}
@@ -120,6 +122,7 @@ export default function Show({ hardware }) {
                                 <div key={record.id} className="bg-base-200 p-4 rounded-lg hover:shadow-xl border-2 border-transparent hover:border-dotted hover:border-primary transition duration-1000">
                                     <p className="font-bold text-primary">{record.record_name}</p>
                                     <p className="text-sm">{record.record_desc}</p>
+                                    <p className="text-sm">By {record.user?.name ?? "Unknown"}</p>
                                     <p className="text-xs mt-2">{new Date(record.created_at).toLocaleString()}</p>
                                 </div>
                             ))}
