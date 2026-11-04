@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { ChevronDown, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, Filter, Map, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";

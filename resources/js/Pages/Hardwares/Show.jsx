@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { FileText, LayoutGrid, Pencil, Table2, Trash2 } from "lucide-react";
+import { FileSearch, FileText, LayoutGrid, Pencil, Table2, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
