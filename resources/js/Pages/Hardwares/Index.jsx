@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { Eye, FileText, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Eye, FileText, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
@@ -25,6 +25,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
 import {
     Table,
     TableBody,
@@ -84,7 +92,7 @@ function HardwareActions({ hardware, onDelete }) {
     );
 }
 
-export default function Index({ hardwares, filters, estates, hardwareTypes, hardwareStatuses }) {
+export default function Index({ hardwares, filters, estates, hardwareTypes, hardwareStatuses, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [selectedHardware, setSelectedHardware] = useState(null);
     const [deleteError, setDeleteError] = useState("");
@@ -98,6 +106,23 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
         filters.hardware_type_id !== null ||
         filters.hardware_status_id !== null ||
         filters.per_page !== 10;
+
+    const activeFilters = [
+        filters.estate_id !== null && {
+            key: "estate_id",
+            label: filters.estate_id === "unassigned"
+                ? "Unassigned"
+                : estates.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Estate",
+        },
+        filters.hardware_type_id !== null && {
+            key: "hardware_type_id",
+            label: hardwareTypes.find((type) => type.id === filters.hardware_type_id)?.hardware_type_name ?? "Type",
+        },
+        filters.hardware_status_id !== null && {
+            key: "hardware_status_id",
+            label: hardwareStatuses.find((status) => status.id === filters.hardware_status_id)?.hardware_status_name ?? "Status",
+        },
+    ].filter(Boolean);
 
     useEffect(() => setSearch(filters.search ?? ""), [filters.search]);
     useEffect(() => { latestFilters.current = filters; }, [filters]);
@@ -131,6 +156,13 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
             search,
             [key]: value === "none" ? null : key === "per_page" ? Number(value) : value,
         });
+    };
+
+    const removeFilter = (key) => handleSelect(key, "none");
+
+    const removeSearch = () => {
+        setSearch("");
+        applyFilters({ ...latestFilters.current, search: "" });
     };
 
     const clearFilters = () => {
@@ -178,22 +210,89 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                     <Button asChild><Link href="/hardwares/create"><Plus /> Add hardware</Link></Button>
                 </div>
 
-                <div className="mb-5 flex flex-wrap gap-2">
-                    <div className="relative w-full sm:w-64">
-                        <Search className="pointer-events-none absolute top-2 left-2.5 size-4 text-muted-foreground" />
-                        <Input
-                            value={search}
-                            onChange={(event) => setSearch(event.target.value)}
-                            placeholder="Search number or serial"
-                            aria-label="Search hardware"
-                            className="pl-8"
-                        />
+                <div className="mb-5 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative w-full sm:w-64">
+                            <Search className="pointer-events-none absolute top-2 left-2.5 size-4 text-muted-foreground" />
+                            <Input
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder="Search tag, serial, user, estate, type…"
+                                aria-label="Search hardware"
+                                className="pl-8"
+                            />
+                        </div>
+
+                        <div className="hidden flex-wrap gap-2 md:flex">
+                            {filterSelect("estate_id", filters.estate_id, "All estates", [
+                                { value: "unassigned", label: "Unassigned" },
+                                ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
+                            ], "All estates")}
+                            {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
+                            {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
+                        </div>
+
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="outline" className="md:hidden">
+                                    <Filter />
+                                    Filters
+                                    {activeFilters.length > 0 && (
+                                        <Badge variant="secondary" className="ml-1 rounded-full px-1.5">{activeFilters.length}</Badge>
+                                    )}
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="bottom" className="max-h-[70vh] overflow-y-auto">
+                                <SheetHeader>
+                                    <SheetTitle>Filters</SheetTitle>
+                                    <SheetDescription className="sr-only">Filter hardware by estate, type and status</SheetDescription>
+                                </SheetHeader>
+                                <div className="space-y-3 px-4 pb-6">
+                                    {filterSelect("estate_id", filters.estate_id, "All estates", [
+                                        { value: "unassigned", label: "Unassigned" },
+                                        ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
+                                    ], "All estates")}
+                                    {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
+                                    {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
+                                    {hasFilters && (
+                                        <Button variant="ghost" className="w-full" onClick={clearFilters}>Clear all filters</Button>
+                                    )}
+                                </div>
+                            </SheetContent>
+                        </Sheet>
                     </div>
-                    {filterSelect("estate_id", filters.estate_id, "All estates", estates.map((estate) => ({ value: estate.id, label: estate.estate_name })), "All estates")}
-                    {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
-                    {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
-                    {filterSelect("per_page", filters.per_page ?? 10, "Per page", [10, 25, 50].map((size) => ({ value: size, label: `${size} per page` })))}
-                    {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear</Button>}
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm text-muted-foreground" aria-live="polite">
+                            {total} {total === 1 ? "item" : "items"}
+                        </p>
+                        {filters.search !== "" && (
+                            <Badge variant="secondary" className="gap-1 font-normal">
+                                <span className="max-w-40 truncate">Search: {filters.search}</span>
+                                <button
+                                    type="button"
+                                    onClick={removeSearch}
+                                    aria-label={`Clear search ${filters.search}`}
+                                    className="rounded-full hover:bg-foreground/10"
+                                >
+                                    <X className="size-3" />
+                                </button>
+                            </Badge>
+                        )}
+                        {activeFilters.map((filter) => (
+                            <Badge key={filter.key} variant="secondary" className="gap-1 font-normal">
+                                {filter.label}
+                                <button
+                                    type="button"
+                                    onClick={() => removeFilter(filter.key)}
+                                    aria-label={`Remove filter ${filter.label}`}
+                                    className="rounded-full hover:bg-foreground/10"
+                                >
+                                    <X className="size-3" />
+                                </button>
+                            </Badge>
+                        ))}
+                    </div>
                 </div>
 
                 {hardwares.data.length > 0 ? (
@@ -276,7 +375,24 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                             </AnimatePresence>
                         </div>
 
-                        <nav className="mt-5 flex flex-wrap justify-end gap-1" aria-label="Pagination">
+                        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">Show</span>
+                                <Select
+                                    value={String(filters.per_page ?? 10)}
+                                    onValueChange={(next) => handleSelect("per_page", next)}
+                                >
+                                    <SelectTrigger className="w-28" aria-label="Rows per page">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[10, 25, 50].map((size) => (
+                                            <SelectItem key={size} value={String(size)}>{size}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <nav className="flex flex-wrap justify-end gap-1" aria-label="Pagination">
                             {hardwares.links?.map((link, index) => (
                                 link.url ? (
                                     <Button key={index} variant={link.active ? "default" : "outline"} size="sm" asChild>
@@ -291,7 +407,8 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                                     />
                                 )
                             ))}
-                        </nav>
+                            </nav>
+                        </div>
                     </>
                 ) : (
                     <Card className="items-center py-10 text-center">
