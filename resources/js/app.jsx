@@ -2,7 +2,8 @@ import './bootstrap';
 import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
-import { ThemeProvider } from './Context/ThemeContext'; 
+import { MotionConfig } from 'motion/react';
+import { ThemeProvider } from 'next-themes';
 
 createInertiaApp({
   resolve: name => {
@@ -11,9 +12,18 @@ createInertiaApp({
   },
   setup({ el, App, props }) {
     createRoot(el).render(
-      <ThemeProvider>
-        <App {...props} />
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        storageKey="ht-theme"
+        disableTransitionOnChange
+      >
+        <MotionConfig reducedMotion="user">
+          <App {...props} />
+        </MotionConfig>
       </ThemeProvider>
     )
   },
+  progress: { color: '#1f6f55' },
 })

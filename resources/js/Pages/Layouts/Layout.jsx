@@ -1,101 +1,156 @@
-import React, { useState, useEffect } from 'react';
-import { Link, Head, usePage } from '@inertiajs/react';
-import { router } from '@inertiajs/core';
-import HomeIcon from '@mui/icons-material/Home';
-import PeopleIcon from '@mui/icons-material/People';
-import ComputerIcon from '@mui/icons-material/Computer';
-import LanIcon from '@mui/icons-material/Lan';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
-import DescriptionIcon from '@mui/icons-material/Description';
-import ThemeSwitcher from '@/Pages/Components/ThemeSwitcher';
+import React, { useState } from "react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
+import {
+    BookOpen,
+    Computer,
+    Database,
+    Info,
+    LogOut,
+    Menu,
+    TreePalm,
+    Users,
+} from "lucide-react";
+import { motion } from "motion/react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { fadeRise, spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
-export default function Layout({ children }) {
-    const [isNavVisible, setIsNavVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const { props } = usePage(); // Reactively track Inertia props
+const mainLinks = [
+    { label: "Hardware", href: "/hardwares", icon: Computer },
+    { label: "Users", href: "/users", icon: Users },
+    { label: "Estates", href: "/estates", icon: TreePalm },
+    { label: "System Data", href: "/system-data", icon: Database },
+];
 
-    function handleLogout() {
-        router.post('/logout'); 
-    }
+const secondaryLinks = [
+    { label: "Documentation", href: "/documentation", icon: BookOpen },
+    { label: "About", href: "/about", icon: Info },
+];
 
-    // Show loading animation when navigating
-    useEffect(() => {
-        setIsLoading(true);
-        const timeout = setTimeout(() => setIsLoading(false), 500); // Prevent flickering
-        return () => clearTimeout(timeout);
-    }, [props]); // Runs when page props change (on navigation)
+function Navigation({ onNavigate }) {
+    const { url } = usePage();
+    const pathname = url.split("?")[0];
+    const isActive = (href) => pathname === href || pathname.startsWith(`${href}/`);
+    const renderLink = ({ label, href, icon: Icon }) => (
+        <Link
+            key={href}
+            href={href}
+            onClick={onNavigate}
+            className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                isActive(href)
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-muted-foreground"
+            )}
+            aria-current={isActive(href) ? "page" : undefined}
+        >
+            <Icon className="size-4" />
+            {label}
+        </Link>
+    );
 
     return (
         <>
-            <Head title="Hardware Tracking" />
-            <div className="flex min-h-screen bg-base-200 relative">
-                {/* Sidebar (Overlay) */}
-                <aside className={`fixed inset-0 bg-base-300 shadow-lg w-64 min-h-screen p-6 transition-transform transform ${isNavVisible ? 'translate-x-0' : '-translate-x-full'} z-50`}>
-                    <div className="flex justify-between items-center mb-6">
-                        <Link href="/" className="text-3xl font-bold text-primary hover:animate-pulse">HTS</Link>
-                        <button onClick={() => setIsNavVisible(false)} className="btn btn-ghost">
-                            <CloseIcon />
-                        </button>
-                    </div>
-                    <nav className="space-y-2">
-                        <Link href="/hardwares" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-primary transition-all duration-500">
-                            <ComputerIcon className="mr-3" /> Hardwares
-                        </Link>
-                        <Link href="/users" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-primary transition-all duration-500">
-                            <PeopleIcon className="mr-3" /> Users
-                        </Link>
-                        <Link href="/estates" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-primary transition-all duration-500">
-                            <HomeIcon className="mr-3" /> Estates
-                        </Link>
-                        <Link href="/system-data" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-primary transition-all duration-500">
-                            <LanIcon className="mr-3" /> System Data
-                        </Link>
-                    </nav>
-                    <nav className="space-y-2 flex flex-col align-bottom justify-end h-2/4">
-                        <Link href="/documentation" className="flex items-center px-4 py-3 rounded-lg hover:bg-base-100 hover:text-accent transition-all duration-1000">
-                            <DescriptionIcon className="mr-3" /> Documentation
-                        </Link>
-                    </nav>
-                    <div className='flex justify-center mt-4'>
-                        {props.auth?.user && (
-                            <span className='mr-4 self-center'>{props.auth.user.name}</span>
-                        )}
-                        <button onClick={handleLogout} className='btn btn-soft btn-error'>
-                            Logout
-                        </button>
-                    </div>
-                </aside>
-
-                {/* Overlay Background */}
-                {isNavVisible && (
-                    <div 
-                        className="fixed inset-0 bg-black bg-opacity-50 z-40"
-                        onClick={() => setIsNavVisible(false)}
-                    ></div>
-                )}
-
-                {/* Main Content Area */}
-                <div className="flex-1 flex flex-col">
-                    <div className="navbar bg-base-100 shadow-md p-4 flex items-center">
-                        <button onClick={() => setIsNavVisible(true)} className="btn btn-ghost">
-                            <MenuIcon />
-                        </button>
-                        <h1 className="text-xl font-bold text-primary ml-4">Hardware Tracking</h1>
-                        <div className="flex justify-end flex-grow">
-                            <ThemeSwitcher />
-                        </div>
-                    </div>
-                    <main className="p-6">{children}</main>
-                </div>
-            </div>
-
-            {/* Loading Spinner */}
-            {isLoading && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-                    <span className="loading loading-spinner loading-lg text-primary"></span>
-                </div>
-            )}
+            <nav className="space-y-1" aria-label="Main navigation">
+                {mainLinks.map(renderLink)}
+            </nav>
+            <nav className="mt-auto space-y-1" aria-label="Secondary navigation">
+                {secondaryLinks.map(renderLink)}
+            </nav>
         </>
+    );
+}
+
+export default function Layout({ children }) {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const { props, url } = usePage();
+    const user = props.auth?.user;
+
+    function handleLogout() {
+        router.post("/logout");
+    }
+
+    return (
+        <div className="min-h-screen bg-background">
+            <Head title="Hardware Tracking" />
+
+            <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
+                <Link href="/" className="mb-8 px-3 font-heading text-xl font-semibold">
+                    Hardware Tracking
+                </Link>
+                <Navigation />
+                <Separator className="my-4" />
+                <div className="flex items-center gap-2">
+                    <span className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
+                        {user?.name}
+                    </span>
+                    <ThemeToggle />
+                </div>
+                <Button variant="ghost" className="mt-2 justify-start" onClick={handleLogout}>
+                    <LogOut /> Log out
+                </Button>
+            </aside>
+
+            <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background px-4 md:hidden">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setMenuOpen(true)}
+                    aria-label="Open navigation"
+                >
+                    <Menu />
+                </Button>
+                <Link href="/" className="font-heading text-lg font-semibold">
+                    Hardware Tracking
+                </Link>
+                <div className="ml-auto"><ThemeToggle /></div>
+            </header>
+
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetContent side="left" className="w-72 gap-0 bg-sidebar p-4">
+                    <SheetHeader className="mb-4 px-3">
+                        <SheetTitle className="text-xl font-semibold">Hardware Tracking</SheetTitle>
+                        <SheetDescription className="sr-only">Site navigation</SheetDescription>
+                    </SheetHeader>
+                    <div className="flex min-h-0 flex-1 flex-col">
+                        <Navigation onNavigate={() => setMenuOpen(false)} />
+                    </div>
+                    <Separator className="my-4" />
+                    <div className="flex items-center gap-2">
+                        <span className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
+                            {user?.name}
+                        </span>
+                        <ThemeToggle />
+                    </div>
+                    <Button variant="ghost" className="mt-2 justify-start" onClick={handleLogout}>
+                        <LogOut /> Log out
+                    </Button>
+                </SheetContent>
+            </Sheet>
+
+            <div className="md:pl-60">
+                <motion.main
+                    key={url}
+                    variants={fadeRise}
+                    initial="hidden"
+                    animate="show"
+                    transition={spring}
+                    className="p-4 md:p-8"
+                >
+                    {children}
+                </motion.main>
+            </div>
+            <Toaster position="bottom-right" richColors />
+        </div>
     );
 }
