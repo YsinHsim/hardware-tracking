@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\AssignedUser;
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\Region;
 use App\Models\User;
 use App\Models\UserPosition;
@@ -11,15 +11,15 @@ beforeEach(function () {
     $this->actingAs(User::factory()->create());
 
     $region = Region::create(['region_name' => 'West Coast']);
-    $estate = Estate::create([
-        'estate_name' => 'Test Estate',
+    $branch = Branch::create([
+        'branch_name' => 'Test Branch',
         'region_id' => $region->id,
     ]);
     $position = UserPosition::create(['position_name' => 'Technician']);
 
     $this->userLookups = [
         'region' => $region,
-        'estate' => $estate,
+        'branch' => $branch,
         'position' => $position,
     ];
 });
@@ -31,7 +31,7 @@ function makeUser(array $overrides = []): AssignedUser
     return AssignedUser::create(array_merge([
         'user_name' => 'User ' . uniqid(),
         'user_position_id' => $lookups['position']->id,
-        'estate_id' => $lookups['estate']->id,
+        'branch_id' => $lookups['branch']->id,
     ], $overrides));
 }
 
@@ -46,12 +46,12 @@ it('defaults to ten per page, echoes null filters and orders by name', function 
             ->where('users.data.0.id', $alpha->id)
             ->where('users.data.1.id', $zulu->id)
             ->where('filters.search', '')
-            ->where('filters.estate_id', null)
+            ->where('filters.branch_id', null)
             ->where('filters.position_id', null)
             ->where('filters.per_page', 10));
 });
 
-it('searches by user name, position name and estate name', function () {
+it('searches by user name, position name and branch name', function () {
     $ahmad = makeUser(['user_name' => 'Ahmad Zaki']);
     makeUser(['user_name' => 'Zulaikha']);
 
@@ -66,7 +66,7 @@ it('searches by user name, position name and estate name', function () {
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('users.total', 2));
 
-    $this->get('/users?search=' . rawurlencode('Test Estate'))
+    $this->get('/users?search=' . rawurlencode('Test Branch'))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('users.total', 2));
@@ -83,35 +83,35 @@ it('matches percent signs literally in search terms', function () {
             ->where('users.data.0.id', $literal->id));
 });
 
-it('filters users by estate and position, combined with search', function () {
+it('filters users by branch and position, combined with search', function () {
     $lookups = $this->userLookups;
-    $otherEstate = Estate::create([
-        'estate_name' => 'Other Estate',
+    $otherBranch = Branch::create([
+        'branch_name' => 'Other Branch',
         'region_id' => $lookups['region']->id,
     ]);
     $otherPosition = UserPosition::create(['position_name' => 'Supervisor']);
     $matching = makeUser(['user_name' => 'Match User']);
     makeUser([
-        'user_name' => 'Wrong Estate',
-        'estate_id' => $otherEstate->id,
+        'user_name' => 'Wrong Branch',
+        'branch_id' => $otherBranch->id,
     ]);
     makeUser([
         'user_name' => 'Wrong Position',
         'user_position_id' => $otherPosition->id,
     ]);
 
-    $this->get("/users?estate_id={$lookups['estate']->id}")
+    $this->get("/users?branch_id={$lookups['branch']->id}")
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('users.total', 2)
-            ->where('filters.estate_id', $lookups['estate']->id));
+            ->where('filters.branch_id', $lookups['branch']->id));
 
     $this->get("/users?position_id={$lookups['position']->id}")
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('users.total', 2));
 
-    $this->get("/users?search=Match&estate_id={$lookups['estate']->id}&position_id={$lookups['position']->id}")
+    $this->get("/users?search=Match&branch_id={$lookups['branch']->id}&position_id={$lookups['position']->id}")
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('users.total', 1)
@@ -155,8 +155,8 @@ it('provides total and ordered lookup lists for the filter bar', function () {
     makeUser();
     makeUser();
     UserPosition::create(['position_name' => 'A Position']);
-    Estate::create([
-        'estate_name' => 'A Estate',
+    Branch::create([
+        'branch_name' => 'A Branch',
         'region_id' => $lookups['region']->id,
     ]);
 
@@ -164,8 +164,8 @@ it('provides total and ordered lookup lists for the filter bar', function () {
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('total', 2)
-            ->count('estates', 2)
-            ->where('estates.0.estate_name', 'A Estate')
+            ->count('branches', 2)
+            ->where('branches.0.branch_name', 'A Branch')
             ->count('positions', 2)
             ->where('positions.0.position_name', 'A Position'));
 });

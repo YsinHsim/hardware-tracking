@@ -64,7 +64,7 @@ export default function Documentation() {
                             </p>
                             <p className="mt-4 text-sm font-medium">How to create an branch:</p>
                             <ol className="mt-2 list-decimal space-y-1 pl-5">
-                                <Step>Go to the <InlineLink href="/estates">Branches</InlineLink> page.</Step>
+                                <Step>Go to the <InlineLink href="/branches">Branches</InlineLink> page.</Step>
                                 <Step>Click the <span className="font-medium text-foreground">Create branch</span> button.</Step>
                                 <Step>You may create a <span className="font-medium text-foreground">Region</span> first if it does not exist, then proceed to create the <span className="font-medium text-foreground">Branch</span>.</Step>
                                 <Step>For the <span className="font-medium text-foreground">Branch</span>, fill in the <span className="font-medium text-foreground">Branch name</span> and <span className="font-medium text-foreground">Region</span> fields.</Step>

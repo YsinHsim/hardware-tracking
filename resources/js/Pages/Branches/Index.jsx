@@ -34,13 +34,13 @@ import { cn } from "@/lib/utils";
 
 const MotionRow = motion.create(TableRow);
 
-function EstateActions({ branch, onDelete }) {
+function BranchActions({ branch, onDelete }) {
     return (
         <div className="flex items-center gap-1">
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon-sm" asChild aria-label={`Edit ${branch.estate_name}`}>
-                        <Link href={`/estates/${branch.id}/edit`}><Pencil /></Link>
+                    <Button variant="ghost" size="icon-sm" asChild aria-label={`Edit ${branch.branch_name}`}>
+                        <Link href={`/branches/${branch.id}/edit`}><Pencil /></Link>
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>Edit</TooltipContent>
@@ -52,7 +52,7 @@ function EstateActions({ branch, onDelete }) {
                         size="icon-sm"
                         className="text-destructive hover:text-destructive"
                         onClick={() => onDelete(branch)}
-                        aria-label={`Delete ${branch.estate_name}`}
+                        aria-label={`Delete ${branch.branch_name}`}
                     >
                         <Trash2 />
                     </Button>
@@ -63,10 +63,10 @@ function EstateActions({ branch, onDelete }) {
     );
 }
 
-export default function Index({ estates, filters, regions, total }) {
+export default function Index({ branches, filters, regions, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
-    const [selectedEstate, setSelectedEstate] = useState(null);
+    const [selectedBranch, setSelectedEstate] = useState(null);
     const [deleteError, setDeleteError] = useState("");
     const [deleting, setDeleting] = useState(false);
     const latestFilters = useRef(filters);
@@ -105,7 +105,7 @@ export default function Index({ estates, filters, regions, total }) {
         if (values.search.trim() !== "") params.search = values.search.trim();
         if (values.region_id) params.region_id = values.region_id;
         if (Number(values.per_page) !== 10) params.per_page = values.per_page;
-        router.get("/estates", params, { preserveState: true, preserveScroll: true, replace: true });
+        router.get("/branches", params, { preserveState: true, preserveScroll: true, replace: true });
     };
 
     const handleSelect = (key, value) => {
@@ -125,20 +125,20 @@ export default function Index({ estates, filters, regions, total }) {
 
     const clearFilters = () => {
         setSearch("");
-        router.get("/estates", {}, { preserveState: true, preserveScroll: true, replace: true });
+        router.get("/branches", {}, { preserveState: true, preserveScroll: true, replace: true });
     };
 
     function confirmDelete(event) {
         event.preventDefault();
-        if (!selectedEstate) return;
+        if (!selectedBranch) return;
         setDeleting(true);
-        router.delete(`/estates/${selectedEstate.id}`, {
+        router.delete(`/branches/${selectedBranch.id}`, {
             onSuccess: () => {
                 toast.success("Branch deleted successfully!");
                 setSelectedEstate(null);
                 setDeleteError("");
             },
-            onError: (errors) => setDeleteError(errors.delete ?? "Failed to delete estate. Please try again."),
+            onError: (errors) => setDeleteError(errors.delete ?? "Failed to delete branch. Please try again."),
             onFinish: () => setDeleting(false),
         });
     }
@@ -165,7 +165,7 @@ export default function Index({ estates, filters, regions, total }) {
                             />
                         </div>
                         <Button asChild className="shrink-0 sm:ml-auto">
-                            <Link href="/estates/create"><Plus /> Add branch</Link>
+                            <Link href="/branches/create"><Plus /> Add branch</Link>
                         </Button>
                     </div>
 
@@ -244,7 +244,7 @@ export default function Index({ estates, filters, regions, total }) {
                     )}
                 </div>
 
-                {estates.data.length > 0 ? (
+                {branches.data.length > 0 ? (
                     <>
                         <div className="hidden rounded-xl border border-border bg-card md:block">
                             <Table>
@@ -257,9 +257,9 @@ export default function Index({ estates, filters, regions, total }) {
                                 </TableHeader>
                                 <TableBody>
                                     <AnimatePresence initial={false}>
-                                        {estates.data.map((estate, index) => (
+                                        {branches.data.map((branch, index) => (
                                             <MotionRow
-                                                key={estate.id}
+                                                key={branch.id}
                                                 layout
                                                 variants={fadeRise}
                                                 initial="hidden"
@@ -267,9 +267,9 @@ export default function Index({ estates, filters, regions, total }) {
                                                 exit="hidden"
                                                 transition={{ ...spring, delay: index * listStagger.staggerChildren }}
                                             >
-                                                <TableCell className="font-medium">{estate.estate_name}</TableCell>
-                                                <TableCell>{estate.region?.region_name || "N/A"}</TableCell>
-                                                <TableCell><EstateActions branch={estate} onDelete={setSelectedEstate} /></TableCell>
+                                                <TableCell className="font-medium">{branch.branch_name}</TableCell>
+                                                <TableCell>{branch.region?.region_name || "N/A"}</TableCell>
+                                                <TableCell><BranchActions branch={branch} onDelete={setSelectedEstate} /></TableCell>
                                             </MotionRow>
                                         ))}
                                     </AnimatePresence>
@@ -279,9 +279,9 @@ export default function Index({ estates, filters, regions, total }) {
 
                         <div className="space-y-3 md:hidden">
                             <AnimatePresence initial={false}>
-                                {estates.data.map((estate, index) => (
+                                {branches.data.map((branch, index) => (
                                     <motion.div
-                                        key={estate.id}
+                                        key={branch.id}
                                         layout
                                         variants={fadeRise}
                                         initial="hidden"
@@ -292,10 +292,10 @@ export default function Index({ estates, filters, regions, total }) {
                                         <Card size="sm">
                                             <CardContent className="space-y-3">
                                                 <div>
-                                                    <p className="font-medium">{estate.estate_name}</p>
-                                                    <p className="mt-1 text-sm text-muted-foreground">{estate.region?.region_name || "N/A"}</p>
+                                                    <p className="font-medium">{branch.branch_name}</p>
+                                                    <p className="mt-1 text-sm text-muted-foreground">{branch.region?.region_name || "N/A"}</p>
                                                 </div>
-                                                <EstateActions branch={estate} onDelete={setSelectedEstate} />
+                                                <BranchActions branch={branch} onDelete={setSelectedEstate} />
                                             </CardContent>
                                         </Card>
                                     </motion.div>
@@ -321,7 +321,7 @@ export default function Index({ estates, filters, regions, total }) {
                                 </Select>
                             </div>
                             <nav className="flex flex-wrap justify-end gap-1" aria-label="Pagination">
-                                {estates.links?.map((link, index) => (
+                                {branches.links?.map((link, index) => (
                                     link.url ? (
                                         <Button key={index} variant={link.active ? "default" : "outline"} size="sm" asChild>
                                             <Link href={link.url} preserveScroll preserveState dangerouslySetInnerHTML={{ __html: link.label }} />
@@ -343,7 +343,7 @@ export default function Index({ estates, filters, regions, total }) {
                         <CardContent>
                             <p className="font-heading text-lg">{hasFilters ? "No branches match these filters." : "No branch data exists."}</p>
                             <Button className="mt-4" onClick={hasFilters ? clearFilters : undefined} asChild={!hasFilters}>
-                                {hasFilters ? "Clear" : <Link href="/estates/create">Add branch</Link>}
+                                {hasFilters ? "Clear" : <Link href="/branches/create">Add branch</Link>}
                             </Button>
                         </CardContent>
                     </Card>
@@ -351,7 +351,7 @@ export default function Index({ estates, filters, regions, total }) {
             </TooltipProvider>
 
             <AlertDialog
-                open={Boolean(selectedEstate)}
+                open={Boolean(selectedBranch)}
                 onOpenChange={(open) => {
                     if (!open && !deleting) {
                         setSelectedEstate(null);
@@ -361,8 +361,8 @@ export default function Index({ estates, filters, regions, total }) {
             >
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete {selectedEstate?.estate_name}?</AlertDialogTitle>
-                        <AlertDialogDescription>This permanently removes the estate.</AlertDialogDescription>
+                        <AlertDialogTitle>Delete {selectedBranch?.branch_name}?</AlertDialogTitle>
+                        <AlertDialogDescription>This permanently removes the branch.</AlertDialogDescription>
                     </AlertDialogHeader>
                     {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
                     <AlertDialogFooter>

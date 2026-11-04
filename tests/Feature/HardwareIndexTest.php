@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\AssignedUser;
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\HardwareType;
 use App\Models\HardwareStatus;
 use App\Models\User;
@@ -23,14 +23,14 @@ it('defaults to ten per page, echoes null filters and orders newest first', func
             ->where('hardwares.data.0.id', $newest->id)
             ->where('hardwares.data.1.id', $oldest->id)
             ->where('filters.search', '')
-            ->where('filters.estate_id', null)
+            ->where('filters.branch_id', null)
             ->where('filters.hardware_type_id', null)
             ->where('filters.hardware_status_id', null)
             ->where('filters.per_page', 10));
 });
 
 it('searches partial hardware numbers and serial numbers', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $matchingNumber = makeHardware([
         'hardware_no' => 'HW-NUMBER-123',
         'hardware_type_id' => $lookups['hardwareType']->id,
@@ -63,7 +63,7 @@ it('searches partial hardware numbers and serial numbers', function () {
 });
 
 it('searches by assigned user name', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $assigned = makeHardware([
         'assigned_user_id' => $lookups['assignedUser']->id,
         'hardware_type_id' => $lookups['hardwareType']->id,
@@ -81,8 +81,8 @@ it('searches by assigned user name', function () {
             ->where('hardwares.data.0.id', $assigned->id));
 });
 
-it('searches by estate name', function () {
-    $lookups = makeLookups();
+it('searches by branch name', function () {
+    $lookups = makeBranchLookups();
     $assigned = makeHardware([
         'assigned_user_id' => $lookups['assignedUser']->id,
         'hardware_type_id' => $lookups['hardwareType']->id,
@@ -93,7 +93,7 @@ it('searches by estate name', function () {
         'hardware_status_id' => $lookups['hardwareStatus']->id,
     ]);
 
-    $this->get('/hardwares?search=estate')
+    $this->get('/hardwares?search=branch')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('hardwares.total', 1)
@@ -101,7 +101,7 @@ it('searches by estate name', function () {
 });
 
 it('searches by hardware type name and status name', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $matching = makeHardware([
         'hardware_type_id' => $lookups['hardwareType']->id,
         'hardware_status_id' => $lookups['hardwareStatus']->id,
@@ -126,7 +126,7 @@ it('searches by hardware type name and status name', function () {
 });
 
 it('matches percent signs literally in search terms', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $literal = makeHardware([
         'hardware_no' => 'HW-100%-DONE',
         'hardware_type_id' => $lookups['hardwareType']->id,
@@ -146,7 +146,7 @@ it('matches percent signs literally in search terms', function () {
 });
 
 it('matches exclamation marks literally in search terms', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $literal = makeHardware([
         'hardware_no' => 'HW-A!B',
         'hardware_type_id' => $lookups['hardwareType']->id,
@@ -165,16 +165,16 @@ it('matches exclamation marks literally in search terms', function () {
             ->where('hardwares.data.0.id', $literal->id));
 });
 
-it('filters hardware by estate and excludes unassigned hardware', function () {
-    $lookups = makeLookups();
-    $otherEstate = Estate::create([
-        'estate_name' => 'Other Estate',
+it('filters hardware by branch and excludes unassigned hardware', function () {
+    $lookups = makeBranchLookups();
+    $otherBranch = Branch::create([
+        'branch_name' => 'Other Branch',
         'region_id' => $lookups['region']->id,
     ]);
     $otherUser = AssignedUser::create([
         'user_name' => 'Other User',
         'user_position_id' => $lookups['position']->id,
-        'estate_id' => $otherEstate->id,
+        'branch_id' => $otherBranch->id,
     ]);
     $matching = makeHardware([
         'assigned_user_id' => $lookups['assignedUser']->id,
@@ -191,16 +191,16 @@ it('filters hardware by estate and excludes unassigned hardware', function () {
         'hardware_status_id' => $lookups['hardwareStatus']->id,
     ]);
 
-    $this->get("/hardwares?estate_id={$lookups['estate']->id}")
+    $this->get("/hardwares?branch_id={$lookups['branch']->id}")
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('hardwares.total', 1)
             ->where('hardwares.data.0.id', $matching->id)
-            ->where('filters.estate_id', $lookups['estate']->id));
+            ->where('filters.branch_id', $lookups['branch']->id));
 });
 
 it('filters hardware to unassigned items only', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     makeHardware([
         'assigned_user_id' => $lookups['assignedUser']->id,
         'hardware_type_id' => $lookups['hardwareType']->id,
@@ -211,17 +211,17 @@ it('filters hardware to unassigned items only', function () {
         'hardware_status_id' => $lookups['hardwareStatus']->id,
     ]);
 
-    $this->get('/hardwares?estate_id=unassigned')
+    $this->get('/hardwares?branch_id=unassigned')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('hardwares.total', 1)
             ->where('hardwares.data.0.id', $unassigned->id)
-            ->where('filters.estate_id', 'unassigned')
+            ->where('filters.branch_id', 'unassigned')
             ->where('total', 1));
 });
 
 it('filters by type and status separately and combines both with search', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $otherType = HardwareType::create(['hardware_type_name' => 'Monitor']);
     $otherStatus = HardwareStatus::create(['hardware_status_name' => 'Retired']);
     $matching = makeHardware([
@@ -268,7 +268,7 @@ it('filters by type and status separately and combines both with search', functi
 });
 
 it('accepts supported page sizes and falls back for unsupported values', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     foreach (range(1, 11) as $sequence) {
         makeHardware([
@@ -293,7 +293,7 @@ it('accepts supported page sizes and falls back for unsupported values', functio
 });
 
 it('keeps search parameters in pagination links', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     foreach (range(1, 11) as $sequence) {
         makeHardware([
@@ -324,19 +324,19 @@ it('excludes soft deleted hardware from the list', function () {
 });
 
 it('provides ordered lookup lists for the filter bar', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     HardwareType::create(['hardware_type_name' => 'A Type']);
     HardwareStatus::create(['hardware_status_name' => 'A Status']);
-    Estate::create([
-        'estate_name' => 'A Estate',
+    Branch::create([
+        'branch_name' => 'A Branch',
         'region_id' => $lookups['region']->id,
     ]);
 
     $this->get('/hardwares')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->count('estates', 2)
-            ->where('estates.0.estate_name', 'A Estate')
+            ->count('branches', 2)
+            ->where('branches.0.branch_name', 'A Branch')
             ->count('hardwareTypes', 2)
             ->where('hardwareTypes.0.hardware_type_name', 'A Type')
             ->count('hardwareStatuses', 2)

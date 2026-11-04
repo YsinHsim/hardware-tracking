@@ -8,19 +8,19 @@ beforeEach(function () {
 });
 
 it('uses the readable position attribute when storing a user without a position', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     $this->post('/users', [
         'user_name' => 'Validation User',
-        'estate_id' => $lookups['estate']->id,
+        'branch_id' => $lookups['branch']->id,
     ])->assertSessionHasErrors([
         'user_position_id' => 'The position field is required.',
     ]);
 });
 
-it('uses the readable region attribute for a non-existent estate region', function () {
-    $this->post('/estates', [
-        'estate_name' => 'Validation Estate',
+it('uses the readable region attribute for a non-existent branch region', function () {
+    $this->post('/branches', [
+        'branch_name' => 'Validation Branch',
         'region_id' => 999999,
     ])->assertSessionHasErrors([
         'region_id' => 'The selected region is invalid.',

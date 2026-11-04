@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 const mainLinks = [
     { label: "Hardware", href: "/hardwares", icon: Computer },
     { label: "Users", href: "/users", icon: Users },
-    { label: "Branches", href: "/estates", icon: Building2 },
+    { label: "Branches", href: "/branches", icon: Building2 },
     { label: "System Data", href: "/system-data", icon: Database },
 ];
 

@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\AssignedUser;
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
 use App\Models\HardwareType;
@@ -12,14 +12,14 @@ use Illuminate\Support\Facades\Artisan;
 
 uses(RefreshDatabase::class);
 
-it('seeds lookups, estates and demo data with hardware count 50', function () {
+it('seeds lookups, branches and demo data with hardware count 50', function () {
     Artisan::call('db:seed', ['--force' => true]);
 
     expect(Region::count())->toBe(15)
         ->and(HardwareType::count())->toBe(6)
         ->and(HardwareStatus::count())->toBe(5)
         ->and(UserPosition::count())->toBe(6)
-        ->and(Estate::count())->toBe(15)
+        ->and(Branch::count())->toBe(15)
         ->and(AssignedUser::count())->toBe(12)
         ->and(Hardware::withTrashed()->count())->toBe(51)
         ->and(Hardware::onlyTrashed()->count())->toBe(1)
@@ -44,7 +44,7 @@ it('does not duplicate curated rows when seeded twice', function () {
         ->and(HardwareType::count())->toBe(6)
         ->and(HardwareStatus::count())->toBe(5)
         ->and(UserPosition::count())->toBe(6)
-        ->and(Estate::count())->toBe(15)
+        ->and(Branch::count())->toBe(15)
         ->and(AssignedUser::count())->toBe(24)
         ->and(Hardware::withTrashed()->count())->toBe(102);
 });
@@ -75,7 +75,7 @@ it('skips demo users and hardware when SEED_HARDWARE_COUNT is 0', function () {
     }
 
     expect(Region::count())->toBe(15)
-        ->and(Estate::count())->toBe(15)
+        ->and(Branch::count())->toBe(15)
         ->and(AssignedUser::count())->toBe(0)
         ->and(Hardware::count())->toBe(0);
 });
@@ -105,10 +105,10 @@ it('skips the admin account when ADMIN_EMAIL is not configured', function () {
         ->and(Hardware::withTrashed()->count())->toBe(51);
 });
 
-it('seeds each estate under its matching region', function () {
+it('seeds each branch under its matching region', function () {
     Artisan::call('db:seed', ['--force' => true]);
 
-    $estate = Estate::where('estate_name', 'KK HQ Office')->firstOrFail();
+    $branch = Branch::where('branch_name', 'KK HQ Office')->firstOrFail();
 
-    expect($estate->region->region_name)->toBe('Kota Kinabalu');
+    expect($branch->region->region_name)->toBe('Kota Kinabalu');
 });

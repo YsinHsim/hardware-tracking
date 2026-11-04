@@ -18,8 +18,8 @@ const emptyHardware = {
     hardware_status_id: "",
 };
 
-export default function Create({ estates, assignedUsers, hardwareTypes, hardwareStatuses }) {
-    const [selectedEstate, setSelectedEstate] = useState("");
+export default function Create({ branches, assignedUsers, hardwareTypes, hardwareStatuses }) {
+    const [selectedBranch, setSelectedEstate] = useState("");
     const [hardwareValues, setHardwareValues] = useState(emptyHardware);
     const [errors, setErrors] = useState({});
     const [processing, setProcessing] = useState(false);
@@ -34,7 +34,7 @@ export default function Create({ estates, assignedUsers, hardwareTypes, hardware
         });
     }
 
-    function handleEstateChange(value) {
+    function handleBranchChange(value) {
         setSelectedEstate(value);
         updateField("assigned_user_id", "");
     }
@@ -56,8 +56,8 @@ export default function Create({ estates, assignedUsers, hardwareTypes, hardware
         });
     }
 
-    const filteredUsers = selectedEstate && typeof assignedUsers === "object"
-        ? assignedUsers[selectedEstate] || []
+    const filteredUsers = selectedBranch && typeof assignedUsers === "object"
+        ? assignedUsers[selectedBranch] || []
         : [];
     const fieldError = (field) => errors[field] && <p className="text-sm text-destructive">{errors[field]}</p>;
 
@@ -90,10 +90,10 @@ export default function Create({ estates, assignedUsers, hardwareTypes, hardware
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="branch">Branch</Label>
-                                <Select name="estate_filter" value={selectedEstate} onValueChange={handleEstateChange} required>
+                                <Select name="branch_filter" value={selectedBranch} onValueChange={handleBranchChange} required>
                                     <SelectTrigger id="branch" className="w-full"><SelectValue placeholder="Select branch" /></SelectTrigger>
                                     <SelectContent>
-                                        {estates.map((estate) => <SelectItem key={estate.id} value={String(estate.id)}>{estate.estate_name}</SelectItem>)}
+                                        {branches.map((branch) => <SelectItem key={branch.id} value={String(branch.id)}>{branch.branch_name}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -119,7 +119,7 @@ export default function Create({ estates, assignedUsers, hardwareTypes, hardware
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="assigned_user_id">Assigned user <span className="text-muted-foreground">(optional)</span></Label>
-                                <Select value={hardwareValues.assigned_user_id === "" ? "none" : String(hardwareValues.assigned_user_id)} onValueChange={(value) => updateField("assigned_user_id", value === "none" ? "" : value)} disabled={!selectedEstate}>
+                                <Select value={hardwareValues.assigned_user_id === "" ? "none" : String(hardwareValues.assigned_user_id)} onValueChange={(value) => updateField("assigned_user_id", value === "none" ? "" : value)} disabled={!selectedBranch}>
                                     <SelectTrigger id="assigned_user_id" className="w-full" aria-invalid={Boolean(errors.assigned_user_id)}><SelectValue placeholder="Select assigned user" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">Unassigned</SelectItem>

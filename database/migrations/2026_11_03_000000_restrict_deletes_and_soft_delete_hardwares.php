@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('estates', function (Blueprint $table) {
+        Schema::table('branches', function (Blueprint $table) {
             $table->dropForeign(['region_id']);
             $table->foreign('region_id')->references('id')->on('regions')->restrictOnDelete();
         });
@@ -19,8 +19,8 @@ return new class extends Migration
         Schema::table('assigned_users', function (Blueprint $table) {
             $table->dropForeign(['user_position_id']);
             $table->foreign('user_position_id')->references('id')->on('user_positions')->restrictOnDelete();
-            $table->dropForeign(['estate_id']);
-            $table->foreign('estate_id')->references('id')->on('estates')->restrictOnDelete();
+            $table->dropForeign(['branch_id']);
+            $table->foreign('branch_id')->references('id')->on('branches')->restrictOnDelete();
         });
 
         Schema::table('hardwares', function (Blueprint $table) {
@@ -52,11 +52,11 @@ return new class extends Migration
         Schema::table('assigned_users', function (Blueprint $table) {
             $table->dropForeign(['user_position_id']);
             $table->foreign('user_position_id')->references('id')->on('user_positions')->cascadeOnDelete();
-            $table->dropForeign(['estate_id']);
-            $table->foreign('estate_id')->references('id')->on('estates')->cascadeOnDelete();
+            $table->dropForeign(['branch_id']);
+            $table->foreign('branch_id')->references('id')->on('branches')->cascadeOnDelete();
         });
 
-        Schema::table('estates', function (Blueprint $table) {
+        Schema::table('branches', function (Blueprint $table) {
             $table->dropForeign(['region_id']);
             $table->foreign('region_id')->references('id')->on('regions')->cascadeOnDelete();
         });

@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\AssignedUser;
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\HardwareType;
 use App\Models\Region;
 use App\Models\User;
@@ -10,20 +10,20 @@ beforeEach(function () {
     $this->actingAs(User::factory()->create());
 });
 
-it('refuses to delete an estate with one assigned user', function () {
-    $lookups = makeLookups();
-    $estate = $lookups['estate'];
+it('refuses to delete an branch with one assigned user', function () {
+    $lookups = makeBranchLookups();
+    $branch = $lookups['branch'];
 
-    $this->from('/estates')->delete("/estates/{$estate->id}")
-        ->assertRedirect('/estates')
+    $this->from('/branches')->delete("/branches/{$branch->id}")
+        ->assertRedirect('/branches')
         ->assertSessionHasErrors('delete');
     expect(session('errors')->first('delete'))->toContain('1 assigned user still belongs');
 
-    $this->assertDatabaseHas('estates', ['id' => $estate->id]);
+    $this->assertDatabaseHas('branches', ['id' => $branch->id]);
 });
 
 it('refuses to delete a hardware type with two hardware', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $type = $lookups['hardwareType'];
 
     makeHardware(['hardware_type_id' => $type->id, 'hardware_status_id' => $lookups['hardwareStatus']->id]);
@@ -38,7 +38,7 @@ it('refuses to delete a hardware type with two hardware', function () {
 });
 
 it('refuses to delete a hardware type whose only hardware is soft deleted', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $type = $lookups['hardwareType'];
     $hardware = makeHardware([
         'hardware_type_id' => $type->id,
@@ -54,27 +54,27 @@ it('refuses to delete a hardware type whose only hardware is soft deleted', func
     $this->assertDatabaseHas('hardware_types', ['id' => $type->id]);
 });
 
-it('refuses to delete a region with estates', function () {
-    $lookups = makeLookups();
+it('refuses to delete a region with branches', function () {
+    $lookups = makeBranchLookups();
     $region = $lookups['region'];
 
     $this->from('/regions')->delete("/regions/{$region->id}")
         ->assertRedirect('/regions')
         ->assertSessionHasErrors('delete');
-    expect(session('errors')->first('delete'))->toContain('1 estate still belongs');
+    expect(session('errors')->first('delete'))->toContain('1 branch still belongs');
 
     $this->assertDatabaseHas('regions', ['id' => $region->id]);
 });
 
-it('deletes an estate with no assigned users', function () {
+it('deletes an branch with no assigned users', function () {
     $region = Region::create(['region_name' => 'Empty Region']);
-    $estate = Estate::create([
-        'estate_name' => 'Empty Estate',
+    $branch = Branch::create([
+        'branch_name' => 'Empty Branch',
         'region_id' => $region->id,
     ]);
 
-    $this->delete("/estates/{$estate->id}")
-        ->assertRedirect(route('estates.index'));
+    $this->delete("/branches/{$branch->id}")
+        ->assertRedirect(route('branches.index'));
 
-    $this->assertDatabaseMissing('estates', ['id' => $estate->id]);
+    $this->assertDatabaseMissing('branches', ['id' => $branch->id]);
 });

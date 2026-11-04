@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssignedUser;
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\User;
 use App\Models\UserPosition;
 use Illuminate\Http\Request;
@@ -16,29 +16,29 @@ class AssignedUserController extends Controller
     private const VALIDATION_ATTRIBUTES = [
         'user_name' => 'name',
         'user_position_id' => 'position',
-        'estate_id' => 'estate',
+        'branch_id' => 'branch',
     ];
 
     // Display a listing of users
     public function index(Request $request)
     {
         $search = mb_substr(trim($request->string('search')->toString()), 0, 100);
-        $estateId = $request->integer('estate_id') ?: null;
+        $branchId = $request->integer('branch_id') ?: null;
         $positionId = $request->integer('position_id') ?: null;
         $perPage = (int) $request->query('per_page', 10);
         $perPage = in_array($perPage, [10, 25, 50], true) ? $perPage : 10;
 
         $escapedSearch = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search);
 
-        $users = AssignedUser::with(['userPosition', 'estate'])
+        $users = AssignedUser::with(['userPosition', 'branch'])
             ->when($search !== '', function ($query) use ($escapedSearch) {
                 $query->where(function ($query) use ($escapedSearch) {
                     $query->whereRaw("user_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
                         ->orWhereHas('userPosition', fn ($query) => $query->whereRaw("position_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
-                        ->orWhereHas('estate', fn ($query) => $query->whereRaw("estate_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]));
+                        ->orWhereHas('branch', fn ($query) => $query->whereRaw("branch_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]));
                 });
             })
-            ->when($estateId, fn ($query) => $query->where('estate_id', $estateId))
+            ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
             ->when($positionId, fn ($query) => $query->where('user_position_id', $positionId))
             ->orderBy('user_name')
             ->paginate($perPage)
@@ -48,12 +48,12 @@ class AssignedUserController extends Controller
             'users' => $users,
             'filters' => [
                 'search' => $search,
-                'estate_id' => $estateId,
+                'branch_id' => $branchId,
                 'position_id' => $positionId,
                 'per_page' => $perPage,
             ],
             'total' => $users->total(),
-            'estates' => Estate::query()->select('id', 'estate_name')->orderBy('estate_name')->get(),
+            'branches' => Branch::query()->select('id', 'branch_name')->orderBy('branch_name')->get(),
             'positions' => UserPosition::query()->select('id', 'position_name')->orderBy('position_name')->get(),
         ]);
     }
@@ -63,8 +63,8 @@ class AssignedUserController extends Controller
     {
         $users = AssignedUser::all();
         $positions = UserPosition::all();
-        $estates = Estate::with('region')->get();
-        return Inertia::render('Users/Create', ['users' => $users, 'positions' => $positions, 'estates' => $estates]);
+        $branches = Branch::with('region')->get();
+        return Inertia::render('Users/Create', ['users' => $users, 'positions' => $positions, 'branches' => $branches]);
     }
 
     // Store a newly created user
@@ -73,7 +73,7 @@ class AssignedUserController extends Controller
         $validated = $request->validate([
             'user_name' => 'required|string|max:255',
             'user_position_id' => 'required|exists:user_positions,id',
-            'estate_id' => 'required|exists:estates,id',
+            'branch_id' => 'required|exists:branches,id',
         ], [], self::VALIDATION_ATTRIBUTES);
 
         AssignedUser::create($validated);
@@ -85,8 +85,8 @@ class AssignedUserController extends Controller
     public function edit(AssignedUser $user)
     {
         $positions = UserPosition::all();
-        $estates = Estate::with('region')->get();
-        return Inertia::render('Users/Edit', ['user' => $user, 'positions' => $positions, 'estates' => $estates]);
+        $branches = Branch::with('region')->get();
+        return Inertia::render('Users/Edit', ['user' => $user, 'positions' => $positions, 'branches' => $branches]);
     }
 
     // Update the specified user
@@ -95,10 +95,10 @@ class AssignedUserController extends Controller
         $request->validate([
             'user_name' => 'required|string|max:255',
             'user_position_id' => 'required|exists:user_positions,id',
-            'estate_id' => 'required|exists:estates,id',
+            'branch_id' => 'required|exists:branches,id',
         ], [], self::VALIDATION_ATTRIBUTES);
 
-        $user->update($request->only('user_name', 'user_position_id', 'estate_id'));
+        $user->update($request->only('user_name', 'user_position_id', 'branch_id'));
 
         return Redirect::route('users.index')->with('success', 'User updated successfully!');
     }
@@ -107,7 +107,7 @@ class AssignedUserController extends Controller
     {
         $user = AssignedUser::with([
             'userPosition',
-            'estate.region',
+            'branch.region',
             'hardwares.hardwareType',
             'hardwares.hardwareStatus'  // Include hardwareStatus relationship
         ])->findOrFail($id);

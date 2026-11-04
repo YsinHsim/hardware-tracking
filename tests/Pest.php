@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\AssignedUser;
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
 use App\Models\HardwareType;
@@ -16,11 +16,11 @@ pest()->extend(Tests\TestCase::class)
     })
     ->in('Feature');
 
-function makeLookups(): array
+function makeBranchLookups(): array
 {
     $region = Region::create(['region_name' => 'West Coast']);
-    $estate = Estate::create([
-        'estate_name' => 'Test Estate',
+    $branch = Branch::create([
+        'branch_name' => 'Test Branch',
         'region_id' => $region->id,
     ]);
     $position = UserPosition::create(['position_name' => 'Technician']);
@@ -30,12 +30,12 @@ function makeLookups(): array
     $assignedUser = AssignedUser::create([
         'user_name' => 'Ahmad',
         'user_position_id' => $position->id,
-        'estate_id' => $estate->id,
+        'branch_id' => $branch->id,
     ]);
 
     return [
         'region' => $region,
-        'estate' => $estate,
+        'branch' => $branch,
         'position' => $position,
         'hardwareType' => $hardwareType,
         'hardwareStatus' => $hardwareStatus,

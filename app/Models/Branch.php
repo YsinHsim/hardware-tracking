@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Estate extends Model
+class Branch extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'estate_name',
+        'branch_name',
         'region_id',
     ];
 

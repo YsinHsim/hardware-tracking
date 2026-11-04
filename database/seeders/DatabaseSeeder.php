@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * Always seeds the curated lookups and estates. The admin account
+     * Always seeds the curated lookups and branches. The admin account
      * comes from .env and is skipped with a warning when its
      * credentials are not configured. Demo users and hardware are
      * gated by SEED_HARDWARE_COUNT so a production-style install can
@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             LookupSeeder::class,
-            EstateSeeder::class,
+            BranchSeeder::class,
         ]);
 
         $name = env('ADMIN_NAME', 'Administrator');

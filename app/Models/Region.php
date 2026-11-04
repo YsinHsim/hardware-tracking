@@ -14,8 +14,8 @@ class Region extends Model
         'region_name',
     ];
 
-    public function estates(): HasMany
+    public function branches(): HasMany
     {
-        return $this->hasMany(Estate::class);
+        return $this->hasMany(Branch::class);
     }
 }

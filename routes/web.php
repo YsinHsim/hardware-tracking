@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EstateController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\AssignedUserController;
 use App\Http\Controllers\SystemDataController;
@@ -37,7 +37,7 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('About');
     });
 
-    Route::resource('estates', EstateController::class);
+    Route::resource('branches', BranchController::class);
     Route::resource('regions', RegionController::class);
     Route::resource('users', AssignedUserController::class);
     Route::resource('hardwares', HardwareController::class);
