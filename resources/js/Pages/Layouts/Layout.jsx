@@ -140,7 +140,7 @@ export default function Layout({ children }) {
 
             <div className="md:pl-60">
                 <motion.main
-                    key={url}
+                    key={url.split("?")[0]}
                     variants={fadeRise}
                     initial="hidden"
                     animate="show"

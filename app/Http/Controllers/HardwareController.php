@@ -14,6 +14,14 @@ use Inertia\Inertia;
 
 class HardwareController extends Controller
 {
+    private const VALIDATION_ATTRIBUTES = [
+        'hardware_no' => 'hardware number',
+        'hardware_serial_no' => 'serial number',
+        'hardware_type_id' => 'hardware type',
+        'hardware_status_id' => 'hardware status',
+        'assigned_user_id' => 'assigned user',
+    ];
+
     public function index(Request $request)
     {
         $search = mb_substr(trim($request->string('search')->toString()), 0, 100);
@@ -78,7 +86,7 @@ class HardwareController extends Controller
             'assigned_user_id' => 'nullable|exists:assigned_users,id',
             'hardware_type_id' => 'required|exists:hardware_types,id',
             'hardware_status_id' => 'required|exists:hardware_statuses,id',
-        ]);
+        ], [], self::VALIDATION_ATTRIBUTES);
 
         $hardware = Hardware::create($validatedData);
 
@@ -112,7 +120,7 @@ class HardwareController extends Controller
             'assigned_user_id' => 'nullable|exists:assigned_users,id',
             'hardware_type_id' => 'required|exists:hardware_types,id',
             'hardware_status_id' => 'required|exists:hardware_statuses,id',
-        ]);
+        ], [], self::VALIDATION_ATTRIBUTES);
 
         $changes = [];
         foreach ($validatedData as $key => $value) {
