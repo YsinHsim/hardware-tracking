@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import {
     Select,
     SelectContent,
@@ -200,7 +201,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                     <p className="mt-1 text-sm text-muted-foreground">Track devices, assignments, condition and location.</p>
                 </div>
 
-                <div className="mb-5 space-y-3">
+                <div className="mb-5 rounded-xl border border-border bg-card p-4">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                         <div className="relative w-full">
                             <Search className="pointer-events-none absolute top-2 left-2.5 size-4 text-muted-foreground" />
@@ -217,7 +218,9 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                         </Button>
                     </div>
 
-                    <div>
+                    <Separator className="my-3" />
+
+                    <div className="flex items-center justify-between gap-2">
                         <Button
                             variant="ghost"
                             size="sm"
@@ -234,50 +237,50 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                             <ChevronDown className={cn("size-4 transition-transform", filtersOpen && "rotate-180")} aria-hidden="true" />
                         </Button>
 
-                        {filtersOpen && (
-                            <div id="hardware-filters" className="mt-2 flex flex-wrap gap-2">
-                                {filterSelect("estate_id", filters.estate_id, "All estates", [
-                                    { value: "unassigned", label: "Unassigned" },
-                                    ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
-                                ], "All estates")}
-                                {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
-                                {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
-                                {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}
-                            </div>
-                        )}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm text-muted-foreground" aria-live="polite">
+                                {total} {total === 1 ? "item" : "items"}
+                            </p>
+                            {filters.search !== "" && (
+                                <Badge variant="secondary" className="gap-1 font-normal">
+                                    <span className="max-w-40 truncate">Search: {filters.search}</span>
+                                    <button
+                                        type="button"
+                                        onClick={removeSearch}
+                                        aria-label={`Clear search ${filters.search}`}
+                                        className="rounded-full hover:bg-foreground/10"
+                                    >
+                                        <X className="size-3" />
+                                    </button>
+                                </Badge>
+                            )}
+                            {activeFilters.map((filter) => (
+                                <Badge key={filter.key} variant="secondary" className="gap-1 font-normal">
+                                    {filter.label}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFilter(filter.key)}
+                                        aria-label={`Remove filter ${filter.label}`}
+                                        className="rounded-full hover:bg-foreground/10"
+                                    >
+                                        <X className="size-3" />
+                                    </button>
+                                </Badge>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm text-muted-foreground" aria-live="polite">
-                            {total} {total === 1 ? "item" : "items"}
-                        </p>
-                        {filters.search !== "" && (
-                            <Badge variant="secondary" className="gap-1 font-normal">
-                                <span className="max-w-40 truncate">Search: {filters.search}</span>
-                                <button
-                                    type="button"
-                                    onClick={removeSearch}
-                                    aria-label={`Clear search ${filters.search}`}
-                                    className="rounded-full hover:bg-foreground/10"
-                                >
-                                    <X className="size-3" />
-                                </button>
-                            </Badge>
-                        )}
-                        {activeFilters.map((filter) => (
-                            <Badge key={filter.key} variant="secondary" className="gap-1 font-normal">
-                                {filter.label}
-                                <button
-                                    type="button"
-                                    onClick={() => removeFilter(filter.key)}
-                                    aria-label={`Remove filter ${filter.label}`}
-                                    className="rounded-full hover:bg-foreground/10"
-                                >
-                                    <X className="size-3" />
-                                </button>
-                            </Badge>
-                        ))}
-                    </div>
+                    {filtersOpen && (
+                        <div id="hardware-filters" className="mt-3 flex flex-wrap gap-2">
+                            {filterSelect("estate_id", filters.estate_id, "All estates", [
+                                { value: "unassigned", label: "Unassigned" },
+                                ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
+                            ], "All estates")}
+                            {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
+                            {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
+                            {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}
+                        </div>
+                    )}
                 </div>
 
                 {hardwares.data.length > 0 ? (                    <>
