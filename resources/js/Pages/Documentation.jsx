@@ -47,7 +47,7 @@ export default function Documentation() {
                         <section id="introduction" className="mt-8 scroll-mt-6">
                             <h2 className="font-heading text-xl font-semibold">Introduction</h2>
                             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                The <span className="font-medium text-foreground">Hardware Tracking Application</span> is a
+                                The <span className="font-medium text-foreground">AssetHub</span> is a
                                 web-based tool designed to help you manage and track hardware assets (e.g., devices,
                                 tools, equipment) across multiple locations. With this application, you can easily add,
                                 update, and delete assets, as well as search and filter them based on specific criteria.
@@ -120,7 +120,7 @@ export default function Documentation() {
                         <Separator className="my-6" />
 
                         <footer className="pb-2 text-sm text-muted-foreground">
-                            <p>© {currentYear} Hardware Tracking Application. All rights reserved.</p>
+                            <p>© {currentYear} AssetHub. All rights reserved.</p>
                             <p className="mt-1 text-xs">
                                 Built with Laravel, Inertia, React, shadcn/ui and Tailwind CSS.
                             </p>

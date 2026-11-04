@@ -84,11 +84,11 @@ export default function Layout({ children }) {
 
     return (
         <div className="min-h-screen bg-background">
-            <Head title="Hardware Tracking" />
+            <Head title="AssetHub" />
 
             <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
                 <Link href="/" className="mb-8 px-3 font-heading text-xl font-semibold">
-                    Hardware Tracking
+                    AssetHub
                 </Link>
                 <Navigation />
                 <Separator className="my-4" />
@@ -113,7 +113,7 @@ export default function Layout({ children }) {
                     <Menu />
                 </Button>
                 <Link href="/" className="font-heading text-lg font-semibold">
-                    Hardware Tracking
+                    AssetHub
                 </Link>
                 <div className="ml-auto"><ThemeToggle /></div>
             </header>
@@ -121,7 +121,7 @@ export default function Layout({ children }) {
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                 <SheetContent side="left" className="w-72 gap-0 bg-sidebar p-4">
                     <SheetHeader className="mb-4 px-3">
-                        <SheetTitle className="text-xl font-semibold">Hardware Tracking</SheetTitle>
+                        <SheetTitle className="text-xl font-semibold">AssetHub</SheetTitle>
                         <SheetDescription className="sr-only">Site navigation</SheetDescription>
                     </SheetHeader>
                     <div className="flex min-h-0 flex-1 flex-col">
