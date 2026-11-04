@@ -82,7 +82,7 @@ export default function About() {
         <Layout>
             <motion.div variants={fadeRise} initial="hidden" animate="show" transition={spring}>
                 <div>
-                    <h1 className="font-heading text-3xl font-semibold">Hardware Tracking System</h1>
+                    <h1 className="font-heading text-3xl font-semibold">AssetHub</h1>
                     <p className="mt-1 text-sm text-muted-foreground">
                         Simplify the way you track and manage hardware across multiple locations.
                     </p>

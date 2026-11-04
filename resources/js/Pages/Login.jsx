@@ -39,7 +39,7 @@ export default function Login() {
             >
                 <Card>
                     <CardHeader className="text-center">
-                        <CardTitle className="text-2xl">Hardware Tracking</CardTitle>
+                        <CardTitle className="text-2xl">AssetHub</CardTitle>
                         <CardDescription>Sign in to manage your organisation's hardware.</CardDescription>
                     </CardHeader>
                     <CardContent>
