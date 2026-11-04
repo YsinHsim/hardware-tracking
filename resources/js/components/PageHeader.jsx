@@ -37,9 +37,9 @@ export default function PageHeader({ icon: Icon, title, description, actions, ba
                     >
                         <Link
                             href={backHref}
-                            className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 py-1 pr-3 pl-2 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                            className="mb-3 inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring"
                         >
-                            <ArrowLeft className="size-3.5" aria-hidden="true" />
+                            <ArrowLeft className="size-4" aria-hidden="true" />
                             {backLabel}
                         </Link>
                     </motion.div>
