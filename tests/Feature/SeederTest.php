@@ -64,6 +64,31 @@ it('skips demo users and hardware when SEED_HARDWARE_COUNT is 0', function () {
         ->and(Hardware::count())->toBe(0);
 });
 
+it('skips the admin account when ADMIN_EMAIL is not configured', function () {
+    // env() reads $_ENV/$_SERVER before the process environment, so all
+    // three layers must be cleared to simulate an unconfigured admin.
+    $originalEnv = $_ENV['ADMIN_EMAIL'] ?? null;
+    $originalServer = $_SERVER['ADMIN_EMAIL'] ?? null;
+    unset($_ENV['ADMIN_EMAIL'], $_SERVER['ADMIN_EMAIL']);
+    putenv('ADMIN_EMAIL');
+
+    try {
+        Artisan::call('db:seed', ['--force' => true]);
+    } finally {
+        if ($originalEnv !== null) {
+            $_ENV['ADMIN_EMAIL'] = $originalEnv;
+        }
+        if ($originalServer !== null) {
+            $_SERVER['ADMIN_EMAIL'] = $originalServer;
+        }
+    }
+
+    expect(\App\Models\User::count())->toBe(0)
+        ->and(Region::count())->toBe(15)
+        ->and(AssignedUser::count())->toBe(12)
+        ->and(Hardware::withTrashed()->count())->toBe(51);
+});
+
 it('seeds each estate under its matching region', function () {
     Artisan::call('db:seed', ['--force' => true]);
 
