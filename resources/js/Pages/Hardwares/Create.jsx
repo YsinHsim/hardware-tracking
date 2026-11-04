@@ -18,7 +18,7 @@ const emptyHardware = {
     hardware_status_id: "",
 };
 
-export default function Create({ estates, assignedUsers, hardwareTypes, hardwareStatuses }) {
+export default function Create({ branches, assignedUsers, hardwareTypes, hardwareStatuses }) {
     const [selectedEstate, setSelectedEstate] = useState("");
     const [hardwareValues, setHardwareValues] = useState(emptyHardware);
     const [errors, setErrors] = useState({});
@@ -89,9 +89,9 @@ export default function Create({ estates, assignedUsers, hardwareTypes, hardware
                                 {fieldError("hardware_serial_no")}
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="estate">Estate</Label>
+                                <Label htmlFor="branch">Branch</Label>
                                 <Select name="estate_filter" value={selectedEstate} onValueChange={handleEstateChange} required>
-                                    <SelectTrigger id="estate" className="w-full"><SelectValue placeholder="Select estate" /></SelectTrigger>
+                                    <SelectTrigger id="branch" className="w-full"><SelectValue placeholder="Select branch" /></SelectTrigger>
                                     <SelectContent>
                                         {estates.map((estate) => <SelectItem key={estate.id} value={String(estate.id)}>{estate.estate_name}</SelectItem>)}
                                     </SelectContent>

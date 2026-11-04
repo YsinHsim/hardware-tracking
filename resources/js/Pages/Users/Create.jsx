@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const emptyUser = { user_name: "", user_position_id: "", estate_id: "" };
 
-export default function Create({ positions, estates, users }) {
+export default function Create({ positions, branches, users }) {
     const [values, setValues] = useState(emptyUser);
     const [errors, setErrors] = useState({});
     const [processing, setProcessing] = useState(false);
@@ -90,9 +90,9 @@ export default function Create({ positions, estates, users }) {
                                 {fieldError("user_position_id")}
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="estate_id">Estate</Label>
+                                <Label htmlFor="estate_id">Branch</Label>
                                 <Select name="estate_id" value={String(values.estate_id)} onValueChange={(value) => updateField("estate_id", value)} required>
-                                    <SelectTrigger id="estate_id" className="w-full" aria-invalid={Boolean(errors.estate_id)}><SelectValue placeholder="Select estate" /></SelectTrigger>
+                                    <SelectTrigger id="estate_id" className="w-full" aria-invalid={Boolean(errors.estate_id)}><SelectValue placeholder="Select branch" /></SelectTrigger>
                                     <SelectContent>
                                         {estates.map((estate) => <SelectItem key={estate.id} value={String(estate.id)}>{estate.estate_name}</SelectItem>)}
                                     </SelectContent>
