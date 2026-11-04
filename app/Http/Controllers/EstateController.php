@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Redirect;
 
 class EstateController extends Controller
 {
+    private const VALIDATION_ATTRIBUTES = [
+        'estate_name' => 'estate name',
+        'region_id' => 'region',
+    ];
+
     /**
      * Display a listing of the estates grouped by regions.
      */
@@ -43,7 +48,7 @@ class EstateController extends Controller
         $validated = $request->validate([
             'estate_name' => 'required|string|max:255',
             'region_id' => 'required|exists:regions,id',
-        ]);
+        ], [], self::VALIDATION_ATTRIBUTES);
 
         Estate::create($validated);
 
@@ -71,7 +76,7 @@ class EstateController extends Controller
         $validated = $request->validate([
             'estate_name' => 'required|string|max:255',
             'region_id' => 'required|exists:regions,id',
-        ]);
+        ], [], self::VALIDATION_ATTRIBUTES);
 
         $estate->update($validated);
 

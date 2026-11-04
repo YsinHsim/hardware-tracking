@@ -1,115 +1,106 @@
-import React, { useState } from 'react';
-import { router, Link } from '@inertiajs/react'
-import Layout from '../Layouts/Layout';
-import ToastComponent from '../Components/ToastComponent';
+import React, { useState } from "react";
+import { Link, router } from "@inertiajs/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const emptyUser = { user_name: "", user_position_id: "", estate_id: "" };
 
 export default function Create({ positions, estates, users }) {
+    const [values, setValues] = useState(emptyUser);
+    const [errors, setErrors] = useState({});
+    const [processing, setProcessing] = useState(false);
 
-    {/* STATE FOR TOAST MESSAGE */ }
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState(""); // "success" or "warning"
-
-    {/* ESTATE STUFF START HERE /////////////////////   */ }
-    const [values, setValues] = useState({
-        user_name: "",
-        user_position_id: "",
-        estate_id: ""
-    })
-
-    function handleChange(e) {
-        const key = e.target.id;
-        const value = e.target.value
-        setValues(values => ({
-            ...values,
-            [key]: value,
-        }))
-    }
-
-    function handleSubmit(e) {
-        e.preventDefault();
-
-        console.log('\n\n Send Data to Back-end: \nuser_name: ' + values.user_name + '\nuser_position_id: ' + values.user_position_id + '\nestate_id: ' + values.estate_id);
-
-        router.post('/users', values, {
-            onSuccess: () => {
-                setValues({ user_name: "", user_position_id: "", estate_id: "" }); // Reset form
-                setToastMessage("New user created successfully!");
-                setToastType("alert-success");
-            },
-            onError: (errors) => {
-                console.error("Error submitting user:", errors);
-                setToastMessage("Failed to create user. Please check your input.");
-                setToastType("alert-warning");
-            }
+    function updateField(field, value) {
+        setValues((current) => ({ ...current, [field]: value }));
+        setErrors((current) => {
+            if (!current[field]) return current;
+            const next = { ...current };
+            delete next[field];
+            return next;
         });
     }
 
+    function handleSubmit(event) {
+        event.preventDefault();
+        setProcessing(true);
+        router.post("/users", values, {
+            onSuccess: () => {
+                setValues(emptyUser);
+                setErrors({});
+                toast.success("New user created successfully!");
+            },
+            onError: (validationErrors) => {
+                setErrors(validationErrors);
+                toast.error("Please fix the highlighted fields.");
+            },
+            onFinish: () => setProcessing(false),
+        });
+    }
+
+    const recentUsers = [...users]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 3);
+    const fieldError = (field) => errors[field] && <p className="text-sm text-destructive">{errors[field]}</p>;
+
     return (
         <Layout>
-            {toastMessage && (
-                <ToastComponent message={toastMessage} type={toastType} onClose={() => setToastMessage(null)} />
-            )}
-            <div>
-                <div className="mx-4 mt-1">
-                    <p className="text-3xl font-bold text-primary">User Management</p>
-                    <p className="text-sm font-normal animate-pulse">Create Hardware's User.</p>
+            <div className="mx-auto max-w-2xl">
+                <div className="mb-6">
+                    <h1 className="font-heading text-3xl font-semibold">Users</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Create an assigned hardware user.</p>
                 </div>
-
-                <div className="divider" />
-
-                <div className="mx-4 mt-1">
-                    <div className="card bg-base-300 flex-auto mb-1 rounded-sm">
-                        <div className="card-body">
-                            <h2 className="card-title text-primary">Create Hardware's User</h2>
-                            <form onSubmit={handleSubmit} className="mt-1">
-                                <div className="flex flex-col space-y-2">
-                                    {users?.length > 0 && (
-                                        <div className="mt-2 mb-4">
-                                            <p className="text-xl font-semibold">Recent Created Users</p>
-                                            <div className="grid grid-cols-3 gap-2 mt-2">
-                                                {users
-                                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by recent date
-                                                    .slice(0, 3) // Take the first 3 (most recent)
-                                                    .map(user => (
-                                                        <Link
-                                                            key={user.id}
-                                                            href={`/users/${user.id}`}
-                                                            className="btn bg-base-100 shadow-md"
-                                                        >
-                                                            {user.user_name}
-                                                        </Link>
-                                                    ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <input type="text" placeholder="Username *" className="input input-bordered w-full text-sm"
-                                        id="user_name" value={values.user_name} onChange={handleChange} required />
-                                    <select className="select select-bordered w-full"
-                                        id="user_position_id" value={values.user_position_id} onChange={handleChange} required>
-                                        <option value="">Select Position *</option>
-                                        {positions.map(position => (
-                                            <option key={position.id} value={position.id}>{position.position_name}</option>
-                                        ))}
-                                    </select>
-                                    <select className="select select-bordered w-full"
-                                        id="estate_id" value={values.estate_id} onChange={handleChange} required>
-                                        <option value="">Select Estate *</option>
-                                        {estates.map(estate => (
-                                            <option key={estate.id} value={estate.id}>{estate.estate_name}</option>
-                                        ))}
-                                    </select>
-                                    <div className="card-actions justify-end">
-                                        <button type="submit" className="btn btn-sm btn-primary px-8 py-1">Create</button>
-                                    </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl">Create user</CardTitle>
+                        <CardDescription>Assign a name, position and estate.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {recentUsers.length > 0 && (
+                            <div className="mb-5">
+                                <p className="mb-2 text-sm font-medium">Recently created</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {recentUsers.map((user) => <Button key={user.id} variant="outline" size="sm" asChild><Link href={`/users/${user.id}`}>{user.user_name}</Link></Button>)}
                                 </div>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
-
+                            </div>
+                        )}
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div className="space-y-2">
+                                <Label htmlFor="user_name">Name</Label>
+                                <Input id="user_name" value={values.user_name} onChange={(event) => updateField("user_name", event.target.value)} aria-invalid={Boolean(errors.user_name)} required />
+                                {fieldError("user_name")}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="user_position_id">Position</Label>
+                                <Select name="user_position_id" value={String(values.user_position_id)} onValueChange={(value) => updateField("user_position_id", value)} required>
+                                    <SelectTrigger id="user_position_id" className="w-full" aria-invalid={Boolean(errors.user_position_id)}><SelectValue placeholder="Select position" /></SelectTrigger>
+                                    <SelectContent>
+                                        {positions.map((position) => <SelectItem key={position.id} value={String(position.id)}>{position.position_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {fieldError("user_position_id")}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="estate_id">Estate</Label>
+                                <Select name="estate_id" value={String(values.estate_id)} onValueChange={(value) => updateField("estate_id", value)} required>
+                                    <SelectTrigger id="estate_id" className="w-full" aria-invalid={Boolean(errors.estate_id)}><SelectValue placeholder="Select estate" /></SelectTrigger>
+                                    <SelectContent>
+                                        {estates.map((estate) => <SelectItem key={estate.id} value={String(estate.id)}>{estate.estate_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {fieldError("estate_id")}
+                            </div>
+                            <div className="flex justify-end">
+                                <Button type="submit" disabled={processing}>{processing ? "Creating…" : "Create"}</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </Layout>
-    )
+    );
 }
