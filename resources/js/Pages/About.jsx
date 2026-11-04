@@ -1,157 +1,165 @@
-import React from 'react';
-import Layout from './Layouts/Layout';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import EmailIcon from '@mui/icons-material/Email';
-import LaunchIcon from '@mui/icons-material/Launch';
-import TvIcon from '@mui/icons-material/Tv';
-import PaletteIcon from '@mui/icons-material/Palette';
-import CodeIcon from '@mui/icons-material/Code';
-import StorageIcon from '@mui/icons-material/Storage';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import React from "react";
+import {
+    ArrowRight,
+    Code2,
+    Database,
+    ExternalLink,
+    GitFork,
+    Mail,
+    MessageCircle,
+    MonitorSmartphone,
+    Palette,
+} from "lucide-react";
+import { motion } from "motion/react";
+import Layout from "./Layouts/Layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { fadeRise, spring } from "@/lib/motion";
+
+const technologies = [
+    {
+        icon: Code2,
+        title: "Backend",
+        name: "Laravel & Inertia.js",
+        description:
+            "A powerful combination for building modern web applications. Laravel handles the backend with robust features like authentication and database management, while Inertia.js bridges the gap between Laravel and React, allowing seamless, single-page app development without the complexity of a full API.",
+    },
+    {
+        icon: MonitorSmartphone,
+        title: "Frontend",
+        name: "React & Tailwind CSS",
+        description:
+            "A dynamic duo for building fast and responsive UIs. React powers the frontend with its component-based architecture, making state management and interactivity seamless, while Tailwind CSS provides utility-first styling for rapid and consistent design without writing custom CSS.",
+    },
+    {
+        icon: Database,
+        title: "Database",
+        name: "MariaDB",
+        description:
+            "A fast, open-source relational database management system (RDBMS) that is a drop-in replacement for MySQL. It offers high performance, scalability, and strong security features, making it ideal for modern applications.",
+    },
+    {
+        icon: Palette,
+        title: "UI Components",
+        name: "shadcn/ui",
+        description:
+            "Accessible, customizable components built on Radix UI and styled with Tailwind CSS. They keep the interface consistent across themes and screen sizes while letting us own every line of component code.",
+    },
+];
+
+const developers = [
+    {
+        name: "Yasin Hassim",
+        role: "Fullstack Developer",
+        persona: "Tank, Support - Mobile Legend | Camper, Sniper - CODM",
+        image: "/images/profile02.jpg",
+        quote:
+            "I fix printers, code apps, and occasionally talk to computers like they understand me. When I'm not debugging, I'm probably debugging my own life decisions.",
+        links: [
+            { label: "GitHub", href: "https://github.com/YsinHsim", icon: GitFork },
+            { label: "WhatsApp", href: "https://wa.me/60128507469", icon: MessageCircle },
+            { label: "Email", href: "mailto:yasinhassim43@gmail.com", icon: Mail },
+            { label: "Portfolio", href: "https://yasinhassim.vercel.app/", icon: ExternalLink },
+        ],
+    },
+    {
+        name: "Khairulazhar",
+        role: "Front-end Developer, UI & UX Designer",
+        persona: "Hyper, Mage, Marksman - Mobile Legend",
+        image: "/images/khai-profile01.jpeg",
+        quote: "I'm just a humble Intern.",
+        links: [
+            { label: "GitHub", href: "https://github.com/khai218", icon: GitFork },
+            { label: "WhatsApp", href: "https://wa.me/60135552635", icon: MessageCircle },
+            { label: "Email", href: "mailto:khairulazhar2004@gmail.com", icon: Mail },
+        ],
+    },
+];
 
 export default function About() {
     return (
         <Layout>
-            <div className="mx-4 mt-1">
-                <p className="text-3xl font-bold text-primary">Hardware Tracking System</p>
-                <p className="text-sm font-normal animate-pulse">
-                    Simplify the way you track and manage hardware across multiple locations.
-                </p>
-            </div>
-
-            <div className="divider" />
-
-            {/* Technologies Used Section */}
-            <div className="mx-4 mt-1">
-                <p className="text-xl font-semibold text-primary">Technologies Used</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mt-2">
-                    <div className="card bg-base-100 hover:shadow-lg p-4">
-                        <div className="flex mb-4">
-                            <div className="flex items-center mx-8 h-full">
-                                <button className="text-primary animate-pulse">
-                                    <CodeIcon sx={{ fontSize: 40 }} />
-                                </button>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold text-xl">Backend</p>
-                                <p className="text-md"><ArrowRightIcon className="text-primary" />Laravel & Inertia.js</p>
-                            </div>
-                        </div>
-                        <p className="text-sm font-light">A powerful combination for building modern web applications. Laravel handles the backend with robust features like authentication and database management, while Inertia.js bridges the gap between Laravel and React, allowing seamless, single-page app development without the complexity of a full API.</p>
-                    </div>
-
-                    <div className="card bg-base-100 hover:shadow-lg p-4">
-                        <div className="flex mb-4">
-                            <div className="flex items-center mx-8 h-full">
-                                <button className="text-primary animate-pulse">
-                                    <TvIcon sx={{ fontSize: 40 }} />
-                                </button>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold text-xl">Frontend</p>
-                                <p className="text-md"><ArrowRightIcon className="text-primary" />React & Tailwind CSS</p>
-                            </div>
-                        </div>
-                        <p className="text-sm font-light">A dynamic duo for building fast and responsive UIs. React powers the frontend with its component-based architecture, making state management and interactivity seamless, while Tailwind CSS provides utility-first styling for rapid and consistent design without writing custom CSS.</p>
-                    </div>
-
-                    <div className="card bg-base-100 hover:shadow-lg p-4">
-                        <div className="flex mb-4">
-                            <div className="flex items-center mx-8 h-full">
-                                <button className="text-primary animate-pulse">
-                                    <StorageIcon sx={{ fontSize: 40 }} />
-                                </button>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold text-xl">Database</p>
-                                <p className="text-md"><ArrowRightIcon className="text-primary" />MariaDB</p>
-                            </div>
-                        </div>
-                        <p className="text-sm font-light">A fast, open-source relational database management system (RDBMS) that is a drop-in replacement for MySQL. It offers high performance, scalability, and strong security features, making it ideal for modern applications.</p>
-                    </div>
-
-                    <div className="card bg-base-100 hover:shadow-lg p-4">
-                        <div className="flex mb-4">
-                            <div className="flex items-center mx-8 h-full">
-                                <button className="text-primary animate-pulse">
-                                    <PaletteIcon sx={{ fontSize: 40 }} />
-                                </button>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold text-xl">UI Components</p>
-                                <p className="text-md"><ArrowRightIcon className="text-primary" />Daisy UI</p>
-                            </div>
-                        </div>
-                        <p className="text-sm font-light">A Tailwind CSS-based component library that simplifies UI development with pre-designed, customizable components. It enhances Tailwind by adding themes, responsive design, and utility classes, making UI development faster and more efficient.</p>
-                    </div>
-
+            <motion.div variants={fadeRise} initial="hidden" animate="show" transition={spring}>
+                <div>
+                    <h1 className="font-heading text-3xl font-semibold">Hardware Tracking System</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Simplify the way you track and manage hardware across multiple locations.
+                    </p>
                 </div>
-            </div>
 
-            <div className="divider" />
+                <Separator className="my-6" />
 
-            {/* Developer Section */}
-            <div>
-                <p className="text-xl font-semibold mx-4 text-primary">Developer</p>
-                <div className="flex mx-4 mt-1 space-x-4">
-                    <div className="card bg-base-100 shadow-xl flex-1">
-                        <div className="card-body">
-                            <div className="flex items-center p-4">
-                                <figure>
-                                    <img src="/images/profile02.jpg" className="rounded w-32 h-32 object-cover" />
-                                </figure>
-                                <div className="px-4">
-                                    <h2 className="text-3xl font-medium mb-4">Yasin Hassim</h2>
-                                    <p><span className="font-semibold">Role:</span> Fullstack Developer</p>
-                                    <p><span className="font-semibold">Persona:</span> Tank, Support - Mobile Legend | Camper, Sniper - CODM</p>
-                                </div>
-                            </div>
-                            <p className="font-light italic">I fix printers, code apps, and occasionally talk to computers like they understand me. When I'm not debugging, I'm probably debugging my own life decisions.</p>
-                            <div className="mt-1 space-x-2">
-                                <a href="https://github.com/YsinHsim" target="_blank" rel="noopener noreferrer" className="btn btn-circle shadow-md hover:animate-pulse hover:bg-base-300 animate duration-500 hover:text-primary">
-                                    <GitHubIcon />
-                                </a>
-                                <a href="https://wa.me/60128507469" target="_blank" rel="noopener noreferrer" className="btn btn-circle shadow-md hover:animate-pulse hover:bg-base-300 animate duration-500 hover:text-primary">
-                                    <WhatsAppIcon />
-                                </a>
-                                <a href="mailto:yasinhassim43@gmail.com" className="btn btn-circle shadow-md hover:animate-pulse hover:bg-base-300 animate duration-500 hover:text-primary">
-                                    <EmailIcon />
-                                </a>
-                                <a href="https://yasinhassim.vercel.app/" target="_blank" rel="noopener noreferrer" className="btn btn-circle shadow-md hover:animate-pulse hover:bg-base-300 animate duration-500 hover:text-primary">
-                                    <LaunchIcon />
-                                </a>
-                            </div>
-                        </div>
+                <section aria-labelledby="technologies-heading">
+                    <h2 id="technologies-heading" className="font-heading text-xl font-semibold">
+                        Technologies Used
+                    </h2>
+                    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {technologies.map(({ icon: Icon, title, name, description }) => (
+                            <Card key={title}>
+                                <CardContent className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <span className="flex size-10 items-center justify-center rounded-lg bg-muted text-foreground">
+                                            <Icon className="size-5" aria-hidden="true" />
+                                        </span>
+                                        <div>
+                                            <p className="font-heading text-base font-medium">{title}</p>
+                                            <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                                                <ArrowRight className="size-3.5" aria-hidden="true" />
+                                                {name}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+                                </CardContent>
+                            </Card>
+                        ))}
                     </div>
-                    <div className="card bg-base-100 shadow-xl flex-1">
-                        <div className="card-body">
-                            <div className="flex items-center p-4">
-                                <figure>
-                                    <img src="/images/khai-profile01.jpeg" className="rounded w-32 h-32 object-cover" />
-                                </figure>
-                                <div className="px-4">
-                                    <h2 className="text-3xl font-medium mb-4">Khairulazhar</h2>
-                                    <p><span className="font-semibold">Role:</span> Front-end Developer, UI & UX Designer</p>
-                                    <p><span className="font-semibold">Persona:</span> Hyper, Mage, Marksman - Mobile Legend</p>
-                                </div>
-                            </div>
-                            <p className="font-light italic">I'm just a humble Intern.</p>
-                            <div className="mt-1 space-x-2">
-                                <a href="https://github.com/khai218" target="_blank" rel="noopener noreferrer" className="btn btn-circle shadow-md hover:animate-pulse hover:bg-base-300 animate duration-500 hover:text-primary">
-                                    <GitHubIcon />
-                                </a>
-                                <a href="https://wa.me/60135552635" target="_blank" rel="noopener noreferrer" className="btn btn-circle shadow-md hover:animate-pulse hover:bg-base-300 animate duration-500 hover:text-primary">
-                                    <WhatsAppIcon />
-                                </a>
-                                <a href="mailto:khairulazhar2004@gmail.com" className="btn btn-circle shadow-md hover:animate-pulse hover:bg-base-300 animate duration-500 hover:text-primary">
-                                    <EmailIcon />
-                                </a>
-                            </div>
-                        </div>
+                </section>
+
+                <Separator className="my-6" />
+
+                <section aria-labelledby="developer-heading">
+                    <h2 id="developer-heading" className="font-heading text-xl font-semibold">
+                        Developer
+                    </h2>
+                    <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+                        {developers.map((developer) => (
+                            <Card key={developer.name}>
+                                <CardContent className="space-y-4">
+                                    <div className="flex items-center gap-4">
+                                        <img
+                                            src={developer.image}
+                                            alt={developer.name}
+                                            className="size-24 rounded-full object-cover"
+                                        />
+                                        <div className="min-w-0">
+                                            <p className="font-heading text-xl font-medium">{developer.name}</p>
+                                            <p className="mt-1 text-sm text-muted-foreground">
+                                                <span className="font-medium text-foreground">Role:</span> {developer.role}
+                                            </p>
+                                            <p className="text-sm text-muted-foreground">
+                                                <span className="font-medium text-foreground">Persona:</span> {developer.persona}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm italic text-muted-foreground">{developer.quote}</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {developer.links.map(({ label, href, icon: Icon }) => (
+                                            <Button key={label} variant="outline" size="sm" asChild>
+                                                <a href={href} target="_blank" rel="noopener noreferrer">
+                                                    <Icon aria-hidden="true" />
+                                                    {label}
+                                                </a>
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
                     </div>
-                </div>
-            </div>
+                </section>
+            </motion.div>
         </Layout>
     );
 }
