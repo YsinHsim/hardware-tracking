@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 it('redirects guests from hardwares to login', function () {
     $this->get('/hardwares')->assertRedirect('/login');
@@ -59,4 +60,67 @@ it('throttles the sixth login attempt within a minute', function () {
     }
 
     $this->post('/login', $payload)->assertStatus(429);
+});
+
+it('shows the change password page to signed-in users', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->get('/settings/password')->assertOk();
+});
+
+it('requires the current password when changing it', function () {
+    $user = User::factory()->create(['password' => 'password']);
+
+    $this->actingAs($user)
+        ->put('/settings/password', [
+            'current_password' => 'wrong-password',
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ])
+        ->assertSessionHasErrors('current_password');
+
+    $this->assertTrue(Hash::check('password', $user->fresh()->password));
+});
+
+it('changes the password with the correct current password', function () {
+    $user = User::factory()->create(['password' => 'password']);
+
+    $this->actingAs($user)
+        ->put('/settings/password', [
+            'current_password' => 'password',
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success', 'Password changed successfully.');
+
+    $this->assertTrue(Hash::check('new-password-123', $user->fresh()->password));
+});
+
+it('rejects a mismatched new password confirmation', function () {
+    $user = User::factory()->create(['password' => 'password']);
+
+    $this->actingAs($user)
+        ->put('/settings/password', [
+            'current_password' => 'password',
+            'password' => 'new-password-123',
+            'password_confirmation' => 'password',
+        ])
+        ->assertSessionHasErrors('password');
+
+    $this->assertTrue(Hash::check('password', $user->fresh()->password));
+});
+
+it('requires a minimum password length', function () {
+    $user = User::factory()->create(['password' => 'password']);
+
+    $this->actingAs($user)
+        ->put('/settings/password', [
+            'current_password' => 'password',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])
+        ->assertSessionHasErrors('password');
+
+    $this->assertTrue(Hash::check('password', $user->fresh()->password));
 });

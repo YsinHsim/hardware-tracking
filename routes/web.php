@@ -30,6 +30,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    Route::get('/settings/password', [AuthController::class, 'showChangePassword'])->name('settings.password.show');
+    Route::put('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/documentation', function() {
