@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 
 class AuthController extends Controller
@@ -11,6 +12,28 @@ class AuthController extends Controller
     public function showLogin()
     {
         return Inertia::render('Login');
+    }
+
+    public function showChangePassword()
+    {
+        return Inertia::render('Settings/ChangePassword');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ], [], [
+            'current_password' => 'current password',
+            'password' => 'new password',
+        ]);
+
+        $request->user()->update([
+            'password' => $validated['password'],
+        ]);
+
+        return back()->with('success', 'Password changed successfully.');
     }
 
     public function login(Request $request)
