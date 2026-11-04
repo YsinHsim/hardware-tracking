@@ -50,12 +50,28 @@ it('does not duplicate curated rows when seeded twice', function () {
 });
 
 it('skips demo users and hardware when SEED_HARDWARE_COUNT is 0', function () {
+    // env() reads $_ENV/$_SERVER before the process environment, so all
+    // three layers must be set for the gate to see the override.
+    $originalEnv = $_ENV['SEED_HARDWARE_COUNT'] ?? null;
+    $originalServer = $_SERVER['SEED_HARDWARE_COUNT'] ?? null;
+    $_ENV['SEED_HARDWARE_COUNT'] = '0';
+    $_SERVER['SEED_HARDWARE_COUNT'] = '0';
     putenv('SEED_HARDWARE_COUNT=0');
 
     try {
         Artisan::call('db:seed', ['--force' => true]);
     } finally {
-        putenv('SEED_HARDWARE_COUNT=50');
+        if ($originalEnv === null) {
+            unset($_ENV['SEED_HARDWARE_COUNT']);
+        } else {
+            $_ENV['SEED_HARDWARE_COUNT'] = $originalEnv;
+        }
+        if ($originalServer === null) {
+            unset($_SERVER['SEED_HARDWARE_COUNT']);
+        } else {
+            $_SERVER['SEED_HARDWARE_COUNT'] = $originalServer;
+        }
+        putenv('SEED_HARDWARE_COUNT');
     }
 
     expect(Region::count())->toBe(15)
