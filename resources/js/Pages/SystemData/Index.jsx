@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { BriefcaseBusiness, CircleDot, Computer, Pencil, Plus, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
@@ -18,19 +18,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fadeRise, listStagger, spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 const MotionRow = motion.create(TableRow);
 const sections = [
-    { label: "User positions", singular: "user position", dataKey: "userPositions", type: "user_positions" },
-    { label: "Hardware statuses", singular: "hardware status", dataKey: "hardwareStatuses", type: "hardware_statuses" },
-    { label: "Hardware types", singular: "hardware type", dataKey: "hardwareTypes", type: "hardware_types" },
+    { label: "User positions", singular: "user position", dataKey: "userPositions", type: "user_positions", icon: BriefcaseBusiness },
+    { label: "Hardware statuses", singular: "hardware status", dataKey: "hardwareStatuses", type: "hardware_statuses", icon: CircleDot },
+    { label: "Hardware types", singular: "hardware type", dataKey: "hardwareTypes", type: "hardware_types", icon: Computer },
 ];
 
 export default function Index(props) {
     const [selectedItem, setSelectedItem] = useState(null);
+    const [activeSection, setActiveSection] = useState(sections[0].type);
     const [itemType, setItemType] = useState("");
     const [confirmation, setConfirmation] = useState("");
     const [deleteError, setDeleteError] = useState("");
@@ -77,19 +78,51 @@ export default function Index(props) {
                     <p className="mt-1 text-sm text-muted-foreground">Manage user positions, hardware statuses and hardware types.</p>
                 </div>
 
-                <Tabs defaultValue="user_positions">
-                    <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
-                        {sections.map((section) => <TabsTrigger key={section.type} value={section.type}>{section.label}</TabsTrigger>)}
-                    </TabsList>
+                <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3" role="tablist" aria-label="System data categories">
                     {sections.map((section) => {
-                        const data = props[section.dataKey] ?? [];
+                        const count = (props[section.dataKey] ?? []).length;
+                        const isActive = activeSection === section.type;
+                        const Icon = section.icon;
                         return (
-                            <TabsContent key={section.type} value={section.type} className="mt-4">
-                                <div className="mb-4 flex items-center justify-between gap-3">
-                                    <h2 className="font-heading text-xl font-medium">{section.label}</h2>
-                                    <Button asChild><Link href={`/system-data/create/${section.type}`}><Plus /> New {section.singular}</Link></Button>
-                                </div>
-                                <div className="rounded-xl border border-border bg-card">
+                            <button
+                                key={section.type}
+                                type="button"
+                                role="tab"
+                                aria-selected={isActive}
+                                onClick={() => setActiveSection(section.type)}
+                                className={cn(
+                                    "flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-foreground/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring",
+                                    isActive && "border-foreground/40 ring-1 ring-foreground/20"
+                                )}
+                            >
+                                <span
+                                    className={cn(
+                                        "flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors",
+                                        isActive && "bg-foreground text-background"
+                                    )}
+                                >
+                                    <Icon className="size-5" aria-hidden="true" />
+                                </span>
+                                <span className="min-w-0">
+                                    <span className="block truncate font-medium">{section.label}</span>
+                                    <span className="block text-sm text-muted-foreground">
+                                        {count} {count === 1 ? "record" : "records"}
+                                    </span>
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {sections.map((section) => {
+                    const data = props[section.dataKey] ?? [];
+                    return (
+                        <div key={section.type} className={activeSection === section.type ? "mt-4" : "hidden"}>
+                            <div className="mb-4 flex items-center justify-between gap-3">
+                                <h2 className="font-heading text-xl font-medium">{section.label}</h2>
+                                <Button asChild><Link href={`/system-data/create/${section.type}`}><Plus /> New {section.singular}</Link></Button>
+                            </div>
+                            <div className="rounded-xl border border-border bg-card">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -142,11 +175,10 @@ export default function Index(props) {
                                             {data.length === 0 && <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground">No {section.label.toLowerCase()} available.</TableCell></TableRow>}
                                         </TableBody>
                                     </Table>
-                                </div>
-                            </TabsContent>
-                        );
-                    })}
-                </Tabs>
+                            </div>
+                        </div>
+                    );
+                })}
             </TooltipProvider>
 
             <AlertDialog open={Boolean(selectedItem)} onOpenChange={(open) => { if (!open) closeDialog(); }}>
