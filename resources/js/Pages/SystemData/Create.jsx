@@ -55,6 +55,8 @@ export default function Create({ type }) {
                     icon={ PlusCircle }
                     title="System Data"
                     description="Create a new system data record."
+                backHref="/system-data"
+                    backLabel="Back to system data"
                 />
                 <Card>
                     <CardHeader>

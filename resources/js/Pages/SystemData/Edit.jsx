@@ -74,6 +74,8 @@ export default function Edit({ type, record }) {
                     icon={ SquarePen }
                     title="System Data"
                     description="Edit and update system data."
+                backHref="/system-data"
+                    backLabel="Back to system data"
                 />
                 <Card>
                     <CardHeader>

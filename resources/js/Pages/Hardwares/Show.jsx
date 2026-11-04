@@ -62,7 +62,9 @@ export default function Show({ hardware }) {
                 icon={ FileSearch }
                 title="Hardware details"
                 description="Device information and its complete history."
-            />
+            backHref="/hardwares"
+                    backLabel="Back to hardware"
+                />
 
             <Card>
                 <CardHeader>

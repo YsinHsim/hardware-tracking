@@ -68,6 +68,8 @@ export default function Create({ estates, assignedUsers, hardwareTypes, hardware
                     icon={ PlusCircle }
                     title="Hardware"
                     description="Add new hardware details."
+                backHref="/hardwares"
+                    backLabel="Back to hardware"
                 />
                 <Card>
                     <CardHeader>

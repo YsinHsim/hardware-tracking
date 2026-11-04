@@ -56,6 +56,8 @@ export default function Create({ positions, estates, users }) {
                     icon={ UserPlus }
                     title="Users"
                     description="Create an assigned hardware user."
+                backHref="/users"
+                    backLabel="Back to users"
                 />
                 <Card>
                     <CardHeader>

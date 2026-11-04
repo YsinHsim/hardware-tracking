@@ -51,6 +51,8 @@ export default function Edit({ estate, regions }) {
                     icon={ SquarePen }
                     title="Estates"
                     description="Edit and update estate data."
+                backHref="/estates"
+                    backLabel="Back to estates"
                 />
                 <Card>
                     <CardHeader>
