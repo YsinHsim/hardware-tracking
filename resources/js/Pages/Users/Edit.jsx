@@ -1,121 +1,96 @@
-import React, { useState } from 'react';
-import Layout from '../Layouts/Layout';
-import { router } from '@inertiajs/react';
-import ToastComponent from '../Components/ToastComponent';
+import React, { useState } from "react";
+import { router } from "@inertiajs/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Edit({ user, estates, positions }) {
-    // Toast state
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState("");
-
-    // User form state
     const [userValues, setUserValues] = useState({
         user_name: user.user_name,
         user_position_id: user.user_position_id || "",
         estate_id: user.estate_id || "",
     });
+    const [errors, setErrors] = useState({});
+    const [processing, setProcessing] = useState(false);
 
-    const handleChange = (e) => {
-        const key = e.target.id;
-        const value = e.target.value;
-        setUserValues((values) => ({
-            ...values,
-            [key]: value,
-        }));
-    };
+    function updateField(field, value) {
+        setUserValues((values) => ({ ...values, [field]: value }));
+        setErrors((current) => {
+            if (!current[field]) return current;
+            const next = { ...current };
+            delete next[field];
+            return next;
+        });
+    }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
+    function handleSubmit(event) {
+        event.preventDefault();
+        setProcessing(true);
         router.put(`/users/${user.id}`, userValues, {
             onSuccess: () => {
-                setToastMessage("User updated successfully!");
-                setToastType("alert-success");
+                setErrors({});
+                toast.success("User updated successfully!");
             },
-            onError: (errors) => {
-                console.error("Update failed:", errors);
-                setToastMessage("Failed to update user. Please try again.");
-                setToastType("alert-error");
+            onError: (validationErrors) => {
+                setErrors(validationErrors);
+                toast.error("Please fix the highlighted fields.");
             },
+            onFinish: () => setProcessing(false),
         });
-    };
+    }
+
+    const fieldError = (field) => errors[field] && <p className="text-sm text-destructive">{errors[field]}</p>;
 
     return (
         <Layout>
-            <div className="mx-4 mt-1">
-                <p className="text-3xl font-bold text-primary">User Management</p>
-                <p className="text-sm font-normal animate-pulse">Edit & Update User Data.</p>
-            </div>
-
-            <div className="divider" />
-
-            <div className="card bg-base-300 flex-auto mb-1 rounded-sm">
-                <div className="card-body">
-                    <h2 className="card-title text-primary">Edit User</h2>
-                    <form onSubmit={handleSubmit} className="mt-1">
-                        <div className="flex flex-col space-y-2">
-                            <div>
-                                <label className="text-sm font-semibold">User Name</label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter User Name"
-                                    className="input input-bordered w-full text-sm"
-                                    id="user_name"
-                                    value={userValues.user_name}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="text-sm font-semibold">Position</label>
-                                <select
-                                    className="select select-bordered w-full"
-                                    id="user_position_id"
-                                    value={userValues.user_position_id}
-                                    onChange={handleChange}
-                                    required
-                                >
-                                    <option value="">Select Position</option>
-                                    {positions.map((position) => (
-                                        <option key={position.id} value={position.id}>
-                                            {position.position_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-sm font-semibold">Estate</label>
-                                <select
-                                    className="select select-bordered w-full"
-                                    id="estate_id"
-                                    value={userValues.estate_id}
-                                    onChange={handleChange}
-                                    required
-                                >
-                                    <option value="">Select Estate</option>
-                                    {estates.map((estate) => (
-                                        <option key={estate.id} value={estate.id}>
-                                            {estate.estate_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="card-actions justify-end">
-                                <button type="submit" className="btn btn-sm btn-primary px-8 py-1 mt-2">
-                                    Update
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+            <div className="mx-auto max-w-2xl">
+                <div className="mb-6">
+                    <h1 className="font-heading text-3xl font-semibold">Users</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Edit and update assigned user data.</p>
                 </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl">Edit user</CardTitle>
+                        <CardDescription>Update {user.user_name}.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div className="space-y-2">
+                                <Label htmlFor="user_name">Name</Label>
+                                <Input id="user_name" value={userValues.user_name} onChange={(event) => updateField("user_name", event.target.value)} aria-invalid={Boolean(errors.user_name)} required />
+                                {fieldError("user_name")}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="user_position_id">Position</Label>
+                                <Select name="user_position_id" value={String(userValues.user_position_id)} onValueChange={(value) => updateField("user_position_id", value)} required>
+                                    <SelectTrigger id="user_position_id" className="w-full" aria-invalid={Boolean(errors.user_position_id)}><SelectValue placeholder="Select position" /></SelectTrigger>
+                                    <SelectContent>
+                                        {positions.map((position) => <SelectItem key={position.id} value={String(position.id)}>{position.position_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {fieldError("user_position_id")}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="estate_id">Estate</Label>
+                                <Select name="estate_id" value={String(userValues.estate_id)} onValueChange={(value) => updateField("estate_id", value)} required>
+                                    <SelectTrigger id="estate_id" className="w-full" aria-invalid={Boolean(errors.estate_id)}><SelectValue placeholder="Select estate" /></SelectTrigger>
+                                    <SelectContent>
+                                        {estates.map((estate) => <SelectItem key={estate.id} value={String(estate.id)}>{estate.estate_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {fieldError("estate_id")}
+                            </div>
+                            <div className="flex justify-end">
+                                <Button type="submit" disabled={processing}>{processing ? "Updating…" : "Update"}</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
-
-            {/* Toast Notification */}
-            <ToastComponent
-                message={toastMessage}
-                type={toastType}
-                onClose={() => setToastMessage("")} // Clear toast after closing
-            />
         </Layout>
     );
 }

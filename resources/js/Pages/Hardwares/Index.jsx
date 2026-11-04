@@ -1,14 +1,94 @@
 import React, { useEffect, useRef, useState } from "react";
-import Layout from "../Layouts/Layout";
 import { Link, router } from "@inertiajs/react";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AlertComponent from "../Components/AlertComponent";
-import ToastComponent from "../Components/ToastComponent";
-import ArticleIcon from "@mui/icons-material/Article";
+import { Eye, FileText, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { fadeRise, listStagger, spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
+
+const MotionRow = motion.create(TableRow);
+
+function HardwareActions({ hardware, onDelete }) {
+    return (
+        <div className="flex items-center gap-1">
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" asChild aria-label={`View ${hardware.hardware_no}`}>
+                        <Link href={`/hardwares/${hardware.id}`}><Eye /></Link>
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>View</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" asChild aria-label={`Edit ${hardware.hardware_no}`}>
+                        <Link href={`/hardwares/${hardware.id}/edit`}><Pencil /></Link>
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>Edit</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => onDelete(hardware)}
+                        aria-label={`Delete ${hardware.hardware_no}`}
+                    >
+                        <Trash2 />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" asChild aria-label={`Report for ${hardware.hardware_no}`}>
+                        <Link href={`/report/${hardware.id}`}><FileText /></Link>
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>Report</TooltipContent>
+            </Tooltip>
+        </div>
+    );
+}
 
 export default function Index({ hardwares, filters, estates, hardwareTypes, hardwareStatuses }) {
     const [search, setSearch] = useState(filters.search ?? "");
+    const [selectedHardware, setSelectedHardware] = useState(null);
+    const [deleteError, setDeleteError] = useState("");
+    const [deleting, setDeleting] = useState(false);
     const latestFilters = useRef(filters);
     const initialSearch = useRef(true);
     const searchDebounceTimeout = useRef(null);
@@ -19,351 +99,235 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
         filters.hardware_status_id !== null ||
         filters.per_page !== 10;
 
-    useEffect(() => {
-        setSearch(filters.search ?? "");
-    }, [filters.search]);
-
-    useEffect(() => {
-        latestFilters.current = filters;
-    }, [filters]);
-
+    useEffect(() => setSearch(filters.search ?? ""), [filters.search]);
+    useEffect(() => { latestFilters.current = filters; }, [filters]);
     useEffect(() => {
         if (initialSearch.current) {
             initialSearch.current = false;
             return;
         }
-
         searchDebounceTimeout.current = setTimeout(() => {
             applyFilters({ ...latestFilters.current, search });
         }, 300);
-
         return () => clearTimeout(searchDebounceTimeout.current);
     }, [search]);
-
     useEffect(() => () => {
-        if (searchDebounceTimeout.current) {
-            clearTimeout(searchDebounceTimeout.current);
-        }
+        if (searchDebounceTimeout.current) clearTimeout(searchDebounceTimeout.current);
     }, []);
 
     const applyFilters = (values) => {
         const params = {};
-
         if (values.search.trim() !== "") params.search = values.search.trim();
         if (values.estate_id) params.estate_id = values.estate_id;
         if (values.hardware_type_id) params.hardware_type_id = values.hardware_type_id;
         if (values.hardware_status_id) params.hardware_status_id = values.hardware_status_id;
         if (Number(values.per_page) !== 10) params.per_page = values.per_page;
-
-        router.get("/hardwares", params, {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true,
-        });
+        router.get("/hardwares", params, { preserveState: true, preserveScroll: true, replace: true });
     };
 
     const handleSelect = (key, value) => {
         applyFilters({
             ...latestFilters.current,
             search,
-            [key]: value === ""
-                ? null
-                : key === "per_page"
-                    ? Number(value)
-                    : value,
+            [key]: value === "none" ? null : key === "per_page" ? Number(value) : value,
         });
     };
 
     const clearFilters = () => {
         setSearch("");
-        router.get("/hardwares", {}, {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true,
-        });
+        router.get("/hardwares", {}, { preserveState: true, preserveScroll: true, replace: true });
     };
 
-    const [showAlert, setShowAlert] = useState(false);
-    const [selectedHardware, setSelectedHardware] = useState(null);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState("");
-
-    const handleDelete = (hardware) => {
-        setSelectedHardware(hardware);
-        setShowAlert(true);
-    };
-
-    const confirmDelete = () => {
+    const confirmDelete = (event) => {
+        event.preventDefault();
         if (!selectedHardware) return;
-
+        setDeleting(true);
         router.delete(`/hardwares/${selectedHardware.id}`, {
             onSuccess: () => {
-                setToastMessage("Hardware deleted successfully!");
-                setToastType("alert-success");
-                setShowAlert(false);
+                toast.success("Hardware deleted");
                 setSelectedHardware(null);
+                setDeleteError("");
             },
-            onError: (errors) => {
-                setToastMessage(errors.delete ?? "Failed to delete hardware. Please try again.");
-                setToastType("alert-error");
-                setShowAlert(false);
-            },
+            onError: (errors) => setDeleteError(errors.delete ?? "Failed to delete hardware. Please try again."),
+            onFinish: () => setDeleting(false),
         });
     };
+
+    const filterSelect = (key, value, placeholder, options, allLabel) => (
+        <Select value={value == null ? "none" : String(value)} onValueChange={(next) => handleSelect(key, next)}>
+            <SelectTrigger className="w-full sm:w-auto" aria-label={placeholder}>
+                <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+                {allLabel && <SelectItem value="none">{allLabel}</SelectItem>}
+                {options.map((option) => (
+                    <SelectItem key={option.value} value={String(option.value)}>{option.label}</SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    );
 
     return (
         <Layout>
-            <div className="mx-4 mt-1">
-                <p className="text-3xl font-bold text-primary">
-                    Hardware Management
-                </p>
-                <p className="text-sm font-normal animate-pulse">
-                    View & Manage Hardware Data.
-                </p>
-            </div>
-
-            <div className="divider" />
-
-            <div className="mx-4">
-                <div className="flex">
-                    <p className="text-xl font-semibold">
-                        Hardware List
-                    </p>
-                    <Link
-                        href="/hardwares/create"
-                        className="btn btn-sm shadow-md px-4 ml-auto"
-                    >
-                        Add Hardware
-                    </Link>
+            <TooltipProvider>
+                <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 className="font-heading text-3xl font-semibold">Hardware</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">Track devices, assignments, condition and location.</p>
+                    </div>
+                    <Button asChild><Link href="/hardwares/create"><Plus /> Add hardware</Link></Button>
                 </div>
 
-                <div className="flex flex-wrap gap-2 mt-2">
-                    <input
-                        type="text"
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search number or serial"
-                        className="input input-bordered input-sm w-full sm:w-64"
-                    />
-                    <select
-                        value={filters.estate_id ?? ""}
-                        onChange={(event) => handleSelect("estate_id", event.target.value)}
-                        className="select select-bordered select-sm"
-                    >
-                        <option value="">All estates</option>
-                        {estates.map((estate) => (
-                            <option key={estate.id} value={estate.id}>
-                                {estate.estate_name}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        value={filters.hardware_type_id ?? ""}
-                        onChange={(event) => handleSelect("hardware_type_id", event.target.value)}
-                        className="select select-bordered select-sm"
-                    >
-                        <option value="">All types</option>
-                        {hardwareTypes.map((type) => (
-                            <option key={type.id} value={type.id}>
-                                {type.hardware_type_name}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        value={filters.hardware_status_id ?? ""}
-                        onChange={(event) => handleSelect("hardware_status_id", event.target.value)}
-                        className="select select-bordered select-sm"
-                    >
-                        <option value="">All statuses</option>
-                        {hardwareStatuses.map((status) => (
-                            <option key={status.id} value={status.id}>
-                                {status.hardware_status_name}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        value={filters.per_page ?? 10}
-                        onChange={(event) => handleSelect("per_page", event.target.value)}
-                        className="select select-bordered select-sm"
-                    >
-                        {[10, 25, 50].map((size) => (
-                            <option key={size} value={size}>
-                                {size} per page
-                            </option>
-                        ))}
-                    </select>
-                    {hasFilters && (
-                        <button
-                            type="button"
-                            onClick={clearFilters}
-                            className="btn btn-ghost btn-sm"
-                        >
-                            Clear
-                        </button>
-                    )}
+                <div className="mb-5 flex flex-wrap gap-2">
+                    <div className="relative w-full sm:w-64">
+                        <Search className="pointer-events-none absolute top-2 left-2.5 size-4 text-muted-foreground" />
+                        <Input
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Search number or serial"
+                            aria-label="Search hardware"
+                            className="pl-8"
+                        />
+                    </div>
+                    {filterSelect("estate_id", filters.estate_id, "All estates", estates.map((estate) => ({ value: estate.id, label: estate.estate_name })), "All estates")}
+                    {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
+                    {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
+                    {filterSelect("per_page", filters.per_page ?? 10, "Per page", [10, 25, 50].map((size) => ({ value: size, label: `${size} per page` })))}
+                    {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear</Button>}
                 </div>
 
                 {hardwares.data.length > 0 ? (
                     <>
-                        <div className="w-full bg-base-300 mt-2">
-                            <table className="table table-sm">
-                                <thead>
-                                    <tr className="text-primary border-b-2 border-b-base-100">
-                                        <th>Hardware No</th>
-                                        <th>Type</th>
-                                        <th>Condition</th>
-                                        <th>Assigned User</th>
-                                        <th>Estate</th>
-                                        <th className="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {hardwares.data.map((hardware) => (
-                                        <tr key={hardware.id}>
-                                            <td>
-                                                <Link
-                                                    href={`/hardwares/${hardware.id}`}
-                                                    className="btn btn-ghost btn-sm rounded-md hover:text-accent"
-                                                >
-                                                    {hardware.hardware_no}
-                                                </Link>
-                                            </td>
-                                            <td>
-                                                {hardware.hardware_type
-                                                    ?.hardware_type_name ||
-                                                    "Unknown Type"}
-                                            </td>
-                                            <td>
-                                                {hardware.hardware_status
-                                                    ?.hardware_status_name ||
-                                                    "Unknown Status"}
-                                            </td>
-                                            <td>
-                                                {hardware.assigned_user?.id ? (
-                                                    <Link
-                                                        href={`/users/${hardware.assigned_user.id}`}
-                                                        className="btn btn-ghost btn-sm rounded-md"
-                                                    >
-                                                        {hardware.assigned_user
-                                                            ?.user_name ||
-                                                            "Unknown User"}
-                                                    </Link>
-                                                ) : (
-                                                    <span>Unassigned</span>
-                                                )}
-                                            </td>
-                                            <td>
-                                                <span className="overflow-auto whitespace-nowrap">
-                                                    {hardware.assigned_user
-                                                        ?.estate?.estate_name ||
-                                                        "Unknown Estate"}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div className="flex gap-1 justify-center">
-                                                    <div
-                                                        className="tooltip tooltip-left"
-                                                        data-tip="Edit"
-                                                    >
-                                                        <Link
-                                                            href={`/hardwares/${hardware.id}/edit`}
-                                                            className="btn btn-ghost btn-sm rounded-md"
-                                                        >
-                                                            <EditIcon className="text-primary hover:text-primary/75" />
-                                                        </Link>
-                                                    </div>
-                                                    <div
-                                                        className="tooltip tooltip-right"
-                                                        data-tip="Delete"
-                                                    >
-                                                        <button
-                                                            className="btn btn-ghost btn-sm rounded-md"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    hardware
-                                                                )
-                                                            }
-                                                        >
-                                                            <DeleteIcon className="text-error hover:text-error/75" />
-                                                        </button>
-                                                    </div>
-                                                    <div
-                                                        className="tooltip tooltip-right"
-                                                        data-tip="Report"
-                                                    >
-                                                        <button
-                                                            className="btn btn-ghost btn-sm rounded-md"
-                                                            onClick={() =>
-                                                                (window.location.href = `/report/${hardware.id}`)
-                                                            }
-                                                        >
-                                                            <ArticleIcon className="text-primary hover:text-primary/75" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="hidden rounded-xl border border-border bg-card md:block">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Tag</TableHead>
+                                        <TableHead>Assigned to</TableHead>
+                                        <TableHead>Type</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Estate</TableHead>
+                                        <TableHead><span className="sr-only">Actions</span></TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <AnimatePresence initial={false}>
+                                        {hardwares.data.map((hardware, index) => (
+                                            <MotionRow
+                                                key={hardware.id}
+                                                layout
+                                                variants={fadeRise}
+                                                initial="hidden"
+                                                animate="show"
+                                                exit="hidden"
+                                                transition={{ ...spring, delay: index * listStagger.staggerChildren }}
+                                            >
+                                                <TableCell>
+                                                    <Link href={`/hardwares/${hardware.id}`} className="font-mono font-medium hover:underline">{hardware.hardware_no}</Link>
+                                                    <div className="mt-1 font-mono text-xs text-muted-foreground">{hardware.hardware_serial_no}</div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {hardware.assigned_user?.id ? (
+                                                        <Link href={`/users/${hardware.assigned_user.id}`} className="hover:underline">{hardware.assigned_user.user_name || "Unknown User"}</Link>
+                                                    ) : <span className="text-muted-foreground">Unassigned</span>}
+                                                </TableCell>
+                                                <TableCell>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</TableCell>
+                                                <TableCell><Badge variant="outline">{hardware.hardware_status?.hardware_status_name || "Unknown Status"}</Badge></TableCell>
+                                                <TableCell>{hardware.assigned_user?.estate?.estate_name || <span className="text-muted-foreground">—</span>}</TableCell>
+                                                <TableCell><HardwareActions hardware={hardware} onDelete={setSelectedHardware} /></TableCell>
+                                            </MotionRow>
+                                        ))}
+                                    </AnimatePresence>
+                                </TableBody>
+                            </Table>
                         </div>
 
-                        {/* Pagination */}
-                        <div className="flex items-center mt-3 justify-end">
-                            {hardwares.links?.map((link, index) => (
-                                <Link
-                                    key={index}
-                                    href={link.url || "#"}
-                                    className={`btn btn-sm mx-1 ${
-                                        link.active ? "btn-active" : "btn"
-                                    }`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ))}
+                        <div className="space-y-3 md:hidden">
+                            <AnimatePresence initial={false}>
+                                {hardwares.data.map((hardware, index) => (
+                                    <motion.div
+                                        key={hardware.id}
+                                        layout
+                                        variants={fadeRise}
+                                        initial="hidden"
+                                        animate="show"
+                                        exit="hidden"
+                                        transition={{ ...spring, delay: index * listStagger.staggerChildren }}
+                                    >
+                                        <Card size="sm">
+                                            <CardContent className="space-y-3">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <Link href={`/hardwares/${hardware.id}`} className="font-mono font-medium hover:underline">{hardware.hardware_no}</Link>
+                                                        <div className="mt-1 font-mono text-xs text-muted-foreground">{hardware.hardware_serial_no}</div>
+                                                    </div>
+                                                    <Badge variant="outline">{hardware.hardware_status?.hardware_status_name || "Unknown Status"}</Badge>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    <div><span className="text-muted-foreground">Type</span><p>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</p></div>
+                                                    <div><span className="text-muted-foreground">Assigned to</span><p>{hardware.assigned_user?.user_name || "Unassigned"}</p></div>
+                                                    <div className="col-span-2"><span className="text-muted-foreground">Estate</span><p>{hardware.assigned_user?.estate?.estate_name || <span className="text-muted-foreground">—</span>}</p></div>
+                                                </div>
+                                                <HardwareActions hardware={hardware} onDelete={setSelectedHardware} />
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
                         </div>
+
+                        <nav className="mt-5 flex flex-wrap justify-end gap-1" aria-label="Pagination">
+                            {hardwares.links?.map((link, index) => (
+                                link.url ? (
+                                    <Button key={index} variant={link.active ? "default" : "outline"} size="sm" asChild>
+                                        <Link href={link.url} preserveScroll preserveState dangerouslySetInnerHTML={{ __html: link.label }} />
+                                    </Button>
+                                ) : (
+                                    <span
+                                        key={index}
+                                        className={cn(buttonVariants({ variant: "outline", size: "sm" }), "pointer-events-none opacity-50")}
+                                        aria-disabled="true"
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                    />
+                                )
+                            ))}
+                        </nav>
                     </>
                 ) : (
-                    <div className="mt-4">
-                        {hasFilters ? (
-                            <>
-                                <p className="text-xl mb-2">No hardware matches these filters.</p>
-                                <button
-                                    type="button"
-                                    onClick={clearFilters}
-                                    className="btn btn-sm btn-primary px-4"
-                                >
-                                    Clear
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <p className="text-xl mb-2">No hardware data exists.</p>
-                                <Link
-                                    href="/hardwares/create"
-                                    className="btn btn-sm btn-primary px-4"
-                                >
-                                    Add Hardware
-                                </Link>
-                            </>
-                        )}
-                    </div>
+                    <Card className="items-center py-10 text-center">
+                        <CardContent>
+                            <p className="font-heading text-lg">{hasFilters ? "No hardware matches these filters." : "No hardware data exists."}</p>
+                            <Button className="mt-4" onClick={hasFilters ? clearFilters : undefined} asChild={!hasFilters}>
+                                {hasFilters ? "Clear" : <Link href="/hardwares/create">Add hardware</Link>}
+                            </Button>
+                        </CardContent>
+                    </Card>
                 )}
-            </div>
+            </TooltipProvider>
 
-            {showAlert && (
-                <AlertComponent
-                    message={`Are you sure you want to delete ${selectedHardware?.hardware_no}?`}
-                    type="warning"
-                    onConfirm={confirmDelete}
-                    onCancel={() => setShowAlert(false)}
-                />
-            )}
-
-            <ToastComponent
-                message={toastMessage}
-                type={toastType}
-                onClose={() => setToastMessage("")}
-            />
+            <AlertDialog
+                open={Boolean(selectedHardware)}
+                onOpenChange={(open) => {
+                    if (!open && !deleting) {
+                        setSelectedHardware(null);
+                        setDeleteError("");
+                    }
+                }}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {selectedHardware?.hardware_no}?</AlertDialogTitle>
+                        <AlertDialogDescription>It moves to deleted hardware. Its history stays.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={confirmDelete} disabled={deleting}>
+                            {deleting ? "Deleting…" : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Layout>
     );
 }

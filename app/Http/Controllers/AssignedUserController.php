@@ -13,6 +13,12 @@ use Inertia\Inertia;
 
 class AssignedUserController extends Controller
 {
+    private const VALIDATION_ATTRIBUTES = [
+        'user_name' => 'name',
+        'user_position_id' => 'position',
+        'estate_id' => 'estate',
+    ];
+
     // Display a listing of users
     public function index()
     {
@@ -39,7 +45,7 @@ class AssignedUserController extends Controller
             'user_name' => 'required|string|max:255',
             'user_position_id' => 'required|exists:user_positions,id',
             'estate_id' => 'required|exists:estates,id',
-        ]);
+        ], [], self::VALIDATION_ATTRIBUTES);
 
         AssignedUser::create($validated);
 
@@ -61,7 +67,7 @@ class AssignedUserController extends Controller
             'user_name' => 'required|string|max:255',
             'user_position_id' => 'required|exists:user_positions,id',
             'estate_id' => 'required|exists:estates,id',
-        ]);
+        ], [], self::VALIDATION_ATTRIBUTES);
 
         $user->update($request->only('user_name', 'user_position_id', 'estate_id'));
 

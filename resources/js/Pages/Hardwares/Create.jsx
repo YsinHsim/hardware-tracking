@@ -1,124 +1,134 @@
-import React, { useState } from 'react';
-import { router } from '@inertiajs/react';
-import Layout from '../Layouts/Layout';
-import ToastComponent from '../Components/ToastComponent';
+import React, { useState } from "react";
+import { router } from "@inertiajs/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const emptyHardware = {
+    hardware_no: "",
+    hardware_serial_no: "",
+    assigned_user_id: "",
+    hardware_type_id: "",
+    hardware_status_id: "",
+};
 
 export default function Create({ estates, assignedUsers, hardwareTypes, hardwareStatuses }) {
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState("");
     const [selectedEstate, setSelectedEstate] = useState("");
+    const [hardwareValues, setHardwareValues] = useState(emptyHardware);
+    const [errors, setErrors] = useState({});
+    const [processing, setProcessing] = useState(false);
 
-    const [hardwareValues, setHardwareValues] = useState({
-        hardware_no: "",
-        hardware_serial_no: "",
-        assigned_user_id: "",
-        hardware_type_id: "",
-        hardware_status_id: "",
-    });
-
-    function handleChange(e) {
-        const { id, value } = e.target;
-        setHardwareValues((values) => ({
-            ...values,
-            [id]: value,
-        }));
-    }
-
-    function handleEstateChange(e) {
-        setSelectedEstate(e.target.value);
-        setHardwareValues((values) => ({
-            ...values,
-            assigned_user_id: "", // Reset assigned user selection when estate changes
-        }));
-    }
-
-    function handleSubmit(e) {
-        e.preventDefault();
-        router.post('/hardwares', hardwareValues, {
-            onSuccess: () => {
-                setHardwareValues({
-                    hardware_no: "",
-                    hardware_serial_no: "",
-                    assigned_user_id: "",
-                    hardware_type_id: "",
-                    hardware_status_id: "",
-                });
-                setToastMessage("New hardware added successfully!");
-                setToastType("alert-success");
-            },
-            onError: (errors) => {
-                console.error("Error submitting hardware:", errors);
-                setToastMessage("Failed to add hardware. Please check your input.");
-                setToastType("alert-warning");
-            }
+    function updateField(field, value) {
+        setHardwareValues((values) => ({ ...values, [field]: value }));
+        setErrors((current) => {
+            if (!current[field]) return current;
+            const next = { ...current };
+            delete next[field];
+            return next;
         });
     }
 
-    function getFilteredUsers(assignedUsers, selectedEstate) {
-        console.log("estate_id:", selectedEstate);
-        
-        if (!selectedEstate || typeof assignedUsers !== "object") {
-            console.log("Returned");
-            return [];
-        }
-    
-        return assignedUsers[selectedEstate] || []; // Return the array or an empty array
+    function handleEstateChange(value) {
+        setSelectedEstate(value);
+        updateField("assigned_user_id", "");
     }
 
-    // Usage inside the component:
-    const filteredUsers = getFilteredUsers(assignedUsers, selectedEstate);
+    function handleSubmit(event) {
+        event.preventDefault();
+        setProcessing(true);
+        router.post("/hardwares", hardwareValues, {
+            onSuccess: () => {
+                setHardwareValues(emptyHardware);
+                setErrors({});
+                toast.success("New hardware added successfully!");
+            },
+            onError: (validationErrors) => {
+                setErrors(validationErrors);
+                toast.error("Please fix the highlighted fields.");
+            },
+            onFinish: () => setProcessing(false),
+        });
+    }
+
+    const filteredUsers = selectedEstate && typeof assignedUsers === "object"
+        ? assignedUsers[selectedEstate] || []
+        : [];
+    const fieldError = (field) => errors[field] && <p className="text-sm text-destructive">{errors[field]}</p>;
 
     return (
         <Layout>
-            {toastMessage && (
-                <ToastComponent message={toastMessage} type={toastType} onClose={() => setToastMessage(null)} />
-            )}
-            <div className="mx-4 mt-1">
-                <p className="text-3xl font-bold text-primary">Hardware Management</p>
-                <p className="text-sm font-normal animate-pulse">Add new hardware details.</p>
-            </div>
-            <div className="divider" />
-            <div className="mx-4 mt-1">
-                <div className="card bg-base-300 flex-auto mb-1 rounded-sm">
-                    <div className="card-body">
-                        <h2 className="card-title text-primary">Create Hardware</h2>
-                        <form onSubmit={handleSubmit} className="mt-1">
-                            <div className="flex flex-col space-y-2">
-                                <input type="text" placeholder="Hardware No *" className="input input-bordered w-full text-sm"
-                                    id="hardware_no" value={hardwareValues.hardware_no} onChange={handleChange} required />
-                                <input type="text" placeholder="Serial No *" className="input input-bordered w-full text-sm"
-                                    id="hardware_serial_no" value={hardwareValues.hardware_serial_no} onChange={handleChange} required />
-                                <select className="select select-bordered w-full" onChange={handleEstateChange} required>
-                                    <option value="">Select Estate *</option>
-                                    {estates.map(estate => (
-                                        <option key={estate.id} value={estate.id}>{estate.estate_name}</option>
-                                    ))}
-                                </select>
-                                <select className="select select-bordered w-full" id="hardware_type_id" value={hardwareValues.hardware_type_id} onChange={handleChange} required>
-                                    <option value="">Select Hardware Type *</option>
-                                    {hardwareTypes.map(type => (
-                                        <option key={type.id} value={type.id}>{type.hardware_type_name}</option>
-                                    ))}
-                                </select>
-                                <select className="select select-bordered w-full" id="hardware_status_id" value={hardwareValues.hardware_status_id} onChange={handleChange} required>
-                                    <option value="">Select Hardware Status *</option>
-                                    {hardwareStatuses.map(status => (
-                                        <option key={status.id} value={status.id}>{status.hardware_status_name}</option>
-                                    ))}
-                                </select>
-                                <select className="select select-bordered w-full" id="assigned_user_id" value={hardwareValues.assigned_user_id} onChange={handleChange} disabled={!selectedEstate}>
-                                    <option value="">Select Assigned User (Optional)</option>
-                                    {filteredUsers.map(user => (
-                                        <option key={user.id} value={user.id}>{user.user_name}</option>
-                                    ))}
-                                </select>
-                                <div className="card-actions justify-end">
-                                    <button type="submit" className="btn btn-sm btn-primary px-8 py-1">Create</button>
-                                </div>
+            <div className="mx-auto max-w-2xl">
+                <div className="mb-6">
+                    <h1 className="font-heading text-3xl font-semibold">Hardware</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Add new hardware details.</p>
+                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl">Create hardware</CardTitle>
+                        <CardDescription>Register a device and optionally assign it to a user.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div className="space-y-2">
+                                <Label htmlFor="hardware_no">Hardware number</Label>
+                                <Input id="hardware_no" value={hardwareValues.hardware_no} onChange={(event) => updateField("hardware_no", event.target.value)} aria-invalid={Boolean(errors.hardware_no)} required />
+                                {fieldError("hardware_no")}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="hardware_serial_no">Serial number</Label>
+                                <Input id="hardware_serial_no" value={hardwareValues.hardware_serial_no} onChange={(event) => updateField("hardware_serial_no", event.target.value)} aria-invalid={Boolean(errors.hardware_serial_no)} required />
+                                {fieldError("hardware_serial_no")}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="estate">Estate</Label>
+                                <Select name="estate_filter" value={selectedEstate} onValueChange={handleEstateChange} required>
+                                    <SelectTrigger id="estate" className="w-full"><SelectValue placeholder="Select estate" /></SelectTrigger>
+                                    <SelectContent>
+                                        {estates.map((estate) => <SelectItem key={estate.id} value={String(estate.id)}>{estate.estate_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="hardware_type_id">Hardware type</Label>
+                                <Select name="hardware_type_id" value={String(hardwareValues.hardware_type_id)} onValueChange={(value) => updateField("hardware_type_id", value)} required>
+                                    <SelectTrigger id="hardware_type_id" className="w-full" aria-invalid={Boolean(errors.hardware_type_id)}><SelectValue placeholder="Select hardware type" /></SelectTrigger>
+                                    <SelectContent>
+                                        {hardwareTypes.map((type) => <SelectItem key={type.id} value={String(type.id)}>{type.hardware_type_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {fieldError("hardware_type_id")}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="hardware_status_id">Hardware status</Label>
+                                <Select name="hardware_status_id" value={String(hardwareValues.hardware_status_id)} onValueChange={(value) => updateField("hardware_status_id", value)} required>
+                                    <SelectTrigger id="hardware_status_id" className="w-full" aria-invalid={Boolean(errors.hardware_status_id)}><SelectValue placeholder="Select hardware status" /></SelectTrigger>
+                                    <SelectContent>
+                                        {hardwareStatuses.map((status) => <SelectItem key={status.id} value={String(status.id)}>{status.hardware_status_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {fieldError("hardware_status_id")}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="assigned_user_id">Assigned user <span className="text-muted-foreground">(optional)</span></Label>
+                                <Select value={hardwareValues.assigned_user_id === "" ? "none" : String(hardwareValues.assigned_user_id)} onValueChange={(value) => updateField("assigned_user_id", value === "none" ? "" : value)} disabled={!selectedEstate}>
+                                    <SelectTrigger id="assigned_user_id" className="w-full" aria-invalid={Boolean(errors.assigned_user_id)}><SelectValue placeholder="Select assigned user" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Unassigned</SelectItem>
+                                        {filteredUsers.map((user) => <SelectItem key={user.id} value={String(user.id)}>{user.user_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {fieldError("assigned_user_id")}
+                            </div>
+                            <div className="flex justify-end">
+                                <Button type="submit" disabled={processing}>{processing ? "Creating…" : "Create"}</Button>
                             </div>
                         </form>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             </div>
         </Layout>
     );

@@ -1,52 +1,77 @@
-import React, { useState } from 'react';
-import Layout from '../Layouts/Layout';
-import { router } from '@inertiajs/react';
+import React, { useState } from "react";
+import { router } from "@inertiajs/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+const placeholders = {
+    user_positions: "Enter position name",
+    hardware_statuses: "Enter hardware status",
+    hardware_types: "Enter hardware type",
+};
+
+const labels = {
+    user_positions: "Position name",
+    hardware_statuses: "Hardware status",
+    hardware_types: "Hardware type",
+};
 
 export default function Create({ type }) {
     const [name, setName] = useState("");
-    const [error, setError] = useState("");
+    const [errors, setErrors] = useState({});
+    const [processing, setProcessing] = useState(false);
+    const label = labels[type] || "Name";
 
-    const placeholders = {
-        user_positions: "Enter position name",
-        hardware_statuses: "Enter hardware status",
-        hardware_types: "Enter hardware type",
-    };
+    function updateName(value) {
+        setName(value);
+        setErrors({});
+    }
 
-    const labels = {
-        user_positions: "Position Name",
-        hardware_statuses: "Hardware Status",
-        hardware_types: "Hardware Type",
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    function handleSubmit(event) {
+        event.preventDefault();
+        setProcessing(true);
         router.post(`/system-data/${type}`, { name }, {
-            onSuccess: () => router.visit('/system-data'),
-            onError: (errors) => setError(errors.name),
+            onSuccess: () => {
+                toast.success(`${label} created successfully!`);
+                router.visit("/system-data");
+            },
+            onError: (validationErrors) => {
+                setErrors(validationErrors);
+                toast.error("Please fix the highlighted fields.");
+            },
+            onFinish: () => setProcessing(false),
         });
-    };
+    }
 
     return (
         <Layout>
-            <div className="mx-4 mt-4">
-                <p className="text-3xl font-bold text-primary">Create {type.replace("_", " ")}</p>
-            </div>
-            <div className="divider" />
-            <form onSubmit={handleSubmit} className="mx-4">
-                <div className="form-control">
-                    <label className="text-sm font-semibold">{labels[type] || "Name"}</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="input input-bordered"
-                        placeholder={placeholders[type] || "Enter name"}
-                        required
-                    />
-                    {error && <p className="text-error">{error}</p>}
+            <div className="mx-auto max-w-2xl">
+                <div className="mb-6">
+                    <h1 className="font-heading text-3xl font-semibold">System data</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Create a new system data record.</p>
                 </div>
-                <button type="submit" className="btn btn-primary mt-4">Save</button>
-            </form>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl">New {label.toLowerCase()}</CardTitle>
+                        <CardDescription>Add a record for use throughout the system.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">{label}</Label>
+                                <Input id="name" value={name} onChange={(event) => updateName(event.target.value)} placeholder={placeholders[type] || "Enter name"} aria-invalid={Boolean(errors.name)} required />
+                                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                            </div>
+                            <div className="flex justify-end">
+                                <Button type="submit" disabled={processing}>{processing ? "Creating…" : "Create"}</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
         </Layout>
     );
 }

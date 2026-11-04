@@ -1,111 +1,96 @@
-import React, { useState, useEffect } from "react";
-import { router, usePage } from "@inertiajs/react";
-import ThemeSwitcher from "@/Pages/Components/ThemeSwitcher";
-import AlertErrorComponent from "./Components/AlertErrorComponent";
+import React, { useState } from "react";
+import { Head, router, usePage } from "@inertiajs/react";
+import { motion } from "motion/react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { fadeRise, spring } from "@/lib/motion";
 
 export default function Login() {
     const { errors } = usePage().props;
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
-    // Hide loading spinner after a brief delay on page refresh.
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 500);
-        return () => clearTimeout(timer);
-    }, []);
-
-    const handleLogin = (e) => {
-        e.preventDefault();
-
+    const handleLogin = (event) => {
+        event.preventDefault();
+        setLoading(true);
         router.post(
             "/login",
             { email, password, remember },
-            {
-                onError: (error) => {
-                    console.error("Login error:", error.email || error.password);
-                },
-            }
+            { onFinish: () => setLoading(false) }
         );
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center bg-base-200">
-            {loading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="loading loading-spinner loading-lg text-primary" />
-                </div>
-            )}
-
-            <div className="absolute top-4 right-4">
-                <ThemeSwitcher />
-            </div>
-
-            {(errors.email || errors.password) && (
-                <div className="absolute top-20 w-100 flex justify-center">
-                    <AlertErrorComponent message={errors.email || errors.password} />
-                </div>
-            )}
-
-            <div className="w-full max-w-sm">
-                <div className="card bg-base-100 shadow-xl">
-                    <div className="card-body">
-                        <h2 className="card-title justify-center">Login</h2>
-                        <form onSubmit={handleLogin}>
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Email</span>
-                                </label>
-                                <input
+        <div className="relative flex min-h-screen items-center justify-center bg-background p-4">
+            <Head title="Log in" />
+            <div className="absolute top-4 right-4"><ThemeToggle /></div>
+            <motion.div
+                variants={fadeRise}
+                initial="hidden"
+                animate="show"
+                transition={spring}
+                className="w-full max-w-sm"
+            >
+                <Card>
+                    <CardHeader className="text-center">
+                        <CardTitle className="text-2xl">Hardware Tracking</CardTitle>
+                        <CardDescription>Sign in to manage your organisation's hardware.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleLogin} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
                                     type="email"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(event) => setEmail(event.target.value)}
                                     placeholder="Enter your email"
-                                    className="input input-bordered"
                                     autoComplete="username"
+                                    aria-invalid={Boolean(errors.email)}
                                     required
                                 />
+                                {errors.email && (
+                                    <p className="text-sm text-destructive">{errors.email}</p>
+                                )}
                             </div>
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Password</span>
-                                </label>
-                                <input
+                            <div className="space-y-2">
+                                <Label htmlFor="password">Password</Label>
+                                <Input
+                                    id="password"
                                     type="password"
                                     value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
+                                    onChange={(event) => setPassword(event.target.value)}
                                     placeholder="Enter your password"
-                                    className="input input-bordered"
                                     autoComplete="current-password"
+                                    aria-invalid={Boolean(errors.password)}
                                     required
                                 />
+                                {errors.password && (
+                                    <p className="text-sm text-destructive">{errors.password}</p>
+                                )}
                             </div>
-                            <div className="form-control mt-4">
-                                <label className="label cursor-pointer">
-                                    <span className="label-text">Remember me</span>
-                                    <input
-                                        type="checkbox"
-                                        checked={remember}
-                                        onChange={(e) => setRemember(e.target.checked)}
-                                        className="checkbox"
-                                    />
-                                </label>
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    id="remember"
+                                    checked={remember}
+                                    onCheckedChange={(checked) => setRemember(checked === true)}
+                                />
+                                <Label htmlFor="remember">Remember me</Label>
                             </div>
-                            <div className="form-control mt-6">
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary"
-                                >
-                                    Login
-                                </button>
-                            </div>
+                            <Button type="submit" className="w-full" disabled={loading}>
+                                {loading ? "Signing in…" : "Log in"}
+                            </Button>
                         </form>
-                    </div>
-                </div>
-            </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
         </div>
     );
 }

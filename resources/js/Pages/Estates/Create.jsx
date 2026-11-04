@@ -1,179 +1,151 @@
-import React, { useState } from 'react';
-import { router } from '@inertiajs/react'
-import Layout from '../Layouts/Layout';
-import ToastComponent from '../Components/ToastComponent';
+import React, { useState } from "react";
+import { router } from "@inertiajs/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const emptyEstate = { estate_name: "", region_id: "" };
 
 export default function Create({ estates, regions }) {
+    const [estateValues, setEstateValues] = useState(emptyEstate);
+    const [estateErrors, setEstateErrors] = useState({});
+    const [creatingEstate, setCreatingEstate] = useState(false);
+    const [regionValues, setRegionValues] = useState({ region_name: "" });
+    const [regionErrors, setRegionErrors] = useState({});
+    const [creatingRegion, setCreatingRegion] = useState(false);
 
-    {/* STATE FOR TOAST MESSAGE */ }
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState(""); // "success" or "warning"
-
-    {/* ESTATE STUFF START HERE /////////////////////   */ }
-    const [estateValues, setEstateValues] = useState({
-        estate_name: "",
-        region_id: "",
-    })
-
-    function handleChangeEstate(e) {
-        const key = e.target.id;
-        const value = e.target.value
-        setEstateValues(values => ({
-            ...values,
-            [key]: value,
-        }))
-    }
-
-    function handleSubmitEstate(e) {
-        e.preventDefault();
-
-        router.post('/estates', estateValues, {
-            onSuccess: () => {
-                setEstateValues({ estate_name: "", region_id: "" }); // Reset form
-                setToastMessage("New estate created successfully!");
-                setToastType("alert-success");
-            },
-            onError: (errors) => {
-                console.error("Error submitting estate:", errors);
-                setToastMessage("Failed to create estate. Please check your input.");
-                setToastType("alert-warning");
-            }
+    function updateField(field, value) {
+        setEstateValues((values) => ({ ...values, [field]: value }));
+        setEstateErrors((current) => {
+            if (!current[field]) return current;
+            const next = { ...current };
+            delete next[field];
+            return next;
         });
     }
 
-    {/* ///////////////////////////////////// */ }
-    {/* REGION STUFF START HERE /////////////////////   */ }
-    const [regionValues, setRegionValues] = useState({
-        region_name: "",
-    });
-
-    function handleChangeRegion(e) {
-        const key = e.target.id;
-        const value = e.target.value;
-        setRegionValues(values => ({
-            ...values,
-            [key]: value,
-        }));
+    function updateRegion(value) {
+        setRegionValues({ region_name: value });
+        setRegionErrors({});
     }
 
-    function handleSubmitRegion(e) {
-        e.preventDefault();
-
-        router.post('/regions', regionValues, {
+    function handleSubmitEstate(event) {
+        event.preventDefault();
+        setCreatingEstate(true);
+        router.post("/estates", estateValues, {
             onSuccess: () => {
-                setRegionValues({ region_name: "" }); // Reset form
-                setToastMessage("New region created successfully!");
-                setToastType("success");
+                setEstateValues(emptyEstate);
+                setEstateErrors({});
+                toast.success("New estate created successfully!");
             },
             onError: (errors) => {
-                console.error("Error submitting form:", errors);
-                setToastMessage("Failed to submit. Please check your input.");
-                setToastType("warning");
-            }
+                setEstateErrors(errors);
+                toast.error("Please fix the highlighted fields.");
+            },
+            onFinish: () => setCreatingEstate(false),
         });
     }
-    {/* ///////////////////////////////////// */ }
 
+    function handleSubmitRegion(event) {
+        event.preventDefault();
+        setCreatingRegion(true);
+        router.post("/regions", regionValues, {
+            onSuccess: () => {
+                setRegionValues({ region_name: "" });
+                setRegionErrors({});
+                toast.success("New region created successfully!");
+            },
+            onError: (errors) => {
+                setRegionErrors(errors);
+                toast.error("Please fix the highlighted fields.");
+            },
+            onFinish: () => setCreatingRegion(false),
+        });
+    }
 
+    const recentEstates = [...estates]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 3);
 
     return (
         <Layout>
-            {toastMessage && (
-                <ToastComponent message={toastMessage} type={toastType} onClose={() => setToastMessage(null)} />
-            )}
-            <div>
-                <div className="mx-4 mt-1">
-                    <p className="text-3xl font-bold text-primary">Estate Management</p>
-                    <p className="text-sm font-normal animate-pulse">Create Estate & Region.</p>
-                </div>
+            <div className="mb-6">
+                <h1 className="font-heading text-3xl font-semibold">Estates</h1>
+                <p className="mt-1 text-sm text-muted-foreground">Create an estate or a region.</p>
+            </div>
 
-                <div className="divider" />
-
-                <div className="mx-4 mt-1">
-                    <div className="md:flex gap-2">
-
-                        {regions?.length > 0 && (
-                            <div className="card bg-base-300 flex-auto mb-1 rounded-sm">
-                                <div className="card-body">
-                                    <h2 className="card-title text-primary">Create Estate</h2>
-                                    <form onSubmit={handleSubmitEstate} className="mt-1">
-                                        <div className="flex flex-col space-y-2">
-                                            {estates?.length > 0 && (
-                                                <div className="mt-2 mb-4">
-                                                    <p className="text-xl font-semibold">Recent Created Estates</p>
-                                                    <div className="grid grid-cols-3 gap-2 mt-2">
-                                                        {estates
-                                                            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by recent date
-                                                            .slice(0, 3) // Take the first 4 (most recent)
-                                                            .map(estate => (
-                                                                <div key={estate.id} className="btn shadow hover:bg-base-100 hover:shadow-md">
-                                                                    {estate.estate_name}
-                                                                </div>
-                                                            ))}
-                                                    </div>
-                                                </div>
-                                            )}
-                                            <input type="text" placeholder="Estate Name *" className="input input-bordered w-full text-sm"
-                                                id="estate_name" value={estateValues.estate_name} onChange={handleChangeEstate} required />
-                                            <select className="select select-bordered w-full"
-                                                id="region_id" value={estateValues.region_id} onChange={handleChangeEstate} required>
-                                                <option value="">Select Region *</option>
-                                                {regions.map(region => (
-                                                    <option key={region.id} value={region.id}>{region.region_name}</option>
-                                                ))}
-                                            </select>
-                                            <div className="card-actions justify-end">
-                                                <button type="submit" className="btn btn-sm btn-primary px-8 py-1">Create</button>
-                                            </div>
-                                        </div>
-                                    </form>
-
+            <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl">New estate</CardTitle>
+                        <CardDescription>Add an estate to an existing region.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {recentEstates.length > 0 && (
+                            <div className="mb-5">
+                                <p className="mb-2 text-sm font-medium">Recently created</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {recentEstates.map((estate) => <Badge key={estate.id} variant="outline">{estate.estate_name}</Badge>)}
                                 </div>
                             </div>
                         )}
-
-                        <div className="card bg-base-300 flex-auto mb-1 rounded-sm">
-                            <div className="card-body">
-                                {regions?.length > 0 && (
-                                    <h2 className="card-title text-primary">Create Region</h2>
-                                )}
-                                <form onSubmit={handleSubmitRegion} className="mt-1">
-                                    <div className="flex flex-col space-y-2">
-                                        {regions?.length > 0 ? (
-                                            <div className="mt-2 mb-4">
-                                                <p className="text-xl font-semibold">Region List</p>
-                                                <div className="grid grid-cols-4 gap-2 mt-2">
-                                                    {regions.map(region => (
-                                                        <div key={region.id} className="btn shadow hover:bg-base-100 hover:shadow-md">{region.region_name}</div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="hero bg-base-300 rounded-sm">
-                                                <div className="hero-content text-left">
-                                                    <h2 className="text-xl text-secondary animate-pulse">Region don't exist. Please create one.</h2>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div>
-                                            {regions?.length <= 0 && (
-                                                <p className="text-2xl mb-1">Create Region</p>
-                                            )}
-                                            <input type="text" placeholder="Region Name *" className="input input-bordered w-full text-sm"
-                                                id="region_name" value={regionValues.region_name} onChange={handleChangeRegion} required />
-                                        </div>
-                                        <div className="card-actions justify-end">
-                                            <button type="submit" className="btn btn-sm btn-primary px-8 py-1">Create</button>
-                                        </div>
-                                    </div>
-                                </form>
+                        <form onSubmit={handleSubmitEstate} className="space-y-5">
+                            <div className="space-y-2">
+                                <Label htmlFor="estate_name">Estate name</Label>
+                                <Input id="estate_name" value={estateValues.estate_name} onChange={(event) => updateField("estate_name", event.target.value)} aria-invalid={Boolean(estateErrors.estate_name)} required />
+                                {estateErrors.estate_name && <p className="text-sm text-destructive">{estateErrors.estate_name}</p>}
                             </div>
-                        </div>
-                    </div>
-                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="region_id">Region</Label>
+                                <Select name="region_id" value={String(estateValues.region_id)} onValueChange={(value) => updateField("region_id", value)} required disabled={regions.length === 0}>
+                                    <SelectTrigger id="region_id" className="w-full" aria-invalid={Boolean(estateErrors.region_id)}>
+                                        <SelectValue placeholder={regions.length === 0 ? "Create a region first" : "Select region"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {regions.map((region) => <SelectItem key={region.id} value={String(region.id)}>{region.region_name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {estateErrors.region_id && <p className="text-sm text-destructive">{estateErrors.region_id}</p>}
+                            </div>
+                            <div className="flex justify-end">
+                                <Button type="submit" disabled={creatingEstate || regions.length === 0}>{creatingEstate ? "Creating…" : "Create"}</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
 
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl">New region</CardTitle>
+                        <CardDescription>Create a region to use when adding estates.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {regions.length > 0 && (
+                            <div className="mb-5">
+                                <p className="mb-2 text-sm font-medium">Regions</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {regions.map((region) => <Badge key={region.id} variant="outline">{region.region_name}</Badge>)}
+                                </div>
+                            </div>
+                        )}
+                        <form onSubmit={handleSubmitRegion} className="space-y-5">
+                            <div className="space-y-2">
+                                <Label htmlFor="region_name">Region name</Label>
+                                <Input id="region_name" value={regionValues.region_name} onChange={(event) => updateRegion(event.target.value)} aria-invalid={Boolean(regionErrors.region_name)} required />
+                                {regionErrors.region_name && <p className="text-sm text-destructive">{regionErrors.region_name}</p>}
+                            </div>
+                            <div className="flex justify-end">
+                                <Button type="submit" disabled={creatingRegion}>{creatingRegion ? "Creating…" : "Create"}</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </Layout>
-    )
+    );
 }
