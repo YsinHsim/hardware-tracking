@@ -9,27 +9,58 @@ export default function PageHeader({ icon: Icon, title, description, actions, cl
             variants={fadeRise}
             initial="hidden"
             animate="show"
-            className={cn("mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between", className)}
+            className={cn(
+                "relative mb-6 overflow-hidden rounded-xl border border-border bg-card p-5 sm:p-6",
+                className
+            )}
         >
-            <div className="flex items-center gap-3.5">
-                {Icon && (
-                    <motion.span
-                        initial={{ scale: 0.7, opacity: 0, rotate: -8 }}
-                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                        transition={{ ...spring, delay: 0.08 }}
-                        className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border bg-gradient-to-br from-muted to-background text-foreground shadow-sm"
-                    >
-                        <Icon className="size-5" aria-hidden="true" />
-                    </motion.span>
-                )}
-                <div className="min-w-0">
-                    <h1 className="font-heading text-3xl font-semibold tracking-tight">{title}</h1>
-                    {description && (
-                        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent"
+            />
+            <motion.div
+                aria-hidden="true"
+                initial={{ opacity: 0.6 }}
+                animate={{ opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-primary/10 blur-3xl"
+            />
+
+            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-4">
+                    {Icon && (
+                        <motion.span
+                            initial={{ scale: 0.6, opacity: 0, rotate: -12 }}
+                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                            transition={{ ...spring, delay: 0.1 }}
+                            className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                        >
+                            <Icon className="size-6" aria-hidden="true" />
+                        </motion.span>
                     )}
+                    <div className="min-w-0">
+                        <motion.h1
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.16, ...spring }}
+                            className="font-heading text-3xl font-semibold tracking-tight"
+                        >
+                            {title}
+                        </motion.h1>
+                        {description && (
+                            <motion.p
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.24, ...spring }}
+                                className="mt-1 text-sm text-muted-foreground"
+                            >
+                                {description}
+                            </motion.p>
+                        )}
+                    </div>
                 </div>
+                {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
             </div>
-            {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </motion.header>
     );
 }
