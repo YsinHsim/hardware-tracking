@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const emptyEstate = { estate_name: "", region_id: "" };
 
-export default function Create({ estates, regions }) {
+export default function Create({ branches, regions }) {
     const [estateValues, setEstateValues] = useState(emptyEstate);
     const [estateErrors, setEstateErrors] = useState({});
     const [creatingEstate, setCreatingEstate] = useState(false);
@@ -43,7 +43,7 @@ export default function Create({ estates, regions }) {
             onSuccess: () => {
                 setEstateValues(emptyEstate);
                 setEstateErrors({});
-                toast.success("New estate created successfully!");
+                toast.success("New branch created successfully!");
             },
             onError: (errors) => {
                 setEstateErrors(errors);
@@ -70,7 +70,7 @@ export default function Create({ estates, regions }) {
         });
     }
 
-    const recentEstates = [...estates]
+    const recentEstates = [...branches]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 3);
 
@@ -78,17 +78,17 @@ export default function Create({ estates, regions }) {
         <Layout>
             <PageHeader
                 icon={ MapPinned }
-                title="Estates"
-                description="Create an estate or a region."
+                title="Branches"
+                description="Create a branch or a region."
             backHref="/estates"
-                    backLabel="Back to estates"
+                    backLabel="Back to branches"
                 />
 
             <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-xl">New estate</CardTitle>
-                        <CardDescription>Add an estate to an existing region.</CardDescription>
+                        <CardTitle className="text-xl">New branch</CardTitle>
+                        <CardDescription>Add a branch to an existing region.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {recentEstates.length > 0 && (
@@ -101,7 +101,7 @@ export default function Create({ estates, regions }) {
                         )}
                         <form onSubmit={handleSubmitEstate} className="space-y-5">
                             <div className="space-y-2">
-                                <Label htmlFor="estate_name">Estate name</Label>
+                                <Label htmlFor="estate_name">Branch name</Label>
                                 <Input id="estate_name" value={estateValues.estate_name} onChange={(event) => updateField("estate_name", event.target.value)} aria-invalid={Boolean(estateErrors.estate_name)} required />
                                 {estateErrors.estate_name && <p className="text-sm text-destructive">{estateErrors.estate_name}</p>}
                             </div>
@@ -127,7 +127,7 @@ export default function Create({ estates, regions }) {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-xl">New region</CardTitle>
-                        <CardDescription>Create a region to use when adding estates.</CardDescription>
+                        <CardDescription>Create a region to use when adding branches.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {regions.length > 0 && (

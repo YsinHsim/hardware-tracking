@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 
 const MotionRow = motion.create(TableRow);
 
-function EstateActions({ estate, onDelete }) {
+function EstateActions({ branch, onDelete }) {
     return (
         <div className="flex items-center gap-1">
             <Tooltip>
@@ -63,7 +63,7 @@ function EstateActions({ estate, onDelete }) {
     );
 }
 
-export default function Index({ estates, filters, regions, total }) {
+export default function Index({ branches, filters, regions, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedEstate, setSelectedEstate] = useState(null);
@@ -134,7 +134,7 @@ export default function Index({ estates, filters, regions, total }) {
         setDeleting(true);
         router.delete(`/estates/${selectedEstate.id}`, {
             onSuccess: () => {
-                toast.success("Estate deleted successfully!");
+                toast.success("Branch deleted successfully!");
                 setSelectedEstate(null);
                 setDeleteError("");
             },
@@ -148,8 +148,8 @@ export default function Index({ estates, filters, regions, total }) {
             <TooltipProvider>
                 <PageHeader
                     icon={ Map }
-                    title="Estates"
-                    description="Manage estates and their regions."
+                    title="Branches"
+                    description="Manage branches and their regions."
                 />
 
                 <div className="mb-5 rounded-xl border border-border bg-card p-4">
@@ -159,13 +159,13 @@ export default function Index({ estates, filters, regions, total }) {
                             <Input
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Search estate, region…"
-                                aria-label="Search estates"
+                                placeholder="Search branch, region…"
+                                aria-label="Search branches"
                                 className="pl-8"
                             />
                         </div>
                         <Button asChild className="shrink-0 sm:ml-auto">
-                            <Link href="/estates/create"><Plus /> Add estate</Link>
+                            <Link href="/estates/create"><Plus /> Add branch</Link>
                         </Button>
                     </div>
 
@@ -177,7 +177,7 @@ export default function Index({ estates, filters, regions, total }) {
                             size="sm"
                             onClick={() => setFiltersOpen((open) => !open)}
                             aria-expanded={filtersOpen}
-                            aria-controls="estate-filters"
+                            aria-controls="branch-filters"
                             className="-ml-2 gap-1.5 text-muted-foreground hover:text-foreground"
                         >
                             <Filter />
@@ -190,7 +190,7 @@ export default function Index({ estates, filters, regions, total }) {
 
                         <div className="flex flex-wrap items-center gap-2">
                             <p className="text-sm text-muted-foreground" aria-live="polite">
-                                {total} {total === 1 ? "estate" : "estates"}
+                                {total} {total === 1 ? "branch" : "branches"}
                             </p>
                             {filters.search !== "" && (
                                 <Badge variant="secondary" className="gap-1 font-normal">
@@ -222,7 +222,7 @@ export default function Index({ estates, filters, regions, total }) {
                     </div>
 
                     {filtersOpen && (
-                        <div id="estate-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        <div id="branch-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
                             <Select
                                 value={filters.region_id == null ? "none" : String(filters.region_id)}
                                 onValueChange={(next) => handleSelect("region_id", next)}
@@ -250,7 +250,7 @@ export default function Index({ estates, filters, regions, total }) {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Estate</TableHead>
+                                        <TableHead>Branch</TableHead>
                                         <TableHead>Region</TableHead>
                                         <TableHead><span className="sr-only">Actions</span></TableHead>
                                     </TableRow>
@@ -269,7 +269,7 @@ export default function Index({ estates, filters, regions, total }) {
                                             >
                                                 <TableCell className="font-medium">{estate.estate_name}</TableCell>
                                                 <TableCell>{estate.region?.region_name || "N/A"}</TableCell>
-                                                <TableCell><EstateActions estate={estate} onDelete={setSelectedEstate} /></TableCell>
+                                                <TableCell><EstateActions branch={estate} onDelete={setSelectedEstate} /></TableCell>
                                             </MotionRow>
                                         ))}
                                     </AnimatePresence>
@@ -295,7 +295,7 @@ export default function Index({ estates, filters, regions, total }) {
                                                     <p className="font-medium">{estate.estate_name}</p>
                                                     <p className="mt-1 text-sm text-muted-foreground">{estate.region?.region_name || "N/A"}</p>
                                                 </div>
-                                                <EstateActions estate={estate} onDelete={setSelectedEstate} />
+                                                <EstateActions branch={estate} onDelete={setSelectedEstate} />
                                             </CardContent>
                                         </Card>
                                     </motion.div>
@@ -341,9 +341,9 @@ export default function Index({ estates, filters, regions, total }) {
                 ) : (
                     <Card className="items-center py-10 text-center">
                         <CardContent>
-                            <p className="font-heading text-lg">{hasFilters ? "No estates match these filters." : "No estate data exists."}</p>
+                            <p className="font-heading text-lg">{hasFilters ? "No branches match these filters." : "No branch data exists."}</p>
                             <Button className="mt-4" onClick={hasFilters ? clearFilters : undefined} asChild={!hasFilters}>
-                                {hasFilters ? "Clear" : <Link href="/estates/create">Add estate</Link>}
+                                {hasFilters ? "Clear" : <Link href="/estates/create">Add branch</Link>}
                             </Button>
                         </CardContent>
                     </Card>

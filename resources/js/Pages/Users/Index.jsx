@@ -63,7 +63,7 @@ function UserActions({ user, onDelete }) {
     );
 }
 
-export default function Index({ users, filters, estates, positions, total }) {
+export default function Index({ users, filters, branches, positions, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -81,7 +81,7 @@ export default function Index({ users, filters, estates, positions, total }) {
     const activeFilters = [
         filters.estate_id !== null && {
             key: "estate_id",
-            label: estates.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Estate",
+            label: branches.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Branch",
         },
         filters.position_id !== null && {
             key: "position_id",
@@ -179,7 +179,7 @@ export default function Index({ users, filters, estates, positions, total }) {
                             <Input
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Search user, position, estate…"
+                                placeholder="Search user, position, branch…"
                                 aria-label="Search users"
                                 className="pl-8"
                             />
@@ -243,7 +243,7 @@ export default function Index({ users, filters, estates, positions, total }) {
 
                     {filtersOpen && (
                         <div id="user-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                            {filterSelect("estate_id", filters.estate_id, "All estates", estates.map((estate) => ({ value: estate.id, label: estate.estate_name })), "All estates")}
+                            {filterSelect("estate_id", filters.estate_id, "All branches", branches.map((estate) => ({ value: estate.id, label: estate.estate_name })), "All branches")}
                             {filterSelect("position_id", filters.position_id, "All positions", positions.map((position) => ({ value: position.id, label: position.position_name })), "All positions")}
                             <div className="flex items-center">
                                 {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}
@@ -260,7 +260,7 @@ export default function Index({ users, filters, estates, positions, total }) {
                                     <TableRow>
                                         <TableHead>User</TableHead>
                                         <TableHead>Position</TableHead>
-                                        <TableHead>Estate</TableHead>
+                                        <TableHead>Branch</TableHead>
                                         <TableHead><span className="sr-only">Actions</span></TableHead>
                                     </TableRow>
                                 </TableHeader>

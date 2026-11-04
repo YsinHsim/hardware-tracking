@@ -108,7 +108,7 @@ const Report = ({ hardware_id, hardware_no, hardware_serial_no, hardware_user, h
                             <td style={styles.cell}>{hardware_status}</td>
                         </tr>
                         <tr style={styles.row}>
-                            <td style={{ ...styles.cell, ...styles.label }}>Estate:</td>
+                            <td style={{ ...styles.cell, ...styles.label }}>Branch:</td>
                             <td style={styles.cell}>{estate_name}</td>
                         </tr>
                     </tbody>

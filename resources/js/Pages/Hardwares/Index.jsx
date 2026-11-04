@@ -86,7 +86,7 @@ function HardwareActions({ hardware, onDelete }) {
     );
 }
 
-export default function Index({ hardwares, filters, estates, hardwareTypes, hardwareStatuses, total }) {
+export default function Index({ hardwares, filters, branches, hardwareTypes, hardwareStatuses, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedHardware, setSelectedHardware] = useState(null);
@@ -107,7 +107,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
             key: "estate_id",
             label: filters.estate_id === "unassigned"
                 ? "Unassigned"
-                : estates.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Estate",
+                : branches.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Branch",
         },
         filters.hardware_type_id !== null && {
             key: "hardware_type_id",
@@ -210,7 +210,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                             <Input
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Search tag, serial, user, estate, type…"
+                                placeholder="Search tag, serial, user, branch, type…"
                                 aria-label="Search hardware"
                                 className="pl-8"
                             />
@@ -274,10 +274,10 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
 
                     {filtersOpen && (
                         <div id="hardware-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                            {filterSelect("estate_id", filters.estate_id, "All estates", [
+                            {filterSelect("estate_id", filters.estate_id, "All branches", [
                                 { value: "unassigned", label: "Unassigned" },
-                                ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
-                            ], "All estates")}
+                                ...branches.map((estate) => ({ value: estate.id, label: estate.estate_name })),
+                            ], "All branches")}
                             {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
                             {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
                             <div className="flex items-center">
@@ -296,7 +296,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                                         <TableHead>Assigned to</TableHead>
                                         <TableHead>Type</TableHead>
                                         <TableHead>Status</TableHead>
-                                        <TableHead>Estate</TableHead>
+                                        <TableHead>Branch</TableHead>
                                         <TableHead><span className="sr-only">Actions</span></TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -356,7 +356,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                                                 <div className="grid grid-cols-2 gap-2 text-sm">
                                                     <div><span className="text-muted-foreground">Type</span><p>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</p></div>
                                                     <div><span className="text-muted-foreground">Assigned to</span><p>{hardware.assigned_user?.user_name || "Unassigned"}</p></div>
-                                                    <div className="col-span-2"><span className="text-muted-foreground">Estate</span><p>{hardware.assigned_user?.estate?.estate_name || <span className="text-muted-foreground">—</span>}</p></div>
+                                                    <div className="col-span-2"><span className="text-muted-foreground">Branch</span><p>{hardware.assigned_user?.estate?.estate_name || <span className="text-muted-foreground">—</span>}</p></div>
                                                 </div>
                                                 <HardwareActions hardware={hardware} onDelete={setSelectedHardware} />
                                             </CardContent>

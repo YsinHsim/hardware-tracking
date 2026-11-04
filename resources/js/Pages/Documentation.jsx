@@ -8,7 +8,7 @@ import { fadeRise, spring } from "@/lib/motion";
 
 const sections = [
     { id: "introduction", label: "Introduction" },
-    { id: "estates", label: "Estates" },
+    { id: "branches", label: "Branches" },
     { id: "assigned-users", label: "Assigned Users" },
     { id: "hardwares", label: "Hardware" },
 ];
@@ -41,7 +41,7 @@ export default function Documentation() {
                     <div className="min-w-0 flex-1">
                         <h1 className="font-heading text-3xl font-semibold">Documentation</h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            How to set up estates, users and hardware in the tracking app.
+                            How to set up branches, users and hardware in the tracking app.
                         </p>
 
                         <section id="introduction" className="mt-8 scroll-mt-6">
@@ -56,19 +56,19 @@ export default function Documentation() {
 
                         <Separator className="my-6" />
 
-                        <section id="estates" className="scroll-mt-6">
-                            <h2 className="font-heading text-xl font-semibold">Estates</h2>
+                        <section id="branches" className="scroll-mt-6">
+                            <h2 className="font-heading text-xl font-semibold">Branches</h2>
                             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                Estates represent locations or groups where hardware is stored or used. Before you can
-                                add hardware or assign users, you need to create an estate.
+                                Branches represent locations or groups where hardware is stored or used. Before you can
+                                add hardware or assign users, you need to create a branch.
                             </p>
-                            <p className="mt-4 text-sm font-medium">How to create an estate:</p>
+                            <p className="mt-4 text-sm font-medium">How to create an branch:</p>
                             <ol className="mt-2 list-decimal space-y-1 pl-5">
-                                <Step>Go to the <InlineLink href="/estates">Estates</InlineLink> page.</Step>
-                                <Step>Click the <span className="font-medium text-foreground">Create estate</span> button.</Step>
-                                <Step>You may create a <span className="font-medium text-foreground">Region</span> first if it does not exist, then proceed to create the <span className="font-medium text-foreground">Estate</span>.</Step>
-                                <Step>For the <span className="font-medium text-foreground">Estate</span>, fill in the <span className="font-medium text-foreground">Estate name</span> and <span className="font-medium text-foreground">Region</span> fields.</Step>
-                                <Step>Click <span className="font-medium text-foreground">Create</span> to save the estate.</Step>
+                                <Step>Go to the <InlineLink href="/estates">Branches</InlineLink> page.</Step>
+                                <Step>Click the <span className="font-medium text-foreground">Create branch</span> button.</Step>
+                                <Step>You may create a <span className="font-medium text-foreground">Region</span> first if it does not exist, then proceed to create the <span className="font-medium text-foreground">Branch</span>.</Step>
+                                <Step>For the <span className="font-medium text-foreground">Branch</span>, fill in the <span className="font-medium text-foreground">Branch name</span> and <span className="font-medium text-foreground">Region</span> fields.</Step>
+                                <Step>Click <span className="font-medium text-foreground">Create</span> to save the branch.</Step>
                             </ol>
                         </section>
 
@@ -78,14 +78,14 @@ export default function Documentation() {
                             <h2 className="font-heading text-xl font-semibold">Assigned Users</h2>
                             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                                 Assigned users are individuals responsible for hardware assets. Each user must be
-                                linked to an estate.
+                                linked to a branch.
                             </p>
                             <p className="mt-4 text-sm font-medium">How to create an assigned user:</p>
                             <ol className="mt-2 list-decimal space-y-1 pl-5">
                                 <Step>Go to the <InlineLink href="/users">Assigned Users</InlineLink> page.</Step>
                                 <Step>Click the <span className="font-medium text-foreground">Add user</span> button.</Step>
                                 <Step>Fill out the form with the user details (e.g., name, email).</Step>
-                                <Step>Select the estate the user belongs to.</Step>
+                                <Step>Select the branch the user belongs to.</Step>
                                 <Step>Click <span className="font-medium text-foreground">Save</span> to create the user.</Step>
                             </ol>
                         </section>
@@ -107,7 +107,7 @@ export default function Documentation() {
                                     <ul className="mt-1 list-disc space-y-1 pl-5">
                                         <li>Hardware No</li>
                                         <li>Serial No</li>
-                                        <li>Estate</li>
+                                        <li>Branch</li>
                                         <li>Hardware type</li>
                                         <li>Hardware status</li>
                                     </ul>

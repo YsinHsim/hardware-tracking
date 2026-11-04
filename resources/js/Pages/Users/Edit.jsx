@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function Edit({ user, estates, positions }) {
+export default function Edit({ user, branches, positions }) {
     const [userValues, setUserValues] = useState({
         user_name: user.user_name,
         user_position_id: user.user_position_id || "",
@@ -80,9 +80,9 @@ export default function Edit({ user, estates, positions }) {
                                 {fieldError("user_position_id")}
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="estate_id">Estate</Label>
+                                <Label htmlFor="estate_id">Branch</Label>
                                 <Select name="estate_id" value={String(userValues.estate_id)} onValueChange={(value) => updateField("estate_id", value)} required>
-                                    <SelectTrigger id="estate_id" className="w-full" aria-invalid={Boolean(errors.estate_id)}><SelectValue placeholder="Select estate" /></SelectTrigger>
+                                    <SelectTrigger id="estate_id" className="w-full" aria-invalid={Boolean(errors.estate_id)}><SelectValue placeholder="Select branch" /></SelectTrigger>
                                     <SelectContent>
                                         {estates.map((estate) => <SelectItem key={estate.id} value={String(estate.id)}>{estate.estate_name}</SelectItem>)}
                                     </SelectContent>

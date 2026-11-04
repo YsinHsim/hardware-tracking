@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function Edit({ estate, regions }) {
+export default function Edit({ branch, regions }) {
     const [estateValues, setEstateValues] = useState({
         estate_name: estate.estate_name,
         region_id: estate.region_id,
@@ -34,7 +34,7 @@ export default function Edit({ estate, regions }) {
         router.put(`/estates/${estate.id}`, estateValues, {
             onSuccess: () => {
                 setErrors({});
-                toast.success("Estate updated successfully!");
+                toast.success("Branch updated successfully!");
             },
             onError: (validationErrors) => {
                 setErrors(validationErrors);
@@ -49,20 +49,20 @@ export default function Edit({ estate, regions }) {
             <div className="mx-auto max-w-2xl">
                 <PageHeader
                     icon={ SquarePen }
-                    title="Estates"
-                    description="Edit and update estate data."
+                    title="Branches"
+                    description="Edit and update branch data."
                 backHref="/estates"
-                    backLabel="Back to estates"
+                    backLabel="Back to branches"
                 />
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-xl">Edit estate</CardTitle>
+                        <CardTitle className="text-xl">Edit branch</CardTitle>
                         <CardDescription>Update {estate.estate_name}.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div className="space-y-2">
-                                <Label htmlFor="estate_name">Estate name</Label>
+                                <Label htmlFor="estate_name">Branch name</Label>
                                 <Input id="estate_name" value={estateValues.estate_name} onChange={(event) => updateField("estate_name", event.target.value)} aria-invalid={Boolean(errors.estate_name)} required />
                                 {errors.estate_name && <p className="text-sm text-destructive">{errors.estate_name}</p>}
                             </div>
