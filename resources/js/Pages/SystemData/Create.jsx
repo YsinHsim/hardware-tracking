@@ -50,7 +50,7 @@ export default function Create({ type }) {
         <Layout>
             <div className="mx-auto max-w-2xl">
                 <div className="mb-6">
-                    <h1 className="font-heading text-3xl font-semibold">System data</h1>
+                    <h1 className="font-heading text-3xl font-semibold">System Data</h1>
                     <p className="mt-1 text-sm text-muted-foreground">Create a new system data record.</p>
                 </div>
                 <Card>

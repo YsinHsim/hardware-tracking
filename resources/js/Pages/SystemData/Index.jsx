@@ -73,12 +73,12 @@ export default function Index(props) {
         <Layout>
             <TooltipProvider>
                 <div className="mb-6">
-                    <h1 className="font-heading text-3xl font-semibold">System data</h1>
+                    <h1 className="font-heading text-3xl font-semibold">System Data</h1>
                     <p className="mt-1 text-sm text-muted-foreground">Manage user positions, hardware statuses and hardware types.</p>
                 </div>
 
                 <Tabs defaultValue="user_positions">
-                    <TabsList className="w-full justify-start overflow-x-auto sm:w-fit">
+                    <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
                         {sections.map((section) => <TabsTrigger key={section.type} value={section.type}>{section.label}</TabsTrigger>)}
                     </TabsList>
                     {sections.map((section) => {
