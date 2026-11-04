@@ -36,7 +36,7 @@ const statCards = [
     { key: "totalBranches", label: "Branches", icon: Building2, description: "Branches on record" },
 ];
 
-export default function Dashboard({ stats, statusBreakdown, branchBreakdown }) {
+export default function Dashboard({ stats, statusBreakdown, branchBreakdown, recentActivity }) {
     const assignedPct = stats.totalHardware > 0
         ? Math.round((stats.assignedCount / stats.totalHardware) * 100)
         : 0;
@@ -112,7 +112,7 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown }) {
                 })}
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
                 <motion.div
                     variants={fadeRise}
                     initial="hidden"
@@ -126,7 +126,7 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown }) {
                         </CardHeader>
                         <CardContent>
                             {hasHardware ? (
-                                <div className="mx-auto max-w-sm">
+                                <div className="mx-auto max-w-xs">
                                     <Doughnut
                                         data={doughnutData}
                                         options={{
@@ -160,43 +160,90 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown }) {
                 >
                     <Card className="h-full">
                         <CardHeader>
-                            <CardTitle>Hardware by branch</CardTitle>
-                            <CardDescription>Where devices are currently assigned.</CardDescription>
+                            <CardTitle>Recent activity</CardTitle>
+                            <CardDescription>Latest hardware updates across the system.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {branchBreakdown.some((row) => row.total > 0) ? (
-                                <div className="h-72">
-                                    <Bar
-                                        data={barData}
-                                        options={{
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: { legend: { display: false } },
-                                            scales: {
-                                                x: {
-                                                    ticks: { color: tickColor, maxRotation: 40, minRotation: 0 },
-                                                    grid: { display: false },
-                                                },
-                                                y: {
-                                                    beginAtZero: true,
-                                                    ticks: { color: tickColor, precision: 0 },
-                                                    grid: { color: gridColor },
-                                                },
-                                            },
-                                        }}
-                                        aria-label="Hardware by branch chart"
-                                        role="img"
-                                    />
-                                </div>
+                            {recentActivity.length > 0 ? (
+                                <ol className="space-y-3" aria-label="Recent activity">
+                                    {recentActivity.map((activity) => (
+                                        <li key={activity.id} className="flex items-start gap-3">
+                                            <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary/70" aria-hidden="true" />
+                                            <div className="min-w-0">
+                                                <p className="text-sm">
+                                                    <span className="font-medium">{activity.record_name}</span>
+                                                    {activity.hardware_no && (
+                                                        <span className="text-muted-foreground"> · {activity.hardware_no}</span>
+                                                    )}
+                                                </p>
+                                                <p className="truncate text-sm text-muted-foreground">{activity.record_desc}</p>
+                                                <p className="mt-0.5 text-xs text-muted-foreground">
+                                                    {activity.user_name ?? "Unknown"}
+                                                    {" · "}
+                                                    {new Date(activity.created_at).toLocaleString(undefined, {
+                                                        dateStyle: "medium",
+                                                        timeStyle: "short",
+                                                    })}
+                                                </p>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ol>
                             ) : (
                                 <p className="py-10 text-center text-sm text-muted-foreground">
-                                    No assignments yet — hardware appears here once users are assigned.
+                                    No activity yet — records appear as hardware changes.
                                 </p>
                             )}
                         </CardContent>
                     </Card>
                 </motion.div>
             </div>
+
+            <motion.div
+                variants={fadeRise}
+                initial="hidden"
+                animate="show"
+                transition={{ ...spring, delay: 0.29 }}
+                className="mt-4"
+            >
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Hardware by branch</CardTitle>
+                        <CardDescription>Where devices are currently assigned.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {branchBreakdown.some((row) => row.total > 0) ? (
+                            <div className="h-72">
+                                <Bar
+                                    data={barData}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: { legend: { display: false } },
+                                        scales: {
+                                            x: {
+                                                ticks: { color: tickColor, maxRotation: 40, minRotation: 0, autoSkip: false },
+                                                grid: { display: false },
+                                            },
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: { color: tickColor, precision: 0 },
+                                                grid: { color: gridColor },
+                                            },
+                                        },
+                                    }}
+                                    aria-label="Hardware by branch chart"
+                                    role="img"
+                                />
+                            </div>
+                        ) : (
+                            <p className="py-10 text-center text-sm text-muted-foreground">
+                                No assignments yet — hardware appears here once users are assigned.
+                            </p>
+                        )}
+                    </CardContent>
+                </Card>
+            </motion.div>
         </Layout>
     );
 }
