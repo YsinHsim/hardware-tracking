@@ -86,7 +86,7 @@ function HardwareActions({ hardware, onDelete }) {
     );
 }
 
-export default function Index({ hardwares, filters, branches, hardwareTypes, hardwareStatuses, total }) {
+export default function Index({ hardwares, filters, estates, hardwareTypes, hardwareStatuses, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedHardware, setSelectedHardware] = useState(null);
@@ -107,7 +107,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
             key: "estate_id",
             label: filters.estate_id === "unassigned"
                 ? "Unassigned"
-                : branches.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Branch",
+                : estates.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Branch",
         },
         filters.hardware_type_id !== null && {
             key: "hardware_type_id",
@@ -276,7 +276,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
                         <div id="hardware-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                             {filterSelect("estate_id", filters.estate_id, "All branches", [
                                 { value: "unassigned", label: "Unassigned" },
-                                ...branches.map((estate) => ({ value: estate.id, label: estate.estate_name })),
+                                ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
                             ], "All branches")}
                             {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
                             {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}

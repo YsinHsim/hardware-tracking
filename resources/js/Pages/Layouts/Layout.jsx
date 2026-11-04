@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import {
     BookOpen,
+    Building2,
     Computer,
     Database,
     Info,
     LogOut,
     Menu,
-    TreePalm,
     Users,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 const mainLinks = [
     { label: "Hardware", href: "/hardwares", icon: Computer },
     { label: "Users", href: "/users", icon: Users },
-    { label: "Branches", href: "/estates", icon: TreePalm },
+    { label: "Branches", href: "/estates", icon: Building2 },
     { label: "System Data", href: "/system-data", icon: Database },
 ];
 

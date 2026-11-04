@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { ChevronDown, Filter, Map, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { Building2, ChevronDown, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
@@ -39,8 +39,8 @@ function EstateActions({ branch, onDelete }) {
         <div className="flex items-center gap-1">
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon-sm" asChild aria-label={`Edit ${estate.estate_name}`}>
-                        <Link href={`/estates/${estate.id}/edit`}><Pencil /></Link>
+                    <Button variant="ghost" size="icon-sm" asChild aria-label={`Edit ${branch.estate_name}`}>
+                        <Link href={`/estates/${branch.id}/edit`}><Pencil /></Link>
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>Edit</TooltipContent>
@@ -51,8 +51,8 @@ function EstateActions({ branch, onDelete }) {
                         variant="ghost"
                         size="icon-sm"
                         className="text-destructive hover:text-destructive"
-                        onClick={() => onDelete(estate)}
-                        aria-label={`Delete ${estate.estate_name}`}
+                        onClick={() => onDelete(branch)}
+                        aria-label={`Delete ${branch.estate_name}`}
                     >
                         <Trash2 />
                     </Button>
@@ -147,7 +147,7 @@ export default function Index({ branches, filters, regions, total }) {
         <Layout>
             <TooltipProvider>
                 <PageHeader
-                    icon={ Map }
+                    icon={ Building2 }
                     title="Branches"
                     description="Manage branches and their regions."
                 />

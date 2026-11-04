@@ -63,7 +63,7 @@ function UserActions({ user, onDelete }) {
     );
 }
 
-export default function Index({ users, filters, branches, positions, total }) {
+export default function Index({ users, filters, estates, positions, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -81,7 +81,7 @@ export default function Index({ users, filters, branches, positions, total }) {
     const activeFilters = [
         filters.estate_id !== null && {
             key: "estate_id",
-            label: branches.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Branch",
+            label: estates.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Branch",
         },
         filters.position_id !== null && {
             key: "position_id",
@@ -243,7 +243,7 @@ export default function Index({ users, filters, branches, positions, total }) {
 
                     {filtersOpen && (
                         <div id="user-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                            {filterSelect("estate_id", filters.estate_id, "All branches", branches.map((estate) => ({ value: estate.id, label: estate.estate_name })), "All branches")}
+                            {filterSelect("estate_id", filters.estate_id, "All branches", estates.map((estate) => ({ value: estate.id, label: estate.estate_name })), "All branches")}
                             {filterSelect("position_id", filters.position_id, "All positions", positions.map((position) => ({ value: position.id, label: position.position_name })), "All positions")}
                             <div className="flex items-center">
                                 {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}

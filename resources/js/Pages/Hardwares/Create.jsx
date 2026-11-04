@@ -18,7 +18,7 @@ const emptyHardware = {
     hardware_status_id: "",
 };
 
-export default function Create({ branches, assignedUsers, hardwareTypes, hardwareStatuses }) {
+export default function Create({ estates, assignedUsers, hardwareTypes, hardwareStatuses }) {
     const [selectedEstate, setSelectedEstate] = useState("");
     const [hardwareValues, setHardwareValues] = useState(emptyHardware);
     const [errors, setErrors] = useState({});

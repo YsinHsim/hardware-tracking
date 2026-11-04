@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
-import { SquarePen } from "lucide-react";
+import { Building2, SquarePen } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function Edit({ branch, regions }) {
+export default function Edit({ estate, regions }) {
     const [estateValues, setEstateValues] = useState({
         estate_name: estate.estate_name,
         region_id: estate.region_id,
@@ -48,7 +48,7 @@ export default function Edit({ branch, regions }) {
         <Layout>
             <div className="mx-auto max-w-2xl">
                 <PageHeader
-                    icon={ SquarePen }
+                    icon={ Building2 }
                     title="Branches"
                     description="Edit and update branch data."
                 backHref="/estates"
