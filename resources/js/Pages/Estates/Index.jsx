@@ -63,7 +63,7 @@ function EstateActions({ branch, onDelete }) {
     );
 }
 
-export default function Index({ branches, filters, regions, total }) {
+export default function Index({ estates, filters, regions, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedEstate, setSelectedEstate] = useState(null);
