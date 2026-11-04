@@ -56,6 +56,8 @@ export default function Edit({ hardware, hardwareTypes, hardwareStatuses, estate
                     icon={ SquarePen }
                     title="Hardware"
                     description="Edit and update hardware data."
+                backHref={`/hardwares/${hardware.id}`}
+                    backLabel="Back to hardware details"
                 />
                 <Card>
                     <CardHeader>

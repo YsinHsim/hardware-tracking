@@ -53,7 +53,9 @@ export default function Show({ user }) {
                 icon={ IdCard }
                 title="User details"
                 description="Assigned user information and hardware."
-            />
+            backHref="/users"
+                    backLabel="Back to users"
+                />
 
             <Card>
                 <CardHeader>

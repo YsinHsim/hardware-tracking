@@ -80,7 +80,9 @@ export default function Create({ estates, regions }) {
                 icon={ MapPinned }
                 title="Estates"
                 description="Create an estate or a region."
-            />
+            backHref="/estates"
+                    backLabel="Back to estates"
+                />
 
             <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
                 <Card>

@@ -54,6 +54,8 @@ export default function Edit({ user, estates, positions }) {
                     icon={ SquarePen }
                     title="Users"
                     description="Edit and update assigned user data."
+                backHref={`/users/${user.id}`}
+                    backLabel="Back to user details"
                 />
                 <Card>
                     <CardHeader>
