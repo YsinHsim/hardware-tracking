@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { BriefcaseBusiness, CircleDot, Computer, Pencil, Plus, Trash2 } from "lucide-react";
+import { BriefcaseBusiness, CircleDot, Computer, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
@@ -17,12 +17,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fadeRise, listStagger, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-const MotionRow = motion.create(TableRow);
 const sections = [
     { label: "User positions", singular: "user position", dataKey: "userPositions", type: "user_positions", icon: BriefcaseBusiness },
     { label: "Hardware statuses", singular: "hardware status", dataKey: "hardwareStatuses", type: "hardware_statuses", icon: CircleDot },
@@ -31,11 +29,22 @@ const sections = [
 
 export default function Index(props) {
     const [selectedItem, setSelectedItem] = useState(null);
-    const [activeSection, setActiveSection] = useState(sections[0].type);
     const [itemType, setItemType] = useState("");
     const [confirmation, setConfirmation] = useState("");
     const [deleteError, setDeleteError] = useState("");
     const [deleting, setDeleting] = useState(false);
+    const [search, setSearch] = useState("");
+
+    const filteredSections = useMemo(
+        () => sections.map((section) => ({
+            ...section,
+            data: (props[section.dataKey] ?? []).filter((item) =>
+                item.name.toLowerCase().includes(search.trim().toLowerCase())
+            ),
+        })),
+        [props, search]
+    );
+    const hasMatches = filteredSections.some((section) => section.data.length > 0);
 
     function handleDeleteClick(item, type) {
         setSelectedItem(item);
@@ -78,107 +87,110 @@ export default function Index(props) {
                     <p className="mt-1 text-sm text-muted-foreground">Manage user positions, hardware statuses and hardware types.</p>
                 </div>
 
-                <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3" role="tablist" aria-label="System data categories">
-                    {sections.map((section) => {
-                        const count = (props[section.dataKey] ?? []).length;
-                        const isActive = activeSection === section.type;
+                <div className="mb-5 rounded-xl border border-border bg-card p-4">
+                    <div className="relative w-full">
+                        <Search className="pointer-events-none absolute top-2 left-2.5 size-4 text-muted-foreground" />
+                        <Input
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Search positions, statuses, types…"
+                            aria-label="Search system data"
+                            className="pl-8"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    {filteredSections.map((section) => {
                         const Icon = section.icon;
                         return (
-                            <button
+                            <section
                                 key={section.type}
-                                type="button"
-                                role="tab"
-                                aria-selected={isActive}
-                                onClick={() => setActiveSection(section.type)}
-                                className={cn(
-                                    "flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-foreground/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring",
-                                    isActive && "border-foreground/40 ring-1 ring-foreground/20"
-                                )}
+                                className="rounded-xl border border-border bg-card"
+                                aria-label={section.label}
                             >
-                                <span
-                                    className={cn(
-                                        "flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors",
-                                        isActive && "bg-foreground text-background"
+                                <div className="flex items-center justify-between gap-2 p-4 pb-3">
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                                            <Icon className="size-4.5" aria-hidden="true" />
+                                        </span>
+                                        <div>
+                                            <h2 className="font-medium leading-tight">{section.label}</h2>
+                                            <p className="text-sm text-muted-foreground" aria-live="polite">
+                                                {section.data.length} {section.data.length === 1 ? "record" : "records"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Button variant="outline" size="sm" asChild>
+                                        <Link href={`/system-data/create/${section.type}`}>
+                                            <Plus />
+                                            New
+                                        </Link>
+                                    </Button>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2 border-t border-border p-4">
+                                    <AnimatePresence initial={false}>
+                                        {section.data.map((item, index) => (
+                                            <motion.span
+                                                key={item.id}
+                                                layout
+                                                variants={fadeRise}
+                                                initial="hidden"
+                                                animate="show"
+                                                exit="hidden"
+                                                transition={{ ...spring, delay: index * listStagger.staggerChildren }}
+                                                className="inline-flex items-center gap-1 rounded-full border border-border bg-background py-1 pr-1 pl-3 text-sm"
+                                            >
+                                                <span className="max-w-45 truncate">{item.name}</span>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                            className="size-6 rounded-full"
+                                                            asChild
+                                                            aria-label={`Edit ${item.name}`}
+                                                        >
+                                                            <Link href={`/system-data/${section.type}/${item.id}/edit`}><Pencil className="size-3.5" /></Link>
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>Edit</TooltipContent>
+                                                </Tooltip>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                            className="size-6 rounded-full text-destructive hover:text-destructive"
+                                                            onClick={() => handleDeleteClick(item, section.type)}
+                                                            aria-label={`Delete ${item.name}`}
+                                                        >
+                                                            <Trash2 className="size-3.5" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>Delete</TooltipContent>
+                                                </Tooltip>
+                                            </motion.span>
+                                        ))}
+                                    </AnimatePresence>
+                                    {section.data.length === 0 && (
+                                        <p className="text-sm text-muted-foreground">
+                                            {search.trim() !== "" ? "No matches here." : `No ${section.label.toLowerCase()} yet.`}
+                                        </p>
                                     )}
-                                >
-                                    <Icon className="size-5" aria-hidden="true" />
-                                </span>
-                                <span className="min-w-0">
-                                    <span className="block truncate font-medium">{section.label}</span>
-                                    <span className="block text-sm text-muted-foreground">
-                                        {count} {count === 1 ? "record" : "records"}
-                                    </span>
-                                </span>
-                            </button>
+                                </div>
+                            </section>
                         );
                     })}
                 </div>
 
-                {sections.map((section) => {
-                    const data = props[section.dataKey] ?? [];
-                    return (
-                        <div key={section.type} className={activeSection === section.type ? "mt-4" : "hidden"}>
-                            <div className="mb-4 flex items-center justify-between gap-3">
-                                <h2 className="font-heading text-xl font-medium">{section.label}</h2>
-                                <Button asChild><Link href={`/system-data/create/${section.type}`}><Plus /> New {section.singular}</Link></Button>
-                            </div>
-                            <div className="rounded-xl border border-border bg-card">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Name</TableHead>
-                                                <TableHead><span className="sr-only">Actions</span></TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            <AnimatePresence initial={false}>
-                                                {data.map((item, index) => (
-                                                    <MotionRow
-                                                        key={item.id}
-                                                        layout
-                                                        variants={fadeRise}
-                                                        initial="hidden"
-                                                        animate="show"
-                                                        exit="hidden"
-                                                        transition={{ ...spring, delay: index * listStagger.staggerChildren }}
-                                                    >
-                                                        <TableCell className="font-medium">{item.name}</TableCell>
-                                                        <TableCell>
-                                                            <div className="flex items-center gap-1">
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <Button variant="ghost" size="icon-sm" asChild aria-label={`Edit ${item.name}`}>
-                                                                            <Link href={`/system-data/${section.type}/${item.id}/edit`}><Pencil /></Link>
-                                                                        </Button>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent>Edit</TooltipContent>
-                                                                </Tooltip>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <Button
-                                                                            variant="ghost"
-                                                                            size="icon-sm"
-                                                                            className="text-destructive hover:text-destructive"
-                                                                            onClick={() => handleDeleteClick(item, section.type)}
-                                                                            aria-label={`Delete ${item.name}`}
-                                                                        >
-                                                                            <Trash2 />
-                                                                        </Button>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent>Delete</TooltipContent>
-                                                                </Tooltip>
-                                                            </div>
-                                                        </TableCell>
-                                                    </MotionRow>
-                                                ))}
-                                            </AnimatePresence>
-                                            {data.length === 0 && <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground">No {section.label.toLowerCase()} available.</TableCell></TableRow>}
-                                        </TableBody>
-                                    </Table>
-                            </div>
-                        </div>
-                    );
-                })}
+                {search.trim() !== "" && !hasMatches && (
+                    <div className="mt-6 rounded-xl border border-border bg-card py-10 text-center">
+                        <p className="font-heading text-lg">Nothing matches “{search.trim()}”.</p>
+                        <Button variant="outline" className="mt-4" onClick={() => setSearch("")}>Clear search</Button>
+                    </div>
+                )}
             </TooltipProvider>
 
             <AlertDialog open={Boolean(selectedItem)} onOpenChange={(open) => { if (!open) closeDialog(); }}>
