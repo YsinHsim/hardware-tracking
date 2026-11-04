@@ -4,6 +4,7 @@ use App\Models\AssignedUser;
 use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
+use App\Models\UpdateRecord;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
@@ -50,7 +51,8 @@ it('shows stat cards and chart breakdowns', function () {
             ->where('statusBreakdown.1.name', 'Faulty')
             ->where('statusBreakdown.1.total', 1)
             ->where('branchBreakdown.0.name', 'Test Branch')
-            ->where('branchBreakdown.0.total', 1));
+            ->where('branchBreakdown.0.total', 1)
+            ->count('recentActivity', 0));
 });
 
 it('excludes soft-deleted hardware from stats and charts', function () {
@@ -65,6 +67,27 @@ it('excludes soft-deleted hardware from stats and charts', function () {
             ->where('stats.faultyCount', 0)
             ->where('statusBreakdown.0.total', 0)
             ->where('branchBreakdown.0.total', 0));
+});
+
+it('lists recent activity with hardware and user attribution', function () {
+    $user = User::factory()->create(['name' => 'Activity Author']);
+    $hardware = makeDashboardHardware();
+
+    UpdateRecord::create([
+        'record_name' => 'Hardware Created',
+        'record_desc' => 'New device added.',
+        'record_last_updated' => now(),
+        'hardware_id' => $hardware->id,
+        'user_id' => $user->id,
+    ]);
+
+    $this->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->count('recentActivity', 1)
+            ->where('recentActivity.0.record_name', 'Hardware Created')
+            ->where('recentActivity.0.hardware_no', $hardware->hardware_no)
+            ->where('recentActivity.0.user_name', 'Activity Author'));
 });
 
 it('requires authentication', function () {

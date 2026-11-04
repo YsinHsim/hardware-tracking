@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
+use App\Models\UpdateRecord;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -48,6 +49,19 @@ class DashboardController extends Controller
             ],
             'statusBreakdown' => $statusCounts,
             'branchBreakdown' => $branchCounts,
+            'recentActivity' => UpdateRecord::query()
+                ->with(['hardware:id,hardware_no', 'user:id,name'])
+                ->orderByDesc('id')
+                ->limit(8)
+                ->get(['id', 'record_name', 'record_desc', 'hardware_id', 'user_id', 'created_at'])
+                ->map(fn ($record) => [
+                    'id' => $record->id,
+                    'record_name' => $record->record_name,
+                    'record_desc' => $record->record_desc,
+                    'hardware_no' => $record->hardware?->hardware_no,
+                    'user_name' => $record->user?->name,
+                    'created_at' => $record->created_at->toIso8601String(),
+                ]),
         ]);
     }
 }
