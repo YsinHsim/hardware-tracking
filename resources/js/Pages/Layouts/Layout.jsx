@@ -6,6 +6,7 @@ import {
     Computer,
     Database,
     Info,
+    LayoutDashboard,
     LogOut,
     Menu,
     Users,
@@ -26,6 +27,7 @@ import { fadeRise, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const mainLinks = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Hardware", href: "/hardwares", icon: Computer },
     { label: "Users", href: "/users", icon: Users },
     { label: "Branches", href: "/branches", icon: Building2 },

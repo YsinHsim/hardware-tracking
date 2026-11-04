@@ -23,7 +23,7 @@ it('logs in with correct credentials', function () {
     $this->post('/login', [
         'email' => $user->email,
         'password' => 'password',
-    ])->assertRedirect('/hardwares');
+    ])->assertRedirect('/dashboard');
 
     $this->assertAuthenticatedAs($user);
 });
@@ -38,12 +38,12 @@ it('logs out and redirects to login', function () {
     $this->assertGuest();
 });
 
-it('redirects signed-in users from login to hardwares', function () {
+it('redirects signed-in users from login to dashboard', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->get('/login')
-        ->assertRedirect('/hardwares');
+        ->assertRedirect('/dashboard');
 });
 
 it('throttles the sixth login attempt within a minute', function () {
