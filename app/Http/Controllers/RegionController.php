@@ -9,6 +9,10 @@ use Illuminate\Support\Str;
 
 class RegionController extends Controller
 {
+    private const VALIDATION_ATTRIBUTES = [
+        'region_name' => 'region name',
+    ];
+
     /**
      * Store a newly created region in storage.
      */
@@ -16,7 +20,7 @@ class RegionController extends Controller
     {
         $validated = $request->validate([
             'region_name' => 'required|string|max:255|unique:regions,region_name',
-        ]);
+        ], [], self::VALIDATION_ATTRIBUTES);
 
         Region::create($validated);
 
@@ -30,7 +34,7 @@ class RegionController extends Controller
     {
         $validated = $request->validate([
             'region_name' => 'required|string|max:255|unique:regions,region_name,' . $region->id,
-        ]);
+        ], [], self::VALIDATION_ATTRIBUTES);
 
         $region->update($validated);
 

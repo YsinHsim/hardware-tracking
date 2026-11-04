@@ -1,112 +1,98 @@
-import React, { useState } from 'react';
-import Layout from '../Layouts/Layout';
-import { router } from '@inertiajs/react';
-import ToastComponent from '../Components/ToastComponent';
+import React, { useState } from "react";
+import { router } from "@inertiajs/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+const fieldsByType = {
+    user_positions: [
+        { key: "position_name", label: "Name" },
+        { key: "position_desc", label: "Description" },
+    ],
+    hardware_statuses: [
+        { key: "hardware_status_name", label: "Name" },
+    ],
+    hardware_types: [
+        { key: "hardware_type_name", label: "Name" },
+        { key: "hardware_type_desc", label: "Description" },
+    ],
+};
 
 export default function Edit({ type, record }) {
-    // Toast state
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState("");
+    const fields = fieldsByType[type];
+    const [recordValues, setRecordValues] = useState(() => Object.fromEntries(
+        fields.map(({ key }) => [key, record[key] ?? ""])
+    ));
+    const [errors, setErrors] = useState({});
+    const [processing, setProcessing] = useState(false);
 
-    // Initialize form state, formatting date fields
-    const [recordValues, setRecordValues] = useState(() => {
-        const formattedRecord = { ...record };
-
-        // Convert only `created_at` and `updated_at` to YYYY-MM-DD format
-        ["created_at", "updated_at"].forEach((key) => {
-            if (formattedRecord[key]) {
-                formattedRecord[key] = formattedRecord[key].split("T")[0]; // Extract YYYY-MM-DD
-            }
+    function updateField(field, value) {
+        setRecordValues((values) => ({ ...values, [field]: value }));
+        setErrors((current) => {
+            if (!current[field]) return current;
+            const next = { ...current };
+            delete next[field];
+            return next;
         });
+    }
 
-        return formattedRecord;
-    });
-
-    const handleChange = (e) => {
-        const key = e.target.id;
-        const value = e.target.value;
-        setRecordValues((values) => ({
-            ...values,
-            [key]: value,
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // Prepare only the updated fields
-        const updatedValues = Object.keys(recordValues).reduce((acc, key) => {
-            if (recordValues[key] !== record[key]) {
-                acc[key] = recordValues[key];
-            }
-            return acc;
+    function handleSubmit(event) {
+        event.preventDefault();
+        const updatedValues = Object.keys(recordValues).reduce((values, key) => {
+            if (recordValues[key] !== (record[key] ?? "")) values[key] = recordValues[key];
+            return values;
         }, {});
 
-        // If no changes, show a warning
         if (Object.keys(updatedValues).length === 0) {
-            setToastMessage("No changes detected.");
-            setToastType("alert-warning");
+            toast.warning("No changes detected.");
             return;
         }
 
-        // Send update request
+        setProcessing(true);
         router.put(`/system-data/${type}/${record.id}`, updatedValues, {
             onSuccess: () => {
-                setToastMessage(`${type} updated successfully!`);
-                setToastType("alert-success");
+                setErrors({});
+                toast.success(`${type.replaceAll("_", " ")} updated successfully!`);
             },
-            onError: (errors) => {
-                console.error("Update failed:", errors);
-                setToastMessage(`Failed to update ${type}. Please try again.`);
-                setToastType("alert-error");
+            onError: (validationErrors) => {
+                setErrors(validationErrors);
+                toast.error("Please fix the highlighted fields.");
             },
+            onFinish: () => setProcessing(false),
         });
-    };
+    }
 
     return (
         <Layout>
-            <div className="mx-4 mt-1">
-                <p className="text-3xl font-bold text-primary">{type} Management</p>
-                <p className="text-sm font-normal animate-pulse">Edit & Update {type} Data.</p>
-            </div>
-
-            <div className="divider" />
-
-            <div className="card bg-base-300 flex-auto mb-1 rounded-sm">
-                <div className="card-body">
-                    <h2 className="card-title text-primary">Edit {type}</h2>
-                    <form onSubmit={handleSubmit} className="mt-1">
-                        <div className="flex flex-col space-y-2">
-                            {Object.keys(recordValues).map((key) => (
-                                key !== "id" && ( // Exclude ID field
-                                    <div key={key}>
-                                        <label className="text-sm font-semibold capitalize">{key.replace("_", " ")}</label>
-                                        <input
-                                            type={["created_at", "updated_at"].includes(key) ? "date" : "text"}
-                                            className="input input-bordered w-full text-sm"
-                                            id={key}
-                                            value={recordValues[key] || ""}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                )
-                            ))}
-                            <div className="card-actions justify-end">
-                                <button type="submit" className="btn btn-sm btn-primary px-8 py-1 mt-2">
-                                    Update
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+            <div className="mx-auto max-w-2xl">
+                <div className="mb-6">
+                    <h1 className="font-heading text-3xl font-semibold">System data</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Edit and update system data.</p>
                 </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl">Edit {recordValues[fields[0].key]}</CardTitle>
+                        <CardDescription>Update the editable fields for this record.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            {fields.map(({ key, label }) => (
+                                <div key={key} className="space-y-2">
+                                    <Label htmlFor={key}>{label}</Label>
+                                    <Input id={key} value={recordValues[key]} onChange={(event) => updateField(key, event.target.value)} aria-invalid={Boolean(errors[key])} required={label === "Name"} />
+                                    {errors[key] && <p className="text-sm text-destructive">{errors[key]}</p>}
+                                </div>
+                            ))}
+                            <div className="flex justify-end">
+                                <Button type="submit" disabled={processing}>{processing ? "Updating…" : "Update"}</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
-
-            {/* Toast Notification */}
-            <ToastComponent
-                message={toastMessage}
-                type={toastType}
-                onClose={() => setToastMessage("")} // Clear toast after closing
-            />
         </Layout>
     );
 }

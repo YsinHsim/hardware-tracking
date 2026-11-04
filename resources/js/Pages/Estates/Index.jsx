@@ -1,141 +1,197 @@
-import React, { useState } from 'react';
-import Layout from '../Layouts/Layout';
-import { Link, router } from '@inertiajs/react';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AlertComponent from '../Components/AlertComponent';
-import ToastComponent from '../Components/ToastComponent';
+import React, { useState } from "react";
+import { Link, router } from "@inertiajs/react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { fadeRise, listStagger, spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
+
+const MotionRow = motion.create(TableRow);
+
+function EstateActions({ estate, onDelete }) {
+    return (
+        <div className="flex items-center gap-1">
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" asChild aria-label={`Edit ${estate.estate_name}`}>
+                        <Link href={`/estates/${estate.id}/edit`}><Pencil /></Link>
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>Edit</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => onDelete(estate)}
+                        aria-label={`Delete ${estate.estate_name}`}
+                    >
+                        <Trash2 />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete</TooltipContent>
+            </Tooltip>
+        </div>
+    );
+}
 
 export default function Index({ estates }) {
-
-    {/* Handle Alert state */ }
-    const [showAlert, setShowAlert] = useState(false);
     const [selectedEstate, setSelectedEstate] = useState(null);
+    const [deleteError, setDeleteError] = useState("");
+    const [deleting, setDeleting] = useState(false);
 
-    {/* Handle Toast state */ }
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState("");
-
-    const handleDelete = (estate) => {
-        setSelectedEstate(estate);
-        setShowAlert(true);
-    };
-
-    const confirmDelete = () => {
-        if (selectedEstate) {
-            router.delete(`/estates/${selectedEstate.id}`, {
-                onSuccess: () => {
-                    setToastMessage("Estate deleted successfully!");
-                    setToastType("alert-success");
-                    setShowAlert(false);
-                    setSelectedEstate(null);
-                },
-                onError: (errors) => {
-                    setToastMessage(errors.delete ?? "Failed to delete estate. Please try again.");
-                    setToastType("alert-error");
-                    setShowAlert(false);
-                }
-            });
-        }
+    function confirmDelete(event) {
+        event.preventDefault();
+        if (!selectedEstate) return;
+        setDeleting(true);
+        router.delete(`/estates/${selectedEstate.id}`, {
+            onSuccess: () => {
+                toast.success("Estate deleted successfully!");
+                setSelectedEstate(null);
+                setDeleteError("");
+            },
+            onError: (errors) => setDeleteError(errors.delete ?? "Failed to delete estate. Please try again."),
+            onFinish: () => setDeleting(false),
+        });
     }
 
     return (
         <Layout>
-            <div>
-                <div className="mx-4 mt-1">
-                    <p className="text-3xl font-bold text-primary">Estate Management</p>
-                    <p className="text-sm font-normal animate-pulse">Estate & Region Management.</p>
+            <TooltipProvider>
+                <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 className="font-heading text-3xl font-semibold">Estates</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">Manage estates and their regions.</p>
+                    </div>
+                    <Button asChild><Link href="/estates/create"><Plus /> Add estate</Link></Button>
                 </div>
 
-                <div className="divider" />
-
                 {estates.data.length > 0 ? (
-                    <div className="mx-4">
-                        <div className="flex">
-                            <p className="text-xl font-semibold">Estate List</p>
-                            <Link href="/estates/create" className="btn btn-sm shadow-md px-4 ml-auto">
-                                Create Estate
-                            </Link>
+                    <>
+                        <div className="hidden rounded-xl border border-border bg-card md:block">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Estate</TableHead>
+                                        <TableHead>Region</TableHead>
+                                        <TableHead><span className="sr-only">Actions</span></TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <AnimatePresence initial={false}>
+                                        {estates.data.map((estate, index) => (
+                                            <MotionRow
+                                                key={estate.id}
+                                                layout
+                                                variants={fadeRise}
+                                                initial="hidden"
+                                                animate="show"
+                                                exit="hidden"
+                                                transition={{ ...spring, delay: index * listStagger.staggerChildren }}
+                                            >
+                                                <TableCell className="font-medium">{estate.estate_name}</TableCell>
+                                                <TableCell>{estate.region?.region_name || "N/A"}</TableCell>
+                                                <TableCell><EstateActions estate={estate} onDelete={setSelectedEstate} /></TableCell>
+                                            </MotionRow>
+                                        ))}
+                                    </AnimatePresence>
+                                </TableBody>
+                            </Table>
                         </div>
 
-                        {/* Table for Estate */}
-                        <div className="overflow-x-auto bg-base-300 mt-2">
-                            <table className="table">
-                                {/* Table Head */}
-                                <thead>
-                                    <tr className="text-primary border-b-2 border-b-base-100">
-                                        <th>Estate</th>
-                                        <th>Region</th>
-                                        <th className="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {estates.data.map((estate) => (
-                                        <tr key={estate.id}>
-                                            <td>{estate.estate_name}</td>
-                                            <td>{estate.region.region_name}</td>
-                                            <td>
-                                                <div className="flex gap-1 justify-center">
-                                                    <div className="tooltip tooltip-left" data-tip="Edit">
-                                                        <Link href={`/estates/${estate.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
-                                                            <EditIcon className="text-primary hover:text-primary/75" />
-                                                        </Link>
-                                                    </div>
-                                                    <div className="tooltip tooltip-right" data-tip="Delete">
-                                                        <button
-                                                            className="btn btn-ghost btn-sm rounded-md"
-                                                            onClick={() => handleDelete(estate)}
-                                                        >
-                                                            <DeleteIcon className="text-error hover:text-error/75" />
-                                                        </button>
-                                                    </div>
+                        <div className="space-y-3 md:hidden">
+                            <AnimatePresence initial={false}>
+                                {estates.data.map((estate, index) => (
+                                    <motion.div
+                                        key={estate.id}
+                                        layout
+                                        variants={fadeRise}
+                                        initial="hidden"
+                                        animate="show"
+                                        exit="hidden"
+                                        transition={{ ...spring, delay: index * listStagger.staggerChildren }}
+                                    >
+                                        <Card size="sm">
+                                            <CardContent className="space-y-3">
+                                                <div>
+                                                    <p className="font-medium">{estate.estate_name}</p>
+                                                    <p className="mt-1 text-sm text-muted-foreground">{estate.region?.region_name || "N/A"}</p>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                                <EstateActions estate={estate} onDelete={setSelectedEstate} />
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
                         </div>
 
-                        {/* Pagination */}
-                        <div className="flex items-center mt-3 justify-end">
+                        <nav className="mt-5 flex flex-wrap justify-end gap-1" aria-label="Pagination">
                             {estates.links?.map((link, index) => (
-                                <Link
-                                    key={index}
-                                    href={link.url || "#"}
-                                    className={`btn btn-sm mx-1 ${link.active ? "btn-active" : "btn"}`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
+                                link.url ? (
+                                    <Button key={index} variant={link.active ? "default" : "outline"} size="sm" asChild>
+                                        <Link href={link.url} preserveScroll preserveState dangerouslySetInnerHTML={{ __html: link.label }} />
+                                    </Button>
+                                ) : (
+                                    <span
+                                        key={index}
+                                        className={cn(buttonVariants({ variant: "outline", size: "sm" }), "pointer-events-none opacity-50")}
+                                        aria-disabled="true"
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                    />
+                                )
                             ))}
-                        </div>
-                    </div>
+                        </nav>
+                    </>
                 ) : (
-                    <div className="mx-4">
-                        <p className="text-xl mb-2">No estate data exist.</p>
-                        <Link href="/estates/create" className="btn btn-sm btn-primary px-4">
-                            Create Estate
-                        </Link>
-                    </div>
+                    <Card className="items-center py-10 text-center">
+                        <CardContent>
+                            <p className="font-heading text-lg">No estate data exists.</p>
+                            <Button className="mt-4" asChild><Link href="/estates/create">Add estate</Link></Button>
+                        </CardContent>
+                    </Card>
                 )}
+            </TooltipProvider>
 
-                {/* Delete Confirmation Alert */}
-                {showAlert && (
-                    <AlertComponent
-                        message={`Are you sure you want to delete ${selectedEstate?.estate_name}?`}
-                        type="warning"
-                        onConfirm={confirmDelete}
-                        onCancel={() => setShowAlert(false)}
-                    />
-                )}
-
-                {/* Toast Notification */}
-                <ToastComponent
-                    message={toastMessage}
-                    type={toastType}
-                    onClose={() => setToastMessage("")} // Clear the toast message after closing
-                />
-
-            </div>
+            <AlertDialog
+                open={Boolean(selectedEstate)}
+                onOpenChange={(open) => {
+                    if (!open && !deleting) {
+                        setSelectedEstate(null);
+                        setDeleteError("");
+                    }
+                }}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {selectedEstate?.estate_name}?</AlertDialogTitle>
+                        <AlertDialogDescription>This permanently removes the estate.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={confirmDelete} disabled={deleting}>
+                            {deleting ? "Deleting…" : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Layout>
-    )
+    );
 }
