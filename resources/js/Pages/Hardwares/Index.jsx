@@ -181,7 +181,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
 
     const filterSelect = (key, value, placeholder, options, allLabel) => (
         <Select value={value == null ? "none" : String(value)} onValueChange={(next) => handleSelect(key, next)}>
-            <SelectTrigger className="w-full sm:w-auto" aria-label={placeholder}>
+            <SelectTrigger className="w-full" aria-label={placeholder}>
                 <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -271,14 +271,16 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                     </div>
 
                     {filtersOpen && (
-                        <div id="hardware-filters" className="mt-3 flex flex-wrap gap-2">
+                        <div id="hardware-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                             {filterSelect("estate_id", filters.estate_id, "All estates", [
                                 { value: "unassigned", label: "Unassigned" },
                                 ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
                             ], "All estates")}
                             {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
                             {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
-                            {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}
+                            <div className="flex items-center">
+                                {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}
+                            </div>
                         </div>
                     )}
                 </div>
