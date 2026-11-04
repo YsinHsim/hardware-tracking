@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { BriefcaseBusiness, CircleDot, Computer, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { BriefcaseBusiness, CircleDot, Computer, Database, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";

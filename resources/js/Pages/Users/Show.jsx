@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { IdCard, Pencil, Plus, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
