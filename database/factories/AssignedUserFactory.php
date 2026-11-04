@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\AssignedUser;
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\UserPosition;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +22,7 @@ class AssignedUserFactory extends Factory
         return [
             'user_name' => fake()->name(),
             'user_position_id' => UserPosition::inRandomOrder()->first()->id,
-            'estate_id' => Estate::inRandomOrder()->first()->id,
+            'branch_id' => Branch::inRandomOrder()->first()->id,
         ];
     }
 }

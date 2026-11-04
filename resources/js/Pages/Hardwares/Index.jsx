@@ -86,7 +86,7 @@ function HardwareActions({ hardware, onDelete }) {
     );
 }
 
-export default function Index({ hardwares, filters, estates, hardwareTypes, hardwareStatuses, total }) {
+export default function Index({ hardwares, filters, branches, hardwareTypes, hardwareStatuses, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedHardware, setSelectedHardware] = useState(null);
@@ -97,17 +97,17 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
     const searchDebounceTimeout = useRef(null);
     const hasFilters =
         filters.search !== "" ||
-        filters.estate_id !== null ||
+        filters.branch_id !== null ||
         filters.hardware_type_id !== null ||
         filters.hardware_status_id !== null ||
         filters.per_page !== 10;
 
     const activeFilters = [
-        filters.estate_id !== null && {
-            key: "estate_id",
-            label: filters.estate_id === "unassigned"
+        filters.branch_id !== null && {
+            key: "branch_id",
+            label: filters.branch_id === "unassigned"
                 ? "Unassigned"
-                : estates.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Branch",
+                : branches.find((branch) => branch.id === filters.branch_id)?.branch_name ?? "Branch",
         },
         filters.hardware_type_id !== null && {
             key: "hardware_type_id",
@@ -138,7 +138,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
     const applyFilters = (values) => {
         const params = {};
         if (values.search.trim() !== "") params.search = values.search.trim();
-        if (values.estate_id) params.estate_id = values.estate_id;
+        if (values.branch_id) params.branch_id = values.branch_id;
         if (values.hardware_type_id) params.hardware_type_id = values.hardware_type_id;
         if (values.hardware_status_id) params.hardware_status_id = values.hardware_status_id;
         if (Number(values.per_page) !== 10) params.per_page = values.per_page;
@@ -274,9 +274,9 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
 
                     {filtersOpen && (
                         <div id="hardware-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                            {filterSelect("estate_id", filters.estate_id, "All branches", [
+                            {filterSelect("branch_id", filters.branch_id, "All branches", [
                                 { value: "unassigned", label: "Unassigned" },
-                                ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
+                                ...branches.map((branch) => ({ value: branch.id, label: branch.branch_name })),
                             ], "All branches")}
                             {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
                             {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
@@ -323,7 +323,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                                                 </TableCell>
                                                 <TableCell>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</TableCell>
                                                 <TableCell><Badge variant="outline">{hardware.hardware_status?.hardware_status_name || "Unknown Status"}</Badge></TableCell>
-                                                <TableCell>{hardware.assigned_user?.estate?.estate_name || <span className="text-muted-foreground">—</span>}</TableCell>
+                                                <TableCell>{hardware.assigned_user?.branch?.branch_name || <span className="text-muted-foreground">—</span>}</TableCell>
                                                 <TableCell><HardwareActions hardware={hardware} onDelete={setSelectedHardware} /></TableCell>
                                             </MotionRow>
                                         ))}
@@ -356,7 +356,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                                                 <div className="grid grid-cols-2 gap-2 text-sm">
                                                     <div><span className="text-muted-foreground">Type</span><p>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</p></div>
                                                     <div><span className="text-muted-foreground">Assigned to</span><p>{hardware.assigned_user?.user_name || "Unassigned"}</p></div>
-                                                    <div className="col-span-2"><span className="text-muted-foreground">Branch</span><p>{hardware.assigned_user?.estate?.estate_name || <span className="text-muted-foreground">—</span>}</p></div>
+                                                    <div className="col-span-2"><span className="text-muted-foreground">Branch</span><p>{hardware.assigned_user?.branch?.branch_name || <span className="text-muted-foreground">—</span>}</p></div>
                                                 </div>
                                                 <HardwareActions hardware={hardware} onDelete={setSelectedHardware} />
                                             </CardContent>

@@ -14,7 +14,7 @@ class AssignedUser extends Model
     protected $fillable = [
         'user_name',
         'user_position_id',
-        'estate_id',
+        'branch_id',
     ];
 
     public function userPosition(): BelongsTo
@@ -22,9 +22,9 @@ class AssignedUser extends Model
         return $this->belongsTo(UserPosition::class);
     }
 
-    public function estate(): BelongsTo
+    public function branch(): BelongsTo
     {
-        return $this->belongsTo(Estate::class);
+        return $this->belongsTo(Branch::class);
     }
 
     public function hardwares(): HasMany

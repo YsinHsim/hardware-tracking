@@ -32,7 +32,7 @@ export default function Show({ hardware }) {
         { label: "Serial number", value: hardware.hardware_serial_no, mono: true },
         { label: "Type", value: hardware.hardware_type?.hardware_type_name || "N/A" },
         { label: "Status", value: hardware.hardware_status?.hardware_status_name || "N/A", badge: true },
-        { label: "Branch", value: hardware.assigned_user?.estate?.estate_name || "N/A" },
+        { label: "Branch", value: hardware.assigned_user?.branch?.branch_name || "N/A" },
     ];
 
     function confirmDelete(event) {

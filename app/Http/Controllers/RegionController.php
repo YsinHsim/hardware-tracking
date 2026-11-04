@@ -46,12 +46,12 @@ class RegionController extends Controller
      */
     public function destroy(Region $region)
     {
-        $estateCount = $region->estates()->count();
+        $branchCount = $region->branches()->count();
 
-        if ($estateCount > 0) {
-            $estateLabel = Str::plural('estate', $estateCount);
-            $verb = $estateCount === 1 ? 'belongs' : 'belong';
-            return back()->withErrors(['delete' => "Cannot delete region \"{$region->region_name}\": {$estateCount} {$estateLabel} still {$verb} to it. Move or delete them first."]);
+        if ($branchCount > 0) {
+            $branchLabel = Str::plural('branch', $branchCount);
+            $verb = $branchCount === 1 ? 'belongs' : 'belong';
+            return back()->withErrors(['delete' => "Cannot delete region \"{$region->region_name}\": {$branchCount} {$branchLabel} still {$verb} to it. Move or delete them first."]);
         }
 
         $region->delete();

@@ -63,7 +63,7 @@ function UserActions({ user, onDelete }) {
     );
 }
 
-export default function Index({ users, filters, estates, positions, total }) {
+export default function Index({ users, filters, branches, positions, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -74,14 +74,14 @@ export default function Index({ users, filters, estates, positions, total }) {
     const searchDebounceTimeout = useRef(null);
     const hasFilters =
         filters.search !== "" ||
-        filters.estate_id !== null ||
+        filters.branch_id !== null ||
         filters.position_id !== null ||
         filters.per_page !== 10;
 
     const activeFilters = [
-        filters.estate_id !== null && {
-            key: "estate_id",
-            label: estates.find((estate) => estate.id === filters.estate_id)?.estate_name ?? "Branch",
+        filters.branch_id !== null && {
+            key: "branch_id",
+            label: branches.find((branch) => branch.id === filters.branch_id)?.branch_name ?? "Branch",
         },
         filters.position_id !== null && {
             key: "position_id",
@@ -108,7 +108,7 @@ export default function Index({ users, filters, estates, positions, total }) {
     const applyFilters = (values) => {
         const params = {};
         if (values.search.trim() !== "") params.search = values.search.trim();
-        if (values.estate_id) params.estate_id = values.estate_id;
+        if (values.branch_id) params.branch_id = values.branch_id;
         if (values.position_id) params.position_id = values.position_id;
         if (Number(values.per_page) !== 10) params.per_page = values.per_page;
         router.get("/users", params, { preserveState: true, preserveScroll: true, replace: true });
@@ -243,7 +243,7 @@ export default function Index({ users, filters, estates, positions, total }) {
 
                     {filtersOpen && (
                         <div id="user-filters" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                            {filterSelect("estate_id", filters.estate_id, "All branches", estates.map((estate) => ({ value: estate.id, label: estate.estate_name })), "All branches")}
+                            {filterSelect("branch_id", filters.branch_id, "All branches", branches.map((branch) => ({ value: branch.id, label: branch.branch_name })), "All branches")}
                             {filterSelect("position_id", filters.position_id, "All positions", positions.map((position) => ({ value: position.id, label: position.position_name })), "All positions")}
                             <div className="flex items-center">
                                 {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}
@@ -278,7 +278,7 @@ export default function Index({ users, filters, estates, positions, total }) {
                                             >
                                                 <TableCell><Link href={`/users/${user.id}`} className="font-medium hover:underline">{user.user_name}</Link></TableCell>
                                                 <TableCell>{user.user_position?.position_name || "N/A"}</TableCell>
-                                                <TableCell>{user.estate?.estate_name || "N/A"}</TableCell>
+                                                <TableCell>{user.branch?.branch_name || "N/A"}</TableCell>
                                                 <TableCell><UserActions user={user} onDelete={setSelectedUser} /></TableCell>
                                             </MotionRow>
                                         ))}
@@ -304,7 +304,7 @@ export default function Index({ users, filters, estates, positions, total }) {
                                                 <div>
                                                     <Link href={`/users/${user.id}`} className="font-medium hover:underline">{user.user_name}</Link>
                                                     <p className="mt-1 text-sm text-muted-foreground">{user.user_position?.position_name || "N/A"}</p>
-                                                    <p className="text-sm text-muted-foreground">{user.estate?.estate_name || "N/A"}</p>
+                                                    <p className="text-sm text-muted-foreground">{user.branch?.branch_name || "N/A"}</p>
                                                 </div>
                                                 <UserActions user={user} onDelete={setSelectedUser} />
                                             </CardContent>

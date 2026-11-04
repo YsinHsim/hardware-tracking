@@ -7,7 +7,7 @@ beforeEach(function () {
 });
 
 it('uses the custom attribute name when a serial is required', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     $this->post('/hardwares', [
         'hardware_no' => 'HW-VALIDATION-001',
@@ -63,7 +63,7 @@ it('uses the custom attribute name for another hardware serial on update', funct
 });
 
 it('uses the custom attribute name for an invalid hardware type', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     $this->post('/hardwares', [
         'hardware_no' => 'HW-VALIDATION-003',

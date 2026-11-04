@@ -11,7 +11,7 @@ beforeEach(function () {
 });
 
 it('creates hardware and a creation update record', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     $this->post('/hardwares', [
         'hardware_no' => 'HW-001',
@@ -30,7 +30,7 @@ it('creates hardware and a creation update record', function () {
 });
 
 it('requires a hardware serial number when storing', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     $this->post('/hardwares', [
         'hardware_no' => 'HW-001',
@@ -70,7 +70,7 @@ it('rejects another hardware serial on update and leaves the row unchanged', fun
 });
 
 it('writes a hardware updated record when the status changes', function () {
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $hardware = makeHardware([
         'hardware_type_id' => $lookups['hardwareType']->id,
         'hardware_status_id' => $lookups['hardwareStatus']->id,
@@ -117,8 +117,8 @@ it('soft deletes hardware while preserving its update records', function () {
         ->and(UpdateRecord::where('hardware_id', $hardware->id)->count())->toBe(3);
 });
 
-it('passes the real hardware id and estate name to the assigned report page', function () {
-    $lookups = makeLookups();
+it('passes the real hardware id and branch name to the assigned report page', function () {
+    $lookups = makeBranchLookups();
     $hardware = makeHardware([
         'assigned_user_id' => $lookups['assignedUser']->id,
         'hardware_type_id' => $lookups['hardwareType']->id,
@@ -130,7 +130,7 @@ it('passes the real hardware id and estate name to the assigned report page', fu
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Hardwares/Report')
             ->where('hardware_id', $hardware->id)
-            ->where('estate_name', $lookups['estate']->estate_name));
+            ->where('branch_name', $lookups['branch']->branch_name));
 });
 
 it('shows unassigned report details for unassigned hardware', function () {
@@ -141,5 +141,5 @@ it('shows unassigned report details for unassigned hardware', function () {
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Hardwares/Report')
             ->where('hardware_user', 'Unassigned')
-            ->where('estate_name', 'Unassigned'));
+            ->where('branch_name', 'Unassigned'));
 });

@@ -70,7 +70,7 @@ const styles = {
     },
 };
 
-const Report = ({ hardware_id, hardware_no, hardware_serial_no, hardware_user, hardware_type, hardware_status, estate_name, hardware}) => {
+const Report = ({ hardware_id, hardware_no, hardware_serial_no, hardware_user, hardware_type, hardware_status, branch_name, hardware}) => {
     const [isHovered, setIsHovered] = useState(false);
     const currentDate = new Date().toLocaleDateString();
 
@@ -109,7 +109,7 @@ const Report = ({ hardware_id, hardware_no, hardware_serial_no, hardware_user, h
                         </tr>
                         <tr style={styles.row}>
                             <td style={{ ...styles.cell, ...styles.label }}>Branch:</td>
-                            <td style={styles.cell}>{estate_name}</td>
+                            <td style={styles.cell}>{branch_name}</td>
                         </tr>
                     </tbody>
                 </table>

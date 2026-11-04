@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const emptyUser = { user_name: "", user_position_id: "", estate_id: "" };
+const emptyUser = { user_name: "", user_position_id: "", branch_id: "" };
 
-export default function Create({ positions, estates, users }) {
+export default function Create({ positions, branches, users }) {
     const [values, setValues] = useState(emptyUser);
     const [errors, setErrors] = useState({});
     const [processing, setProcessing] = useState(false);
@@ -62,7 +62,7 @@ export default function Create({ positions, estates, users }) {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-xl">Create user</CardTitle>
-                        <CardDescription>Assign a name, position and estate.</CardDescription>
+                        <CardDescription>Assign a name, position and branch.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {recentUsers.length > 0 && (
@@ -90,14 +90,14 @@ export default function Create({ positions, estates, users }) {
                                 {fieldError("user_position_id")}
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="estate_id">Branch</Label>
-                                <Select name="estate_id" value={String(values.estate_id)} onValueChange={(value) => updateField("estate_id", value)} required>
-                                    <SelectTrigger id="estate_id" className="w-full" aria-invalid={Boolean(errors.estate_id)}><SelectValue placeholder="Select branch" /></SelectTrigger>
+                                <Label htmlFor="branch_id">Branch</Label>
+                                <Select name="branch_id" value={String(values.branch_id)} onValueChange={(value) => updateField("branch_id", value)} required>
+                                    <SelectTrigger id="branch_id" className="w-full" aria-invalid={Boolean(errors.branch_id)}><SelectValue placeholder="Select branch" /></SelectTrigger>
                                     <SelectContent>
-                                        {estates.map((estate) => <SelectItem key={estate.id} value={String(estate.id)}>{estate.estate_name}</SelectItem>)}
+                                        {branches.map((branch) => <SelectItem key={branch.id} value={String(branch.id)}>{branch.branch_name}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
-                                {fieldError("estate_id")}
+                                {fieldError("branch_id")}
                             </div>
                             <div className="flex justify-end">
                                 <Button type="submit" disabled={processing}>{processing ? "Creating…" : "Create"}</Button>

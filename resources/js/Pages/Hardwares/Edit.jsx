@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function Edit({ hardware, hardwareTypes, hardwareStatuses, estates, assignedUsers }) {
+export default function Edit({ hardware, hardwareTypes, hardwareStatuses, branches, assignedUsers }) {
     const [hardwareValues, setHardwareValues] = useState({
         hardware_no: hardware.hardware_no,
         hardware_serial_no: hardware.hardware_serial_no || "",
@@ -102,10 +102,10 @@ export default function Edit({ hardware, hardwareTypes, hardwareStatuses, estate
                                     <SelectTrigger id="assigned_user_id" className="w-full" aria-invalid={Boolean(errors.assigned_user_id)}><SelectValue placeholder="Select assigned user" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">Unassigned</SelectItem>
-                                        {estates.map((estate) => (
-                                            <SelectGroup key={estate.id}>
-                                                <SelectLabel>{estate.estate_name}</SelectLabel>
-                                                {assignedUsers[estate.id]?.map((user) => <SelectItem key={user.id} value={String(user.id)}>{user.user_name}</SelectItem>)}
+                                        {branches.map((branch) => (
+                                            <SelectGroup key={branch.id}>
+                                                <SelectLabel>{branch.branch_name}</SelectLabel>
+                                                {assignedUsers[branch.id]?.map((user) => <SelectItem key={user.id} value={String(user.id)}>{user.user_name}</SelectItem>)}
                                             </SelectGroup>
                                         ))}
                                     </SelectContent>

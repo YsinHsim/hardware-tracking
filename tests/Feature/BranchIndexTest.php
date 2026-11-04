@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\Region;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia;
@@ -12,117 +12,117 @@ beforeEach(function () {
     $this->sandalwood = Region::create(['region_name' => 'Sandalwood']);
 });
 
-function makeEstate(array $overrides = []): Estate
+function makeBranch(array $overrides = []): Branch
 {
-    return Estate::create(array_merge([
-        'estate_name' => 'Estate ' . uniqid(),
+    return Branch::create(array_merge([
+        'branch_name' => 'Branch ' . uniqid(),
         'region_id' => test()->westCoast->id,
     ], $overrides));
 }
 
 it('defaults to ten per page, echoes null filters and orders by name', function () {
-    $zulu = makeEstate(['estate_name' => 'Zulu Estate']);
-    $alpha = makeEstate(['estate_name' => 'Alpha Estate']);
+    $zulu = makeBranch(['branch_name' => 'Zulu Branch']);
+    $alpha = makeBranch(['branch_name' => 'Alpha Branch']);
 
-    $this->get('/estates')
+    $this->get('/branches')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Estates/Index')
-            ->where('estates.data.0.id', $alpha->id)
-            ->where('estates.data.1.id', $zulu->id)
+            ->component('Branches/Index')
+            ->where('branches.data.0.id', $alpha->id)
+            ->where('branches.data.1.id', $zulu->id)
             ->where('filters.search', '')
             ->where('filters.region_id', null)
             ->where('filters.per_page', 10));
 });
 
-it('searches by estate name and region name', function () {
-    $west = makeEstate(['estate_name' => 'Bavang Estate']);
-    makeEstate([
-        'estate_name' => 'Tamparuli Estate',
+it('searches by branch name and region name', function () {
+    $west = makeBranch(['branch_name' => 'Bavang Branch']);
+    makeBranch([
+        'branch_name' => 'Tamparuli Branch',
         'region_id' => $this->sandalwood->id,
     ]);
 
-    $this->get('/estates?search=bavang')
+    $this->get('/branches?search=bavang')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('estates.total', 1)
-            ->where('estates.data.0.id', $west->id));
+            ->where('branches.total', 1)
+            ->where('branches.data.0.id', $west->id));
 
-    $this->get('/estates?search=sandalwood')
+    $this->get('/branches?search=sandalwood')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('estates.total', 1));
+            ->where('branches.total', 1));
 });
 
 it('matches percent signs literally in search terms', function () {
-    $literal = makeEstate(['estate_name' => 'Estate 100% Done']);
-    makeEstate(['estate_name' => 'Estate 100X Done']);
+    $literal = makeBranch(['branch_name' => 'Branch 100% Done']);
+    makeBranch(['branch_name' => 'Branch 100X Done']);
 
-    $this->get('/estates?search=' . rawurlencode('%'))
+    $this->get('/branches?search=' . rawurlencode('%'))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('estates.total', 1)
-            ->where('estates.data.0.id', $literal->id));
+            ->where('branches.total', 1)
+            ->where('branches.data.0.id', $literal->id));
 });
 
-it('filters estates by region, combined with search', function () {
-    $west = makeEstate(['estate_name' => 'West A']);
-    makeEstate([
-        'estate_name' => 'Sand A',
+it('filters branches by region, combined with search', function () {
+    $west = makeBranch(['branch_name' => 'West A']);
+    makeBranch([
+        'branch_name' => 'Sand A',
         'region_id' => $this->sandalwood->id,
     ]);
 
-    $this->get("/estates?region_id={$this->westCoast->id}")
+    $this->get("/branches?region_id={$this->westCoast->id}")
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('estates.total', 1)
-            ->where('estates.data.0.id', $west->id)
+            ->where('branches.total', 1)
+            ->where('branches.data.0.id', $west->id)
             ->where('filters.region_id', $this->westCoast->id));
 
-    $this->get("/estates?search=A&region_id={$this->sandalwood->id}")
+    $this->get("/branches?search=A&region_id={$this->sandalwood->id}")
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('estates.total', 1)
+            ->where('branches.total', 1)
             ->where('filters.search', 'A')
             ->where('filters.region_id', $this->sandalwood->id));
 });
 
 it('accepts supported page sizes and falls back for unsupported values', function () {
     foreach (range(1, 11) as $sequence) {
-        makeEstate(['estate_name' => sprintf('Estate %02d', $sequence)]);
+        makeBranch(['branch_name' => sprintf('Branch %02d', $sequence)]);
     }
 
-    $this->get('/estates?per_page=25')
+    $this->get('/branches?per_page=25')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('estates.per_page', 25)
+            ->where('branches.per_page', 25)
             ->where('filters.per_page', 25));
 
-    $this->get('/estates?per_page=7')
+    $this->get('/branches?per_page=7')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('estates.per_page', 10)
+            ->where('branches.per_page', 10)
             ->where('filters.per_page', 10));
 });
 
 it('keeps search parameters in pagination links', function () {
     foreach (range(1, 11) as $sequence) {
-        makeEstate(['estate_name' => sprintf('Pager Estate %02d', $sequence)]);
+        makeBranch(['branch_name' => sprintf('Pager Branch %02d', $sequence)]);
     }
 
-    $this->get('/estates?search=PAGER')
+    $this->get('/branches?search=PAGER')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('estates.total', 11)
-            ->where('estates.links.2.url', fn ($url) => str_contains($url, 'search=PAGER')));
+            ->where('branches.total', 11)
+            ->where('branches.links.2.url', fn ($url) => str_contains($url, 'search=PAGER')));
 });
 
 it('provides total and ordered region list for the filter bar', function () {
-    makeEstate();
-    makeEstate();
+    makeBranch();
+    makeBranch();
     Region::create(['region_name' => 'A Region']);
 
-    $this->get('/estates')
+    $this->get('/branches')
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('total', 2)

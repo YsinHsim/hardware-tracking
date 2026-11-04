@@ -10,7 +10,7 @@ use Inertia\Testing\AssertableInertia;
 it('stores the signed-in user on create, update, and delete records', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     $this->post('/hardwares', [
         'hardware_no' => 'HW-AUDIT',
@@ -38,7 +38,7 @@ it('stores the signed-in user on create, update, and delete records', function (
 
 it('writes hardware status names instead of raw ids', function () {
     $this->actingAs(User::factory()->create());
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $hardware = makeHardware([
         'hardware_type_id' => $lookups['hardwareType']->id,
         'hardware_status_id' => $lookups['hardwareStatus']->id,
@@ -61,7 +61,7 @@ it('writes hardware status names instead of raw ids', function () {
 
 it('writes hardware type names instead of raw ids', function () {
     $this->actingAs(User::factory()->create());
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $hardware = makeHardware([
         'hardware_type_id' => $lookups['hardwareType']->id,
         'hardware_status_id' => $lookups['hardwareStatus']->id,
@@ -84,7 +84,7 @@ it('writes hardware type names instead of raw ids', function () {
 
 it('writes the previous assigned user name and Unassigned when unassigning', function () {
     $this->actingAs(User::factory()->create());
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
     $hardware = makeHardware([
         'assigned_user_id' => $lookups['assignedUser']->id,
         'hardware_type_id' => $lookups['hardwareType']->id,
@@ -108,7 +108,7 @@ it('writes the previous assigned user name and Unassigned when unassigning', fun
 it('keeps update records and clears user_id when the login user is deleted', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     $this->post('/hardwares', [
         'hardware_no' => 'HW-USER-DELETE',
@@ -132,7 +132,7 @@ it('keeps update records and clears user_id when the login user is deleted', fun
 it('passes history user names without email to the show page', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
-    $lookups = makeLookups();
+    $lookups = makeBranchLookups();
 
     $this->post('/hardwares', [
         'hardware_no' => 'HW-SHOW-AUDIT',

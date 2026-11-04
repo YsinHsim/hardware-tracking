@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Estate;
+use App\Models\Branch;
 use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 
-class EstateController extends Controller
+class BranchController extends Controller
 {
     private const VALIDATION_ATTRIBUTES = [
-        'estate_name' => 'estate name',
+        'branch_name' => 'branch name',
         'region_id' => 'region',
     ];
 
     /**
-     * Display a listing of the estates.
+     * Display a listing of the branches.
      */
     public function index(Request $request)
     {
@@ -26,102 +26,102 @@ class EstateController extends Controller
         $perPage = (int) $request->query('per_page', 10);
         $perPage = in_array($perPage, [10, 25, 50], true) ? $perPage : 10;
 
-        $estates = Estate::with('region')
+        $branches = Branch::with('region')
             ->when($search !== '', function ($query) use ($search) {
                 $escapedSearch = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search);
 
                 $query->where(function ($query) use ($escapedSearch) {
-                    $query->whereRaw("estate_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
+                    $query->whereRaw("branch_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
                         ->orWhereHas('region', fn ($query) => $query->whereRaw("region_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]));
                 });
             })
             ->when($regionId, fn ($query) => $query->where('region_id', $regionId))
-            ->orderBy('estate_name')
+            ->orderBy('branch_name')
             ->paginate($perPage)
             ->withQueryString();
 
-        return Inertia::render('Estates/Index', [
-            'estates' => $estates,
+        return Inertia::render('Branches/Index', [
+            'branches' => $branches,
             'filters' => [
                 'search' => $search,
                 'region_id' => $regionId,
                 'per_page' => $perPage,
             ],
-            'total' => $estates->total(),
+            'total' => $branches->total(),
             'regions' => Region::query()->select('id', 'region_name')->orderBy('region_name')->get(),
         ]);
     }
 
     /**
-     * Show the form for creating a new estate.
+     * Show the form for creating a new branch.
      */
     public function create()
     {
         $regions = Region::all();
-        $estates = Estate::all();
-        return Inertia::render('Estates/Create', [
-            'estates' => $estates,
+        $branches = Branch::all();
+        return Inertia::render('Branches/Create', [
+            'branches' => $branches,
             'regions' => $regions,
         ]);
     }
 
     /**
-     * Store a newly created estate in storage.
+     * Store a newly created branch in storage.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'estate_name' => 'required|string|max:255',
+            'branch_name' => 'required|string|max:255',
             'region_id' => 'required|exists:regions,id',
         ], [], self::VALIDATION_ATTRIBUTES);
 
-        Estate::create($validated);
+        Branch::create($validated);
 
-        // return Redirect::route('estates.index')->with('success', 'Estate created successfully.');
-        return Redirect::back()->with('success', 'Estate created successfully.');
+        // return Redirect::route('branches.index')->with('success', 'Branch created successfully.');
+        return Redirect::back()->with('success', 'Branch created successfully.');
     }
 
     /**
-     * Show the form for editing an estate.
+     * Show the form for editing an branch.
      */
-    public function edit(Estate $estate)
+    public function edit(Branch $branch)
     {
         $regions = Region::all();
-        return Inertia::render('Estates/Edit', [
-            'estate' => $estate,
+        return Inertia::render('Branches/Edit', [
+            'branch' => $branch,
             'regions' => $regions,
         ]);
     }
 
     /**
-     * Update the specified estate in storage.
+     * Update the specified branch in storage.
      */
-    public function update(Request $request, Estate $estate)
+    public function update(Request $request, Branch $branch)
     {
         $validated = $request->validate([
-            'estate_name' => 'required|string|max:255',
+            'branch_name' => 'required|string|max:255',
             'region_id' => 'required|exists:regions,id',
         ], [], self::VALIDATION_ATTRIBUTES);
 
-        $estate->update($validated);
+        $branch->update($validated);
 
-        return Redirect::route('estates.index')->with('success', 'Estate updated successfully.');
+        return Redirect::route('branches.index')->with('success', 'Branch updated successfully.');
     }
 
     /**
-     * Remove the specified estate from storage.
+     * Remove the specified branch from storage.
      */
-    public function destroy(Estate $estate)
+    public function destroy(Branch $branch)
     {
-        $assignedUserCount = $estate->assignedUsers()->count();
+        $assignedUserCount = $branch->assignedUsers()->count();
 
         if ($assignedUserCount > 0) {
             $assignedUserLabel = Str::plural('assigned user', $assignedUserCount);
             $verb = $assignedUserCount === 1 ? 'belongs' : 'belong';
-            return back()->withErrors(['delete' => "Cannot delete estate \"{$estate->estate_name}\": {$assignedUserCount} {$assignedUserLabel} still {$verb} to it. Move or delete them first."]);
+            return back()->withErrors(['delete' => "Cannot delete branch \"{$branch->branch_name}\": {$assignedUserCount} {$assignedUserLabel} still {$verb} to it. Move or delete them first."]);
         }
 
-        $estate->delete();
-        return Redirect::route('estates.index')->with('success', 'Estate deleted successfully.');
+        $branch->delete();
+        return Redirect::route('branches.index')->with('success', 'Branch deleted successfully.');
     }
 }

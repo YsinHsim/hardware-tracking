@@ -29,8 +29,8 @@ export default function Show({ user }) {
     const [deleting, setDeleting] = useState(false);
     const details = [
         { label: "Position", value: user.user_position?.position_name || "N/A" },
-        { label: "Branch", value: user.estate?.estate_name || "N/A" },
-        { label: "Region", value: user.estate?.region?.region_name || "N/A" },
+        { label: "Branch", value: user.branch?.branch_name || "N/A" },
+        { label: "Region", value: user.branch?.region?.region_name || "N/A" },
     ];
 
     function confirmDelete(event) {
