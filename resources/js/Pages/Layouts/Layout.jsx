@@ -29,18 +29,39 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet";
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarInset,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarProvider,
+    SidebarTrigger,
+    useSidebar,
+} from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { fadeRise, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+
+const mainLinks = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Hardware", href: "/hardwares", icon: Computer },
+    { label: "Users", href: "/users", icon: Users },
+    { label: "Branches", href: "/branches", icon: Building2 },
+    { label: "System Data", href: "/system-data", icon: Database },
+];
+
+const secondaryLinks = [
+    { label: "Documentation", href: "/documentation", icon: BookOpen },
+    { label: "About", href: "/about", icon: Info },
+];
 
 function BrandMark({ className }) {
     return (
@@ -56,9 +77,59 @@ function BrandMark({ className }) {
     );
 }
 
+function NavItem({ label, href, icon: Icon, onNavigate }) {
+    const { url } = usePage();
+    const pathname = url.split("?")[0];
+    const isActive = pathname === href || pathname.startsWith(`${href}/`);
+
+    return (
+        <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive} tooltip={label}>
+                <Link
+                    href={href}
+                    onClick={onNavigate}
+                    aria-current={isActive ? "page" : undefined}
+                >
+                    <Icon />
+                    <span>{label}</span>
+                </Link>
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    );
+}
+
+function Navigation({ onNavigate }) {
+    return (
+        <>
+            <SidebarGroup>
+                <SidebarGroupLabel>Menu</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        {mainLinks.map((item) => (
+                            <NavItem key={item.href} {...item} onNavigate={onNavigate} />
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarGroup className="mt-auto">
+                <SidebarGroupLabel>Resources</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        {secondaryLinks.map((item) => (
+                            <NavItem key={item.href} {...item} onNavigate={onNavigate} />
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        </>
+    );
+}
+
 function UserMenu({ onNavigate }) {
     const { setTheme } = useTheme();
     const user = usePage().props.auth?.user;
+    const { state } = useSidebar();
+    const collapsed = state === "collapsed";
 
     function handleLogout() {
         router.post("/logout");
@@ -67,21 +138,37 @@ function UserMenu({ onNavigate }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2 px-2"
-                    aria-label="Open user menu"
-                >
-                    <span
-                        aria-hidden="true"
-                        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary"
+                {collapsed ? (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="mx-auto"
+                        aria-label={`Open user menu for ${user?.name ?? "user"}`}
                     >
-                        {(user?.name ?? "?").trim().charAt(0).toUpperCase()}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-left text-sm font-medium">
-                        {user?.name}
-                    </span>
-                </Button>
+                        <span
+                            aria-hidden="true"
+                            className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary"
+                        >
+                            {(user?.name ?? "?").trim().charAt(0).toUpperCase()}
+                        </span>
+                    </Button>
+                ) : (
+                    <Button
+                        variant="ghost"
+                        className="w-full justify-start gap-2 px-2"
+                        aria-label="Open user menu"
+                    >
+                        <span
+                            aria-hidden="true"
+                            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary"
+                        >
+                            {(user?.name ?? "?").trim().charAt(0).toUpperCase()}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate text-left text-sm font-medium">
+                            {user?.name}
+                        </span>
+                    </Button>
+                )}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top" className="w-56">
                 <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
@@ -118,117 +205,57 @@ function UserMenu({ onNavigate }) {
     );
 }
 
-const mainLinks = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Hardware", href: "/hardwares", icon: Computer },
-    { label: "Users", href: "/users", icon: Users },
-    { label: "Branches", href: "/branches", icon: Building2 },
-    { label: "System Data", href: "/system-data", icon: Database },
-];
-
-const secondaryLinks = [
-    { label: "Documentation", href: "/documentation", icon: BookOpen },
-    { label: "About", href: "/about", icon: Info },
-];
-
-function Navigation({ onNavigate }) {
-    const { url } = usePage();
-    const pathname = url.split("?")[0];
-    const isActive = (href) => pathname === href || pathname.startsWith(`${href}/`);
-    const renderLink = ({ label, href, icon: Icon }) => (
-        <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                isActive(href)
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-muted-foreground"
-            )}
-            aria-current={isActive(href) ? "page" : undefined}
-        >
-            <Icon className="size-4" />
-            {label}
-        </Link>
-    );
-
+function AppSidebar({ onNavigate }) {
     return (
-        <>
-            <nav className="space-y-1" aria-label="Main navigation">
-                {mainLinks.map(renderLink)}
-            </nav>
-            <nav className="mt-auto space-y-1" aria-label="Secondary navigation">
-                {secondaryLinks.map(renderLink)}
-            </nav>
-        </>
+        <Sidebar collapsible="icon">
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild tooltip="AssetHub">
+                            <Link href="/" className="gap-2.5" onClick={onNavigate}>
+                                <BrandMark />
+                                <span className="font-heading text-xl font-semibold">AssetHub</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent>
+                <Navigation onNavigate={onNavigate} />
+            </SidebarContent>
+            <SidebarFooter>
+                <UserMenu onNavigate={onNavigate} />
+            </SidebarFooter>
+            {/* <SidebarRail /> */}
+        </Sidebar>
     );
 }
 
 export default function Layout({ children }) {
-    const [menuOpen, setMenuOpen] = useState(false);
     const { url } = usePage();
 
     return (
-        <div className="min-h-screen bg-background">
+        <SidebarProvider>
             <Head title="AssetHub" />
-
-            <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
-                <Link href="/" className="mb-8 flex items-center gap-2.5 px-3 font-heading text-xl font-semibold">
-                    <BrandMark />
-                    AssetHub
-                </Link>
-                <Navigation />
-                <Separator className="my-4" />
-                <UserMenu />
-            </aside>
-
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background px-4 md:hidden">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setMenuOpen(true)}
-                    aria-label="Open navigation"
-                >
-                    <Menu />
-                </Button>
-                <Link href="/" className="flex items-center gap-2 font-heading text-lg font-semibold">
-                    <BrandMark className="size-7" />
-                    AssetHub
-                </Link>
-                <div className="ml-auto"><ThemeToggle /></div>
-            </header>
-
-            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-                <SheetContent side="left" className="w-72 gap-0 bg-sidebar p-4">
-                    <SheetHeader className="mb-4 px-3">
-                        <SheetTitle className="flex items-center gap-2 text-xl font-semibold">
-                            <BrandMark className="size-7" />
-                            AssetHub
-                        </SheetTitle>
-                        <SheetDescription className="sr-only">Site navigation</SheetDescription>
-                    </SheetHeader>
-                    <div className="flex min-h-0 flex-1 flex-col">
-                        <Navigation onNavigate={() => setMenuOpen(false)} />
-                    </div>
-                    <Separator className="my-4" />
-                    <UserMenu onNavigate={() => setMenuOpen(false)} />
-                </SheetContent>
-            </Sheet>
-
-            <div className="md:pl-60">
+            <AppSidebar />
+            <SidebarInset>
+                <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-background px-4">
+                    <SidebarTrigger aria-label="Toggle sidebar" />
+                    <span className="font-heading text-lg font-semibold">AssetHub</span>
+                    <div className="ml-auto"><ThemeToggle /></div>
+                </header>
                 <motion.main
                     key={url.split("?")[0]}
                     variants={fadeRise}
                     initial="hidden"
                     animate="show"
                     transition={spring}
-                    className="p-4 md:p-8"
+                    className="flex-1 p-4 md:p-8"
                 >
                     {children}
                 </motion.main>
-            </div>
-            <Toaster position="bottom-right" richColors />
-        </div>
+                <Toaster position="bottom-right" richColors />
+            </SidebarInset>
+        </SidebarProvider>
     );
 }
