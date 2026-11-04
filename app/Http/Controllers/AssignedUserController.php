@@ -20,12 +20,41 @@ class AssignedUserController extends Controller
     ];
 
     // Display a listing of users
-    public function index()
+    public function index(Request $request)
     {
-        $users = AssignedUser::with(['userPosition', 'estate'])->paginate(5);
+        $search = mb_substr(trim($request->string('search')->toString()), 0, 100);
+        $estateId = $request->integer('estate_id') ?: null;
+        $positionId = $request->integer('position_id') ?: null;
+        $perPage = (int) $request->query('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50], true) ? $perPage : 10;
+
+        $escapedSearch = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search);
+
+        $users = AssignedUser::with(['userPosition', 'estate'])
+            ->when($search !== '', function ($query) use ($escapedSearch) {
+                $query->where(function ($query) use ($escapedSearch) {
+                    $query->whereRaw("user_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
+                        ->orWhereHas('userPosition', fn ($query) => $query->whereRaw("position_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
+                        ->orWhereHas('estate', fn ($query) => $query->whereRaw("estate_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]));
+                });
+            })
+            ->when($estateId, fn ($query) => $query->where('estate_id', $estateId))
+            ->when($positionId, fn ($query) => $query->where('user_position_id', $positionId))
+            ->orderBy('user_name')
+            ->paginate($perPage)
+            ->withQueryString();
 
         return Inertia::render('Users/Index', [
-            'users' => $users
+            'users' => $users,
+            'filters' => [
+                'search' => $search,
+                'estate_id' => $estateId,
+                'position_id' => $positionId,
+                'per_page' => $perPage,
+            ],
+            'total' => $users->total(),
+            'estates' => Estate::query()->select('id', 'estate_name')->orderBy('estate_name')->get(),
+            'positions' => UserPosition::query()->select('id', 'position_name')->orderBy('position_name')->get(),
         ]);
     }
 
