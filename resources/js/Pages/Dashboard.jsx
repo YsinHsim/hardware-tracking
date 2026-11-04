@@ -126,7 +126,7 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                         </CardHeader>
                         <CardContent>
                             {hasHardware ? (
-                                <div className="mx-auto max-w-xs">
+                                <div className="mx-auto max-w-xs py-6">
                                     <Doughnut
                                         data={doughnutData}
                                         options={{
@@ -165,7 +165,7 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                         </CardHeader>
                         <CardContent>
                             {recentActivity.length > 0 ? (
-                                <ol className="space-y-3" aria-label="Recent activity">
+                                <ol className="max-h-80 space-y-3 overflow-y-auto pr-1" aria-label="Recent activity">
                                     {recentActivity.map((activity) => (
                                         <li key={activity.id} className="flex items-start gap-3">
                                             <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary/70" aria-hidden="true" />
