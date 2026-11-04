@@ -1,154 +1,159 @@
-import React, { useState } from 'react';
-import Layout from '../Layouts/Layout';
-import { Link, router } from '@inertiajs/react';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import AlertComponent from '../Components/AlertComponent';
-import ToastComponent from '../Components/ToastComponent';
+import React, { useState } from "react";
+import { Link, router } from "@inertiajs/react";
+import { FileText, LayoutGrid, Pencil, Table2, Trash2 } from "lucide-react";
+import { motion } from "motion/react";
+import { toast } from "sonner";
+import Layout from "../Layouts/Layout";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { fadeRise, listStagger, spring } from "@/lib/motion";
+
+const MotionRow = motion.create(TableRow);
 
 export default function Show({ hardware }) {
     const [showAlert, setShowAlert] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState("");
-    const [viewMode, setViewMode] = useState("table"); // "table" or "timeline"
+    const [deleteError, setDeleteError] = useState("");
+    const [deleting, setDeleting] = useState(false);
+    const [viewMode, setViewMode] = useState("table");
+    const details = [
+        { label: "Serial number", value: hardware.hardware_serial_no, mono: true },
+        { label: "Type", value: hardware.hardware_type?.hardware_type_name || "N/A" },
+        { label: "Status", value: hardware.hardware_status?.hardware_status_name || "N/A", badge: true },
+        { label: "Estate", value: hardware.assigned_user?.estate?.estate_name || "N/A" },
+    ];
 
-    const toggleView = () => {
-        setViewMode((prev) => (prev === "table" ? "timeline" : "table"));
-    };
-
-    const handleDelete = () => {
-        setShowAlert(true);
-    };
-
-    const confirmDelete = () => {
+    function confirmDelete(event) {
+        event.preventDefault();
+        setDeleting(true);
         router.delete(`/hardwares/${hardware.id}`, {
             onSuccess: () => {
-                setToastMessage("Hardware deleted successfully!");
-                setToastType("alert-success");
+                toast.success("Hardware deleted");
                 setShowAlert(false);
-                setTimeout(() => {
-                    router.visit('/hardwares'); // Redirect to Hardwares list after deletion
-                }, 1500);
+                router.visit("/hardwares");
             },
-            onError: (errors) => {
-                setToastMessage(errors.delete ?? "Failed to delete hardware. Please try again.");
-                setToastType("alert-error");
-                setShowAlert(false);
-            }
+            onError: (errors) => setDeleteError(errors.delete ?? "Failed to delete hardware. Please try again."),
+            onFinish: () => setDeleting(false),
         });
+    }
+
+    const historyMotion = {
+        variants: fadeRise,
+        initial: "hidden",
+        animate: "show",
+        transition: spring,
     };
 
     return (
         <Layout>
-            <div className="mx-4 mt-1">
-                <p className="text-3xl font-bold text-primary">Hardware Details</p>
-                <p className="text-sm font-normal animate-pulse">
-                    Detailed information for {hardware.hardware_no} ({hardware.hardware_serial_no}).
-                </p>
+            <div className="mb-6">
+                <h1 className="font-heading text-3xl font-semibold">Hardware details</h1>
+                <p className="mt-1 text-sm text-muted-foreground">Device information and its complete history.</p>
             </div>
 
-            <div className="divider" />
-
-            <div className="mx-4 bg-base-300 p-4 rounded-lg shadow">
-                <p className="text-xl font-semibold text-primary">Hardware Information</p>
-                <div className="flex space-x-2">
-                    <div className="mt-2 flex-1">
-                        <p><span className="font-semibold">Hardware No:</span> {hardware.hardware_no}</p>
-                        <p><span className="font-semibold">Serial No:</span> {hardware.hardware_serial_no}</p>
-                        <p><span className="font-semibold">Type:</span> {hardware.hardware_type?.hardware_type_name || "N/A"}</p>
-                        <p><span className="font-semibold">Status:</span> {hardware.hardware_status?.hardware_status_name || "N/A"}</p>
-                        <p><span className="font-semibold">Assigned User:</span>
-                            <Link href={`/users/${hardware.assigned_user?.id}`} className="btn btn-ghost btn-sm rounded-md hover:text-accent hover:bg-transparent">
-                                {hardware.assigned_user?.user_name || "Unassigned"}
-                            </Link>
-                        </p>
-                    </div>
-                    <div className="flex flex-col space-y-2 justify-end">
-                        {/* Edit Button */}
-                        <div className="tooltip tooltip-left" data-tip="Edit">
-                            <Link href={`/hardwares/${hardware.id}/edit`} className="btn btn-ghost btn-sm rounded-md">
-                                <EditIcon className="text-primary hover:text-primary/75" />
-                            </Link>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-mono text-xl">{hardware.hardware_no}</CardTitle>
+                    <CardDescription>Hardware information</CardDescription>
+                    <CardAction className="flex gap-2">
+                        <Button variant="outline" asChild><Link href={`/report/${hardware.id}`}><FileText /> Report</Link></Button>
+                        <Button variant="outline" asChild><Link href={`/hardwares/${hardware.id}/edit`}><Pencil /> Edit</Link></Button>
+                        <Button variant="destructive" onClick={() => { setDeleteError(""); setShowAlert(true); }}><Trash2 /> Delete</Button>
+                    </CardAction>
+                </CardHeader>
+                <CardContent>
+                    <dl className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+                        {details.map((detail) => (
+                            <div key={detail.label}>
+                                <dt className="text-sm text-muted-foreground">{detail.label}</dt>
+                                <dd className={`mt-1 ${detail.mono ? "font-mono" : ""}`}>
+                                    {detail.badge ? <Badge variant="outline">{detail.value}</Badge> : detail.value}
+                                </dd>
+                            </div>
+                        ))}
+                        <div>
+                            <dt className="text-sm text-muted-foreground">Assigned user</dt>
+                            <dd className="mt-1">
+                                {hardware.assigned_user?.id ? (
+                                    <Link href={`/users/${hardware.assigned_user.id}`} className="hover:underline">{hardware.assigned_user.user_name}</Link>
+                                ) : "Unassigned"}
+                            </dd>
                         </div>
-                        {/* Delete Button */}
-                        <div className="tooltip tooltip-left" data-tip="Delete">
-                            <button
-                                className="btn btn-ghost btn-sm rounded-md"
-                                onClick={handleDelete}
-                            >
-                                <DeleteIcon className="text-error hover:text-error/75" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    </dl>
+                </CardContent>
+            </Card>
 
-            {/* Update Records Section */}
-            <div className="mx-4 mt-4 bg-base-300 p-4 rounded-lg shadow">
-                <div className="flex justify-between">
-                    <p className="text-xl font-semibold text-primary">Hardware History</p>
-                    <button className="btn btn-sm btn-ghost rounded-md" onClick={toggleView}>
-                        {viewMode === "table" ? "Switch to Card View" : "Switch to Table"}
-                    </button>
-                </div>
-
-                {hardware.update_records && hardware.update_records.length > 0 ? (
-                    viewMode === "table" ? (
-                        <div className="overflow-x-auto">
-                            <table className="table table-zebra w-full mt-2">
-                                <thead>
-                                    <tr className="text-primary">
-                                        <th>Record Name</th>
-                                        <th>Remarks</th>
-                                        <th>By</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {hardware.update_records.map((record) => (
-                                        <tr key={record.id}>
-                                            <td>{record.record_name}</td>
-                                            <td>{record.record_desc}</td>
-                                            <td>{record.user?.name ?? "Unknown"}</td>
-                                            <td>{new Date(record.created_at).toLocaleString()}</td>
-                                        </tr>
+            <Card className="mt-5">
+                <CardHeader>
+                    <CardTitle className="text-xl">Hardware history</CardTitle>
+                    <CardDescription>A record of changes made to this device.</CardDescription>
+                    <CardAction className="flex gap-1 rounded-lg border border-border p-1" aria-label="History view">
+                        <Button variant={viewMode === "table" ? "default" : "ghost"} size="icon-sm" onClick={() => setViewMode("table")} aria-label="Table view" aria-pressed={viewMode === "table"}><Table2 /></Button>
+                        <Button variant={viewMode === "cards" ? "default" : "ghost"} size="icon-sm" onClick={() => setViewMode("cards")} aria-label="Card view" aria-pressed={viewMode === "cards"}><LayoutGrid /></Button>
+                    </CardAction>
+                </CardHeader>
+                <CardContent>
+                    {hardware.update_records && hardware.update_records.length > 0 ? (
+                        viewMode === "table" ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow><TableHead>Record</TableHead><TableHead>Remarks</TableHead><TableHead>By</TableHead><TableHead>Date</TableHead></TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {hardware.update_records.map((record, index) => (
+                                        <MotionRow
+                                            key={record.id}
+                                            {...historyMotion}
+                                            transition={{ ...spring, delay: index * listStagger.staggerChildren }}
+                                        >
+                                            <TableCell className="font-medium">{record.record_name}</TableCell>
+                                            <TableCell className="whitespace-normal">{record.record_desc}</TableCell>
+                                            <TableCell>{record.user?.name ?? "Unknown"}</TableCell>
+                                            <TableCell>{new Date(record.created_at).toLocaleString()}</TableCell>
+                                        </MotionRow>
                                     ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                            {hardware.update_records.map((record) => (
-                                <div key={record.id} className="bg-base-200 p-4 rounded-lg hover:shadow-xl border-2 border-transparent hover:border-dotted hover:border-primary transition duration-1000">
-                                    <p className="font-bold text-primary">{record.record_name}</p>
-                                    <p className="text-sm">{record.record_desc}</p>
-                                    <p className="text-sm">By {record.user?.name ?? "Unknown"}</p>
-                                    <p className="text-xs mt-2">{new Date(record.created_at).toLocaleString()}</p>
-                                </div>
-                            ))}
-                        </div>
-                    )
-                ) : (
-                    <p className="text-sm text-gray-500 mt-2">No update records available.</p>
-                )}
-            </div>
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <motion.div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" initial="hidden" animate="show">
+                                {hardware.update_records.map((record, index) => (
+                                    <motion.div key={record.id} {...historyMotion} transition={{ ...spring, delay: index * listStagger.staggerChildren }} className="rounded-lg border border-border p-4">
+                                        <p className="font-medium">{record.record_name}</p>
+                                        <p className="mt-2 text-sm text-muted-foreground">{record.record_desc}</p>
+                                        <p className="mt-4 text-sm">By {record.user?.name ?? "Unknown"}</p>
+                                        <p className="mt-1 text-xs text-muted-foreground">{new Date(record.created_at).toLocaleString()}</p>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        )
+                    ) : <p className="text-sm text-muted-foreground">No update records available.</p>}
+                </CardContent>
+            </Card>
 
-            {/* Delete Confirmation Alert */}
-            {showAlert && (
-                <AlertComponent
-                    message={`Are you sure you want to delete ${hardware.hardware_no}?`}
-                    type="warning"
-                    onConfirm={confirmDelete}
-                    onCancel={() => setShowAlert(false)}
-                />
-            )}
-
-            {/* Toast Notification */}
-            <ToastComponent
-                message={toastMessage}
-                type={toastType}
-                onClose={() => setToastMessage("")} // Clear the toast message after closing
-            />
+            <AlertDialog open={showAlert} onOpenChange={(open) => { if (!deleting) { setShowAlert(open); if (!open) setDeleteError(""); } }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {hardware.hardware_no}?</AlertDialogTitle>
+                        <AlertDialogDescription>It moves to deleted hardware. Its history stays.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={confirmDelete} disabled={deleting}>{deleting ? "Deleting…" : "Delete"}</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Layout>
     );
 }
