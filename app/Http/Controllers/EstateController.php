@@ -17,13 +17,38 @@ class EstateController extends Controller
     ];
 
     /**
-     * Display a listing of the estates grouped by regions.
+     * Display a listing of the estates.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $estates = Estate::with('region')->paginate(5);
+        $search = mb_substr(trim($request->string('search')->toString()), 0, 100);
+        $regionId = $request->integer('region_id') ?: null;
+        $perPage = (int) $request->query('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50], true) ? $perPage : 10;
+
+        $estates = Estate::with('region')
+            ->when($search !== '', function ($query) use ($search) {
+                $escapedSearch = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search);
+
+                $query->where(function ($query) use ($escapedSearch) {
+                    $query->whereRaw("estate_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
+                        ->orWhereHas('region', fn ($query) => $query->whereRaw("region_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]));
+                });
+            })
+            ->when($regionId, fn ($query) => $query->where('region_id', $regionId))
+            ->orderBy('estate_name')
+            ->paginate($perPage)
+            ->withQueryString();
+
         return Inertia::render('Estates/Index', [
             'estates' => $estates,
+            'filters' => [
+                'search' => $search,
+                'region_id' => $regionId,
+                'per_page' => $perPage,
+            ],
+            'total' => $estates->total(),
+            'regions' => Region::query()->select('id', 'region_name')->orderBy('region_name')->get(),
         ]);
     }
 
