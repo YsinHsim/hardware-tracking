@@ -25,7 +25,8 @@ class HardwareController extends Controller
     public function index(Request $request)
     {
         $search = mb_substr(trim($request->string('search')->toString()), 0, 100);
-        $estateId = $request->integer('estate_id') ?: null;
+        $estateId = $request->query('estate_id');
+        $estateId = $estateId === 'unassigned' ? 'unassigned' : ($request->integer('estate_id') ?: null);
         $hardwareTypeId = $request->integer('hardware_type_id') ?: null;
         $hardwareStatusId = $request->integer('hardware_status_id') ?: null;
         $perPage = (int) $request->query('per_page', 10);
@@ -41,10 +42,15 @@ class HardwareController extends Controller
 
                 $query->where(function ($query) use ($escapedSearch) {
                     $query->whereRaw("hardware_no LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
-                        ->orWhereRaw("hardware_serial_no LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]);
+                        ->orWhereRaw("hardware_serial_no LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
+                        ->orWhereHas('assignedUser', fn ($query) => $query->whereRaw("user_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
+                        ->orWhereHas('assignedUser.estate', fn ($query) => $query->whereRaw("estate_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
+                        ->orWhereHas('hardwareType', fn ($query) => $query->whereRaw("hardware_type_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
+                        ->orWhereHas('hardwareStatus', fn ($query) => $query->whereRaw("hardware_status_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]));
                 });
             })
-            ->when($estateId, function ($query) use ($estateId) {
+            ->when($estateId === 'unassigned', fn ($query) => $query->whereNull('assigned_user_id'))
+            ->when(is_int($estateId), function ($query) use ($estateId) {
                 $query->whereHas('assignedUser', fn ($query) => $query->where('estate_id', $estateId));
             })
             ->when($hardwareTypeId, fn ($query) => $query->where('hardware_type_id', $hardwareTypeId))
@@ -62,6 +68,7 @@ class HardwareController extends Controller
                 'hardware_status_id' => $hardwareStatusId,
                 'per_page' => $perPage,
             ],
+            'total' => $hardwares->total(),
             'estates' => Estate::query()->select('id', 'estate_name')->orderBy('estate_name')->get(),
             'hardwareTypes' => HardwareType::query()->select('id', 'hardware_type_name')->orderBy('hardware_type_name')->get(),
             'hardwareStatuses' => HardwareStatus::query()->select('id', 'hardware_status_name')->orderBy('hardware_status_name')->get(),
