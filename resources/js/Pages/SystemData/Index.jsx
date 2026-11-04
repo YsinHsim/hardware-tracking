@@ -4,6 +4,7 @@ import { BriefcaseBusiness, CircleDot, Computer, Pencil, Plus, Search, Trash2 } 
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
+import PageHeader from "@/components/PageHeader";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -82,10 +83,11 @@ export default function Index(props) {
     return (
         <Layout>
             <TooltipProvider>
-                <div className="mb-6">
-                    <h1 className="font-heading text-3xl font-semibold">System Data</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">Manage user positions, hardware statuses and hardware types.</p>
-                </div>
+                <PageHeader
+                    icon={ Database }
+                    title="System Data"
+                    description="Manage user positions, hardware statuses and hardware types."
+                />
 
                 <div className="mb-5 rounded-xl border border-border bg-card p-4">
                     <div className="relative w-full">

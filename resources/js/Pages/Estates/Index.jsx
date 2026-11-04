@@ -4,6 +4,7 @@ import { ChevronDown, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-rea
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
+import PageHeader from "@/components/PageHeader";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -145,10 +146,11 @@ export default function Index({ estates, filters, regions, total }) {
     return (
         <Layout>
             <TooltipProvider>
-                <div className="mb-6">
-                    <h1 className="font-heading text-3xl font-semibold">Estates</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">Manage estates and their regions.</p>
-                </div>
+                <PageHeader
+                    icon={ Map }
+                    title="Estates"
+                    description="Manage estates and their regions."
+                />
 
                 <div className="mb-5 rounded-xl border border-border bg-card p-4">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">

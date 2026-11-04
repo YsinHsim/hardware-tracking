@@ -4,6 +4,7 @@ import { ChevronDown, Eye, Filter, Plus, Search, Trash2, X } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
+import PageHeader from "@/components/PageHeader";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -165,10 +166,11 @@ export default function Index({ users, filters, estates, positions, total }) {
     return (
         <Layout>
             <TooltipProvider>
-                <div className="mb-6">
-                    <h1 className="font-heading text-3xl font-semibold">Users</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">Manage assigned hardware users.</p>
-                </div>
+                <PageHeader
+                    icon={ UsersRound }
+                    title="Users"
+                    description="Manage assigned hardware users."
+                />
 
                 <div className="mb-5 rounded-xl border border-border bg-card p-4">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">

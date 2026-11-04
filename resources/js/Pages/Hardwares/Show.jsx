@@ -4,6 +4,7 @@ import { FileText, LayoutGrid, Pencil, Table2, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
+import PageHeader from "@/components/PageHeader";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -57,10 +58,11 @@ export default function Show({ hardware }) {
 
     return (
         <Layout>
-            <div className="mb-6">
-                <h1 className="font-heading text-3xl font-semibold">Hardware details</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Device information and its complete history.</p>
-            </div>
+            <PageHeader
+                icon={ FileSearch }
+                title="Hardware details"
+                description="Device information and its complete history."
+            />
 
             <Card>
                 <CardHeader>

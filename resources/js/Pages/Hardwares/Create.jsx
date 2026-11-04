@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
+import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -62,10 +63,11 @@ export default function Create({ estates, assignedUsers, hardwareTypes, hardware
     return (
         <Layout>
             <div className="mx-auto max-w-2xl">
-                <div className="mb-6">
-                    <h1 className="font-heading text-3xl font-semibold">Hardware</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">Add new hardware details.</p>
-                </div>
+                <PageHeader
+                    icon={ PlusCircle }
+                    title="Hardware"
+                    description="Add new hardware details."
+                />
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-xl">Create hardware</CardTitle>
