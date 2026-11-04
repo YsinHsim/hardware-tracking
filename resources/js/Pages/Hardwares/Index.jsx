@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { Eye, FileText, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, Eye, FileText, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
@@ -25,14 +25,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
 import {
     Table,
     TableBody,
@@ -94,6 +86,7 @@ function HardwareActions({ hardware, onDelete }) {
 
 export default function Index({ hardwares, filters, estates, hardwareTypes, hardwareStatuses, total }) {
     const [search, setSearch] = useState(filters.search ?? "");
+    const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedHardware, setSelectedHardware] = useState(null);
     const [deleteError, setDeleteError] = useState("");
     const [deleting, setDeleting] = useState(false);
@@ -202,17 +195,14 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
     return (
         <Layout>
             <TooltipProvider>
-                <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="font-heading text-3xl font-semibold">Hardware</h1>
-                        <p className="mt-1 text-sm text-muted-foreground">Track devices, assignments, condition and location.</p>
-                    </div>
-                    <Button asChild><Link href="/hardwares/create"><Plus /> Add hardware</Link></Button>
+                <div className="mb-6">
+                    <h1 className="font-heading text-3xl font-semibold">Hardware</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Track devices, assignments, condition and location.</p>
                 </div>
 
                 <div className="mb-5 space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <div className="relative w-full sm:w-64">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                        <div className="relative w-full">
                             <Search className="pointer-events-none absolute top-2 left-2.5 size-4 text-muted-foreground" />
                             <Input
                                 value={search}
@@ -222,44 +212,39 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                                 className="pl-8"
                             />
                         </div>
+                        <Button asChild className="shrink-0 sm:ml-auto">
+                            <Link href="/hardwares/create"><Plus /> Add hardware</Link>
+                        </Button>
+                    </div>
 
-                        <div className="hidden flex-wrap gap-2 md:flex">
-                            {filterSelect("estate_id", filters.estate_id, "All estates", [
-                                { value: "unassigned", label: "Unassigned" },
-                                ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
-                            ], "All estates")}
-                            {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
-                            {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
-                        </div>
+                    <div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFiltersOpen((open) => !open)}
+                            aria-expanded={filtersOpen}
+                            aria-controls="hardware-filters"
+                            className="-ml-2 gap-1.5 text-muted-foreground hover:text-foreground"
+                        >
+                            <Filter />
+                            Filters
+                            {activeFilters.length > 0 && (
+                                <Badge variant="secondary" className="rounded-full px-1.5">{activeFilters.length}</Badge>
+                            )}
+                            <ChevronDown className={cn("size-4 transition-transform", filtersOpen && "rotate-180")} aria-hidden="true" />
+                        </Button>
 
-                        <Sheet>
-                            <SheetTrigger asChild>
-                                <Button variant="outline" className="md:hidden">
-                                    <Filter />
-                                    Filters
-                                    {activeFilters.length > 0 && (
-                                        <Badge variant="secondary" className="ml-1 rounded-full px-1.5">{activeFilters.length}</Badge>
-                                    )}
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="bottom" className="max-h-[70vh] overflow-y-auto">
-                                <SheetHeader>
-                                    <SheetTitle>Filters</SheetTitle>
-                                    <SheetDescription className="sr-only">Filter hardware by estate, type and status</SheetDescription>
-                                </SheetHeader>
-                                <div className="space-y-3 px-4 pb-6">
-                                    {filterSelect("estate_id", filters.estate_id, "All estates", [
-                                        { value: "unassigned", label: "Unassigned" },
-                                        ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
-                                    ], "All estates")}
-                                    {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
-                                    {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
-                                    {hasFilters && (
-                                        <Button variant="ghost" className="w-full" onClick={clearFilters}>Clear all filters</Button>
-                                    )}
-                                </div>
-                            </SheetContent>
-                        </Sheet>
+                        {filtersOpen && (
+                            <div id="hardware-filters" className="mt-2 flex flex-wrap gap-2">
+                                {filterSelect("estate_id", filters.estate_id, "All estates", [
+                                    { value: "unassigned", label: "Unassigned" },
+                                    ...estates.map((estate) => ({ value: estate.id, label: estate.estate_name })),
+                                ], "All estates")}
+                                {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
+                                {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
+                                {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
@@ -295,8 +280,7 @@ export default function Index({ hardwares, filters, estates, hardwareTypes, hard
                     </div>
                 </div>
 
-                {hardwares.data.length > 0 ? (
-                    <>
+                {hardwares.data.length > 0 ? (                    <>
                         <div className="hidden rounded-xl border border-border bg-card md:block">
                             <Table>
                                 <TableHeader>
