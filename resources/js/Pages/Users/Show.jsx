@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
+import PageHeader from "@/components/PageHeader";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -48,10 +49,11 @@ export default function Show({ user }) {
 
     return (
         <Layout>
-            <div className="mb-6">
-                <h1 className="font-heading text-3xl font-semibold">User details</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Assigned user information and hardware.</p>
-            </div>
+            <PageHeader
+                icon={ IdCard }
+                title="User details"
+                description="Assigned user information and hardware."
+            />
 
             <Card>
                 <CardHeader>

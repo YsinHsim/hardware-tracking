@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
+import PageHeader from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,10 +75,11 @@ export default function Create({ estates, regions }) {
 
     return (
         <Layout>
-            <div className="mb-6">
-                <h1 className="font-heading text-3xl font-semibold">Estates</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Create an estate or a region.</p>
-            </div>
+            <PageHeader
+                icon={ MapPinned }
+                title="Estates"
+                description="Create an estate or a region."
+            />
 
             <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
                 <Card>
