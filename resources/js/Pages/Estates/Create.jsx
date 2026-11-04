@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
-import { MapPinned } from "lucide-react";
+import { Building2, MapPinned } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const emptyEstate = { estate_name: "", region_id: "" };
 
-export default function Create({ branches, regions }) {
+export default function Create({ estates, regions }) {
     const [estateValues, setEstateValues] = useState(emptyEstate);
     const [estateErrors, setEstateErrors] = useState({});
     const [creatingEstate, setCreatingEstate] = useState(false);
@@ -70,14 +70,14 @@ export default function Create({ branches, regions }) {
         });
     }
 
-    const recentEstates = [...branches]
+    const recentEstates = [...estates]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 3);
 
     return (
         <Layout>
             <PageHeader
-                icon={ MapPinned }
+                icon={ Building2 }
                 title="Branches"
                 description="Create a branch or a region."
             backHref="/estates"

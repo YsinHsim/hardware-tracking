@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function Edit({ hardware, hardwareTypes, hardwareStatuses, branches, assignedUsers }) {
+export default function Edit({ hardware, hardwareTypes, hardwareStatuses, estates, assignedUsers }) {
     const [hardwareValues, setHardwareValues] = useState({
         hardware_no: hardware.hardware_no,
         hardware_serial_no: hardware.hardware_serial_no || "",

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function Edit({ user, branches, positions }) {
+export default function Edit({ user, estates, positions }) {
     const [userValues, setUserValues] = useState({
         user_name: user.user_name,
         user_position_id: user.user_position_id || "",

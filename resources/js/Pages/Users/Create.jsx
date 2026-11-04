@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const emptyUser = { user_name: "", user_position_id: "", estate_id: "" };
 
-export default function Create({ positions, branches, users }) {
+export default function Create({ positions, estates, users }) {
     const [values, setValues] = useState(emptyUser);
     const [errors, setErrors] = useState({});
     const [processing, setProcessing] = useState(false);
