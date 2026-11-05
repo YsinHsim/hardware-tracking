@@ -3,15 +3,14 @@ import { Head, Link, router, usePage } from "@inertiajs/react";
 import {
     BookOpen,
     Building2,
-    Computer,
     Database,
     Info,
     KeyRound,
     LayoutDashboard,
     LogOut,
-    Menu,
     Monitor,
     Moon,
+    Settings2,
     Sun,
     Users,
 } from "lucide-react";
@@ -51,16 +50,16 @@ import { fadeRise, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const mainLinks = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Hardware", href: "/hardwares", icon: Computer },
-    { label: "Users", href: "/users", icon: Users },
-    { label: "Branches", href: "/branches", icon: Building2 },
-    { label: "System Data", href: "/system-data", icon: Database },
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, iconClass: "text-primary" },
+    { label: "Hardware", href: "/hardwares", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400" },
+    { label: "Users", href: "/users", icon: Users, iconClass: "text-emerald-600 dark:text-emerald-400" },
+    { label: "Branches", href: "/branches", icon: Building2, iconClass: "text-violet-600 dark:text-violet-400" },
+    { label: "System Data", href: "/system-data", icon: Settings2, iconClass: "text-amber-600 dark:text-amber-400" },
 ];
 
 const secondaryLinks = [
-    { label: "Documentation", href: "/documentation", icon: BookOpen },
-    { label: "About", href: "/about", icon: Info },
+    { label: "Documentation", href: "/documentation", icon: BookOpen, iconClass: "text-rose-600 dark:text-rose-400" },
+    { label: "About", href: "/about", icon: Info, iconClass: "text-muted-foreground" },
 ];
 
 function BrandMark({ className }) {
@@ -77,7 +76,7 @@ function BrandMark({ className }) {
     );
 }
 
-function NavItem({ label, href, icon: Icon, onNavigate }) {
+function NavItem({ label, href, icon: Icon, iconClass, onNavigate }) {
     const { url } = usePage();
     const pathname = url.split("?")[0];
     const isActive = pathname === href || pathname.startsWith(`${href}/`);
@@ -90,7 +89,7 @@ function NavItem({ label, href, icon: Icon, onNavigate }) {
                     onClick={onNavigate}
                     aria-current={isActive ? "page" : undefined}
                 >
-                    <Icon />
+                    <Icon className={iconClass} />
                     <span>{label}</span>
                 </Link>
             </SidebarMenuButton>
