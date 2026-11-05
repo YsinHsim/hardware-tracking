@@ -17,6 +17,7 @@ import PageHeader from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { fadeRise, listStagger, spring } from "@/lib/motion";
 import { useCountUp } from "@/lib/use-count-up";
+import { cn } from "@/lib/utils";
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Legend, Tooltip);
 
@@ -30,11 +31,11 @@ function chartColors(count) {
 }
 
 const statCards = [
-    { key: "totalHardware", label: "Total hardware", icon: Boxes },
-    { key: "assignedCount", label: "Assigned", icon: Link2 },
-    { key: "unassignedCount", label: "Unassigned", icon: Unlink },
-    { key: "faultyCount", label: "Faulty", icon: AlertTriangle },
-    { key: "totalBranches", label: "Branches", icon: Building2 },
+    { key: "totalHardware", label: "Total hardware", icon: Boxes, iconClass: "bg-primary/10 text-primary" },
+    { key: "assignedCount", label: "Assigned", icon: Link2, iconClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+    { key: "unassignedCount", label: "Unassigned", icon: Unlink, iconClass: "bg-slate-500/10 text-slate-600 dark:text-slate-400" },
+    { key: "faultyCount", label: "Faulty", icon: AlertTriangle, iconClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+    { key: "totalBranches", label: "Branches", icon: Building2, iconClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400" },
 ];
 
 function StatCard({ card, index, value, caption }) {
@@ -50,7 +51,7 @@ function StatCard({ card, index, value, caption }) {
         >
             <Card size="sm" className="h-full">
                 <CardContent className="flex items-center gap-3">
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                    <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-lg", card.iconClass)}>
                         <Icon className="size-5" aria-hidden="true" />
                     </span>
                     <div className="min-w-0">
