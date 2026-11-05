@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
 import { PlusCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import { AssignedUserCombobox } from "@/components/AssignedUserCombobox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -56,9 +57,6 @@ export default function Create({ branches, assignedUsers, hardwareTypes, hardwar
         });
     }
 
-    const filteredUsers = selectedBranch && typeof assignedUsers === "object"
-        ? assignedUsers[selectedBranch] || []
-        : [];
     const fieldError = (field) => errors[field] && <p className="text-sm text-destructive">{errors[field]}</p>;
 
     return (
@@ -119,13 +117,15 @@ export default function Create({ branches, assignedUsers, hardwareTypes, hardwar
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="assigned_user_id">Assigned user <span className="text-muted-foreground">(optional)</span></Label>
-                                <Select value={hardwareValues.assigned_user_id === "" ? "none" : String(hardwareValues.assigned_user_id)} onValueChange={(value) => updateField("assigned_user_id", value === "none" ? "" : value)} disabled={!selectedBranch}>
-                                    <SelectTrigger id="assigned_user_id" className="w-full" aria-invalid={Boolean(errors.assigned_user_id)}><SelectValue placeholder="Select assigned user" /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none">Unassigned</SelectItem>
-                                        {filteredUsers.map((user) => <SelectItem key={user.id} value={String(user.id)}>{user.user_name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
+                                <AssignedUserCombobox
+                                    value={hardwareValues.assigned_user_id}
+                                    branches={branches.filter((branch) => String(branch.id) === String(selectedBranch))}
+                                    assignedUsers={assignedUsers}
+                                    onChange={(value) => updateField("assigned_user_id", value)}
+                                    invalid={Boolean(errors.assigned_user_id)}
+                                    disabled={!selectedBranch}
+                                    placeholder={selectedBranch ? "Select assigned user" : "Select a branch first"}
+                                />
                                 {fieldError("assigned_user_id")}
                             </div>
                             <div className="flex justify-end">
