@@ -85,38 +85,46 @@ function CreateRoleDialog({ open, onOpenChange, allPermissions }) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl">
-                <DialogHeader>
+            <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-4xl">
+                <DialogHeader className="border-b border-border px-6 py-5 pr-12">
                     <DialogTitle>Create a new role</DialogTitle>
                     <DialogDescription>
-                        Lowercase letters, numbers and dashes (e.g. technician). You can edit permissions later.
+                        Give the role a clear name, then choose the access it needs.
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
+                <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                    <div className="space-y-2 px-6 py-5">
                         <Label htmlFor="role-name">Role name</Label>
                         <Input
                             id="role-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="technician"
+                            placeholder="e.g. technician"
                             aria-invalid={Boolean(errors.name)}
                             required
                         />
-                        {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                        {errors.name ? (
+                            <p className="text-sm text-destructive">{errors.name}</p>
+                        ) : (
+                            <p className="text-xs text-muted-foreground">Use lowercase letters, numbers and dashes.</p>
+                        )}
                     </div>
-                    <div className="space-y-2">
-                        <Label>Initial permissions</Label>
-                        <div className="max-h-80 overflow-y-auto pr-1">
+                    <div className="flex min-h-0 flex-1 flex-col px-6 pb-5">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                            <Label>Initial permissions</Label>
+                            <span className="text-xs text-muted-foreground">{selected.size} selected</span>
+                        </div>
+                        <div className="min-h-0 flex-1 overflow-y-auto pr-2">
                             <PermissionGroups
                                 groups={allPermissions}
                                 selected={selected}
                                 onToggle={toggle}
                                 onToggleGroup={toggleGroup}
+                                compact
                             />
                         </div>
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="m-0 shrink-0 px-6">
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
