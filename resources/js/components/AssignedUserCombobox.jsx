@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-export function AssignedUserCombobox({ value, branches, assignedUsers, onChange, invalid = false }) {
+export function AssignedUserCombobox({ value, branches, assignedUsers, onChange, invalid = false, disabled = false, placeholder = "Select assigned user" }) {
     const id = useId();
     const searchRef = useRef(null);
     const [open, setOpen] = useState(false);
@@ -72,6 +72,7 @@ export function AssignedUserCombobox({ value, branches, assignedUsers, onChange,
                         aria-expanded={open}
                         aria-controls={`${id}-listbox`}
                         aria-invalid={invalid}
+                        disabled={disabled}
                         className="h-10 min-w-0 flex-1 justify-between px-3 font-normal"
                     >
                         <span className="flex min-w-0 items-center gap-2 text-left">
@@ -84,7 +85,7 @@ export function AssignedUserCombobox({ value, branches, assignedUsers, onChange,
                                     </span>
                                 </span>
                             ) : (
-                                <span className="text-muted-foreground">Unassigned</span>
+                                <span className="text-muted-foreground">{placeholder}</span>
                             )}
                         </span>
                         <ChevronsUpDown className="shrink-0 text-muted-foreground" />
