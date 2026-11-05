@@ -4,11 +4,12 @@ import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
 import { SquarePen } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import { AssignedUserCombobox } from "@/components/AssignedUserCombobox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Edit({ hardware, hardwareTypes, hardwareStatuses, branches, assignedUsers }) {
     const [hardwareValues, setHardwareValues] = useState({
@@ -98,18 +99,13 @@ export default function Edit({ hardware, hardwareTypes, hardwareStatuses, branch
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="assigned_user_id">Assigned user</Label>
-                                <Select value={hardwareValues.assigned_user_id === "" ? "none" : String(hardwareValues.assigned_user_id)} onValueChange={(value) => updateField("assigned_user_id", value === "none" ? "" : value)}>
-                                    <SelectTrigger id="assigned_user_id" className="w-full" aria-invalid={Boolean(errors.assigned_user_id)}><SelectValue placeholder="Select assigned user" /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none">Unassigned</SelectItem>
-                                        {branches.map((branch) => (
-                                            <SelectGroup key={branch.id}>
-                                                <SelectLabel>{branch.branch_name}</SelectLabel>
-                                                {assignedUsers[branch.id]?.map((user) => <SelectItem key={user.id} value={String(user.id)}>{user.user_name}</SelectItem>)}
-                                            </SelectGroup>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <AssignedUserCombobox
+                                    value={hardwareValues.assigned_user_id}
+                                    branches={branches}
+                                    assignedUsers={assignedUsers}
+                                    onChange={(value) => updateField("assigned_user_id", value)}
+                                    invalid={Boolean(errors.assigned_user_id)}
+                                />
                                 {fieldError("assigned_user_id")}
                             </div>
                             <div className="flex justify-end">
