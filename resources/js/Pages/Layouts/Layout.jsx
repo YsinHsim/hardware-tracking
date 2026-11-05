@@ -11,6 +11,7 @@ import {
     Monitor,
     Moon,
     Settings2,
+    ShieldCheck,
     Sun,
     Users,
 } from "lucide-react";
@@ -62,6 +63,10 @@ const secondaryLinks = [
     { label: "About", href: "/about", icon: Info, iconClass: "text-muted-foreground" },
 ];
 
+const adminLinks = [
+    { label: "Roles & Access", href: "/admin/roles", icon: ShieldCheck, iconClass: "text-red-600 dark:text-red-400" },
+];
+
 function BrandMark({ className }) {
     return (
         <span
@@ -98,6 +103,8 @@ function NavItem({ label, href, icon: Icon, iconClass, onNavigate }) {
 }
 
 function Navigation({ onNavigate }) {
+    const isSuperadmin = usePage().props.auth?.isSuperadmin;
+
     return (
         <>
             <SidebarGroup>
@@ -110,6 +117,18 @@ function Navigation({ onNavigate }) {
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
+            {isSuperadmin && (
+                <SidebarGroup>
+                    <SidebarGroupLabel>Admin</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {adminLinks.map((item) => (
+                                <NavItem key={item.href} {...item} onNavigate={onNavigate} />
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            )}
             <SidebarGroup>
                 <SidebarGroupLabel>Resources</SidebarGroupLabel>
                 <SidebarGroupContent>

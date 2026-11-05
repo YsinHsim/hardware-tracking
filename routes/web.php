@@ -8,6 +8,7 @@ use App\Http\Controllers\AssignedUserController;
 use App\Http\Controllers\SystemDataController;
 use App\Http\Controllers\HardwareController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleController;
 use Inertia\Inertia;
 
 //Guest Middleware Route Group
@@ -57,5 +58,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/system-data/{type}/{id}/edit', [SystemDataController::class, 'edit'])->name('system-data.edit');
     Route::put('/system-data/{type}/{id}', [SystemDataController::class, 'update']);
     Route::delete('/system-data/{itemType}/{id}', [SystemDataController::class, 'destroy']);
+
+    // Superadmin: role & permission management
+    Route::get('/admin/roles', [RoleController::class, 'index'])->name('admin.roles.index');
+    Route::post('/admin/roles', [RoleController::class, 'store'])->name('admin.roles.store');
+    Route::put('/admin/roles/{role}', [RoleController::class, 'update'])->name('admin.roles.update');
+    Route::delete('/admin/roles/{role}', [RoleController::class, 'destroy'])->name('admin.roles.destroy');
+    Route::put('/admin/users/{user}/role', [RoleController::class, 'assignUser'])->name('admin.users.role');
 
 });
