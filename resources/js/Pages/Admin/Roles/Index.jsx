@@ -291,7 +291,7 @@ export default function RolesIndex({ roles, permissions, users }) {
 
             <motion.div variants={fadeRise} initial="hidden" animate="show" transition={spring} className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                    <CreateRoleCard permissions={permissions} />
+                    <CreateRoleCard allPermissions={permissions} />
                     <UserAssignmentCard users={users} roles={roles} />
                 </div>
 
