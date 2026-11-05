@@ -115,7 +115,7 @@ class HardwareController extends Controller
             'hardwareTypes' => HardwareType::all(),
             'hardwareStatuses' => HardwareStatus::all(),
             'branches' => Branch::all(),
-            'assignedUsers' => AssignedUser::with('branch')->get()->groupBy('branch_id'),
+            'assignedUsers' => AssignedUser::with(['branch', 'userPosition'])->get()->groupBy('branch_id'),
         ]);
     }
 
