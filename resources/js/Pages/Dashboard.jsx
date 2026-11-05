@@ -30,7 +30,7 @@ function chartColors(count) {
 
 const statCards = [
     { key: "totalHardware", label: "Total hardware", icon: Boxes, description: "Active devices on record" },
-    { key: "assignedRate", label: "Assigned", icon: Link2, description: "Share of hardware in use" },
+    { key: "assignedCount", label: "Assigned", icon: Link2, description: "Share of hardware in use" },
     { key: "unassignedCount", label: "Unassigned", icon: Unlink, description: "Devices without a user" },
     { key: "faultyCount", label: "Faulty", icon: AlertTriangle, description: "Devices marked faulty" },
     { key: "totalBranches", label: "Branches", icon: Building2, description: "Branches on record" },
@@ -43,10 +43,14 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
 
     const values = {
         totalHardware: stats.totalHardware,
-        assignedRate: `${stats.assignedCount} (${assignedPct}%)`,
+        assignedCount: stats.assignedCount,
         unassignedCount: stats.unassignedCount,
         faultyCount: stats.faultyCount,
         totalBranches: stats.totalBranches,
+    };
+
+    const captions = {
+        assignedCount: `${assignedPct}% of hardware`,
     };
 
     const hasHardware = stats.totalHardware > 0;
@@ -104,6 +108,9 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                                     <div className="min-w-0">
                                         <p className="truncate text-sm text-muted-foreground">{card.label}</p>
                                         <p className="font-heading text-2xl font-semibold">{values[card.key]}</p>
+                                        {captions[card.key] && (
+                                            <p className="truncate text-xs text-muted-foreground">{captions[card.key]}</p>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
