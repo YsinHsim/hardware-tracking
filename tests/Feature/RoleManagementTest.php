@@ -98,3 +98,15 @@ it('prevents demoting the last superadmin', function () {
 
     expect($admin->fresh()->hasRole('superadmin'))->toBeTrue();
 });
+
+it('shows the user accounts page to superadmin', function () {
+    $admin = User::factory()->create()->assignRole('superadmin');
+
+    $this->actingAs($admin)->get('/admin/users')->assertOk();
+});
+
+it('denies the user accounts page to non-superadmin', function () {
+    $user = User::factory()->create()->assignRole('staff');
+
+    $this->actingAs($user)->get('/admin/users')->assertForbidden();
+});
