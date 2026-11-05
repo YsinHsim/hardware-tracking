@@ -62,8 +62,10 @@ Route::middleware('auth')->group(function () {
     // Superadmin: role & permission management
     Route::get('/admin/roles', [RoleController::class, 'index'])->name('admin.roles.index');
     Route::post('/admin/roles', [RoleController::class, 'store'])->name('admin.roles.store');
+    Route::get('/admin/roles/{role}', [RoleController::class, 'show'])->name('admin.roles.show');
     Route::put('/admin/roles/{role}', [RoleController::class, 'update'])->name('admin.roles.update');
     Route::delete('/admin/roles/{role}', [RoleController::class, 'destroy'])->name('admin.roles.destroy');
+    Route::get('/admin/users', [RoleController::class, 'users'])->name('admin.users.index');
     Route::put('/admin/users/{user}/role', [RoleController::class, 'assignUser'])->name('admin.users.role');
 
 });

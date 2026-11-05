@@ -65,6 +65,7 @@ const secondaryLinks = [
 
 const adminLinks = [
     { label: "Roles & Access", href: "/admin/roles", icon: ShieldCheck, iconClass: "text-red-600 dark:text-red-400" },
+    { label: "User accounts", href: "/admin/users", icon: Users, iconClass: "text-red-600 dark:text-red-400" },
 ];
 
 function BrandMark({ className }) {

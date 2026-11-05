@@ -26,27 +26,32 @@ class RoleController extends Controller
 
         return Inertia::render('Admin/Roles/Index', [
             'roles' => Role::query()
-                ->with('permissions:id,name')
-                ->withCount('users')
+                ->withCount(['users', 'permissions'])
                 ->orderBy('id')
                 ->get(['id', 'name'])
                 ->map(fn (Role $role) => [
                     'id' => $role->id,
                     'name' => $role->name,
-                    'permissions' => $role->permissions->pluck('name'),
                     'users_count' => $role->users_count,
+                    'permissions_count' => $role->permissions_count,
                 ]),
             'permissions' => Permission::query()->orderBy('name')->pluck('name'),
-            'users' => User::query()
-                ->with('roles:id,name')
-                ->orderBy('name')
-                ->get(['id', 'name', 'email'])
-                ->map(fn (User $user) => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->roles->first()?->name,
-                ]),
+        ]);
+    }
+
+    public function show(Role $role): Response
+    {
+        Gate::authorize('admin.roles');
+
+        return Inertia::render('Admin/Roles/Show', [
+            'role' => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'permissions' => $role->permissions->pluck('name'),
+                'users_count' => $role->users()->count(),
+            ],
+            'permissions' => Permission::query()->orderBy('name')->pluck('name'),
+            'isBaseRole' => in_array($role->name, ['superadmin', 'manager', 'staff'], true),
         ]);
     }
 
@@ -95,6 +100,25 @@ class RoleController extends Controller
         $role->delete();
 
         return back()->with('success', "Role {$role->name} deleted.");
+    }
+
+    public function users(): Response
+    {
+        Gate::authorize('admin.roles');
+
+        return Inertia::render('Admin/Users/Index', [
+            'users' => User::query()
+                ->with('roles:id,name')
+                ->orderBy('name')
+                ->get(['id', 'name', 'email'])
+                ->map(fn (User $user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->roles->first()?->name,
+                ]),
+            'roles' => Role::query()->orderBy('id')->pluck('name'),
+        ]);
     }
 
     public function assignUser(Request $request, User $user): RedirectResponse
