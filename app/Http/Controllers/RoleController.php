@@ -20,6 +20,19 @@ class RoleController extends Controller
         'permissions.*' => 'permission',
     ];
 
+    /**
+     * Permissions grouped by their module prefix (hardware.*, branches.*, ...).
+     */
+    private function groupedPermissions(): array
+    {
+        return Permission::query()
+            ->orderBy('name')
+            ->pluck('name')
+            ->groupBy(fn (string $name) => explode('.', $name, 2)[0])
+            ->map(fn ($group) => $group->values())
+            ->toArray();
+    }
+
     public function index(): Response
     {
         Gate::authorize('admin.roles');
@@ -35,7 +48,7 @@ class RoleController extends Controller
                     'users_count' => $role->users_count,
                     'permissions_count' => $role->permissions_count,
                 ]),
-            'permissions' => Permission::query()->orderBy('name')->pluck('name'),
+            'permissions' => $this->groupedPermissions(),
         ]);
     }
 
@@ -50,7 +63,7 @@ class RoleController extends Controller
                 'permissions' => $role->permissions->pluck('name'),
                 'users_count' => $role->users()->count(),
             ],
-            'permissions' => Permission::query()->orderBy('name')->pluck('name'),
+            'permissions' => $this->groupedPermissions(),
             'isBaseRole' => in_array($role->name, ['superadmin', 'manager', 'staff'], true),
         ]);
     }
