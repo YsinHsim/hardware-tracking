@@ -11,11 +11,12 @@ import {
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { AlertTriangle, Boxes, Building2, LayoutDashboard, Link2, Unlink } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Layout from "./Layouts/Layout";
 import PageHeader from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { fadeRise, listStagger, spring } from "@/lib/motion";
+import { useCountUp } from "@/lib/use-count-up";
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Legend, Tooltip);
 
@@ -29,25 +30,68 @@ function chartColors(count) {
 }
 
 const statCards = [
-    { key: "totalHardware", label: "Total hardware", icon: Boxes, description: "Active devices on record" },
-    { key: "assignedCount", label: "Assigned", icon: Link2, description: "Share of hardware in use" },
-    { key: "unassignedCount", label: "Unassigned", icon: Unlink, description: "Devices without a user" },
-    { key: "faultyCount", label: "Faulty", icon: AlertTriangle, description: "Devices marked faulty" },
-    { key: "totalBranches", label: "Branches", icon: Building2, description: "Branches on record" },
+    { key: "totalHardware", label: "Total hardware", icon: Boxes },
+    { key: "assignedCount", label: "Assigned", icon: Link2 },
+    { key: "unassignedCount", label: "Unassigned", icon: Unlink },
+    { key: "faultyCount", label: "Faulty", icon: AlertTriangle },
+    { key: "totalBranches", label: "Branches", icon: Building2 },
 ];
 
+function StatCard({ card, index, value, caption }) {
+    const Icon = card.icon;
+    const count = useCountUp(value, { delay: 0.05 + index * listStagger.staggerChildren });
+
+    return (
+        <motion.div
+            variants={fadeRise}
+            initial="hidden"
+            animate="show"
+            transition={{ ...spring, delay: index * listStagger.staggerChildren }}
+        >
+            <Card size="sm" className="h-full">
+                <CardContent className="flex items-center gap-3">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                        <Icon className="size-5" aria-hidden="true" />
+                    </span>
+                    <div className="min-w-0">
+                        <p className="truncate text-sm text-muted-foreground">{card.label}</p>
+                        <p className="font-heading text-2xl font-semibold tabular-nums">{count}</p>
+                        {caption && (
+                            <p className="truncate text-xs text-muted-foreground">{caption}</p>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+        </motion.div>
+    );
+}
+
+function FloatingEmptyState({ children }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="py-10 text-center"
+        >
+            <motion.span
+                aria-hidden="true"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-muted"
+            >
+                <Boxes className="size-5 text-muted-foreground" />
+            </motion.span>
+            <p className="text-sm text-muted-foreground">{children}</p>
+        </motion.div>
+    );
+}
+
 export default function Dashboard({ stats, statusBreakdown, branchBreakdown, recentActivity }) {
+    const reduceMotion = useReducedMotion();
     const assignedPct = stats.totalHardware > 0
         ? Math.round((stats.assignedCount / stats.totalHardware) * 100)
         : 0;
-
-    const values = {
-        totalHardware: stats.totalHardware,
-        assignedCount: stats.assignedCount,
-        unassignedCount: stats.unassignedCount,
-        faultyCount: stats.faultyCount,
-        totalBranches: stats.totalBranches,
-    };
 
     const captions = {
         assignedCount: `${assignedPct}% of hardware`,
@@ -62,6 +106,7 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
             backgroundColor: chartColors(statusBreakdown.length),
             borderColor: cssVar("--card") || "#fff",
             borderWidth: 2,
+            hoverOffset: 8,
         }],
     };
 
@@ -80,6 +125,26 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
     const tickColor = cssVar("--muted-foreground") || "#666";
     const gridColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
 
+    const chartTooltip = {
+        backgroundColor: cssVar("--popover") || "#fff",
+        titleColor: cssVar("--popover-foreground") || "#111",
+        bodyColor: cssVar("--muted-foreground") || "#666",
+        borderColor: cssVar("--border") || "#e5e5e5",
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 10,
+        displayColors: false,
+    };
+
+    // Arcs sweep in with a per-segment stagger; bars rise from the baseline.
+    const chartAnimation = reduceMotion
+        ? false
+        : {
+            duration: 900,
+            easing: "easeOutQuart",
+            delay: (ctx) => (ctx.type === "data" ? ctx.dataIndex * 70 : 0),
+        };
+
     return (
         <Layout>
             <Head title="Dashboard" />
@@ -90,33 +155,15 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
             />
 
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-                {statCards.map((card, index) => {
-                    const Icon = card.icon;
-                    return (
-                        <motion.div
-                            key={card.key}
-                            variants={fadeRise}
-                            initial="hidden"
-                            animate="show"
-                            transition={{ ...spring, delay: index * listStagger.staggerChildren }}
-                        >
-                            <Card size="sm" className="h-full">
-                                <CardContent className="flex items-center gap-3">
-                                    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                                        <Icon className="size-5" aria-hidden="true" />
-                                    </span>
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm text-muted-foreground">{card.label}</p>
-                                        <p className="font-heading text-2xl font-semibold">{values[card.key]}</p>
-                                        {captions[card.key] && (
-                                            <p className="truncate text-xs text-muted-foreground">{captions[card.key]}</p>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    );
-                })}
+                {statCards.map((card, index) => (
+                    <StatCard
+                        key={card.key}
+                        card={card}
+                        index={index}
+                        value={stats[card.key]}
+                        caption={captions[card.key]}
+                    />
+                ))}
             </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -139,11 +186,13 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                                         options={{
                                             responsive: true,
                                             maintainAspectRatio: true,
+                                            animation: chartAnimation,
                                             plugins: {
                                                 legend: {
                                                     position: "bottom",
                                                     labels: { color: tickColor, usePointStyle: true, padding: 14 },
                                                 },
+                                                tooltip: chartTooltip,
                                             },
                                         }}
                                         aria-label="Hardware by status chart"
@@ -151,9 +200,9 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                                     />
                                 </div>
                             ) : (
-                                <p className="py-10 text-center text-sm text-muted-foreground">
+                                <FloatingEmptyState>
                                     No hardware yet — charts will appear once devices are added.
-                                </p>
+                                </FloatingEmptyState>
                             )}
                         </CardContent>
                     </Card>
@@ -172,10 +221,30 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                         </CardHeader>
                         <CardContent>
                             {recentActivity.length > 0 ? (
-                                <ol className="max-h-80 space-y-3 overflow-y-auto pr-1" aria-label="Recent activity">
-                                    {recentActivity.map((activity) => (
-                                        <li key={activity.id} className="flex items-start gap-3">
-                                            <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary/70" aria-hidden="true" />
+                                <ol
+                                    className="max-h-80 space-y-3 overflow-y-auto pr-1"
+                                    aria-label="Recent activity"
+                                >
+                                    {recentActivity.map((activity, index) => (
+                                        <motion.li
+                                            key={activity.id}
+                                            variants={fadeRise}
+                                            initial="hidden"
+                                            animate="show"
+                                            transition={{ ...spring, delay: 0.25 + index * 0.05 }}
+                                            className="relative flex items-start gap-3"
+                                        >
+                                            {/* Connecting line between timeline dots */}
+                                            {index < recentActivity.length - 1 && (
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="absolute top-4 left-[3px] h-[calc(100%+0.25rem)] w-px bg-border"
+                                                />
+                                            )}
+                                            <span
+                                                className="relative mt-1.5 size-2 shrink-0 rounded-full bg-primary/70"
+                                                aria-hidden="true"
+                                            />
                                             <div className="min-w-0">
                                                 <p className="text-sm">
                                                     <span className="font-medium">{activity.record_name}</span>
@@ -193,13 +262,13 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                                                     })}
                                                 </p>
                                             </div>
-                                        </li>
+                                        </motion.li>
                                     ))}
                                 </ol>
                             ) : (
-                                <p className="py-10 text-center text-sm text-muted-foreground">
+                                <FloatingEmptyState>
                                     No activity yet — records appear as hardware changes.
-                                </p>
+                                </FloatingEmptyState>
                             )}
                         </CardContent>
                     </Card>
@@ -226,7 +295,8 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                                     options={{
                                         responsive: true,
                                         maintainAspectRatio: false,
-                                        plugins: { legend: { display: false } },
+                                        animation: chartAnimation,
+                                        plugins: { legend: { display: false }, tooltip: chartTooltip },
                                         scales: {
                                             x: {
                                                 ticks: { color: tickColor, maxRotation: 40, minRotation: 0, autoSkip: false },
@@ -244,9 +314,9 @@ export default function Dashboard({ stats, statusBreakdown, branchBreakdown, rec
                                 />
                             </div>
                         ) : (
-                            <p className="py-10 text-center text-sm text-muted-foreground">
+                            <FloatingEmptyState>
                                 No assignments yet — hardware appears here once users are assigned.
-                            </p>
+                            </FloatingEmptyState>
                         )}
                     </CardContent>
                 </Card>
