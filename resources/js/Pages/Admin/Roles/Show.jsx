@@ -5,10 +5,10 @@ import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../../Layouts/Layout";
 import PageHeader from "@/components/PageHeader";
+import { PermissionGroups } from "@/components/PermissionGroups";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { fadeRise, spring } from "@/lib/motion";
 
 export default function RoleShow({ role, permissions, isBaseRole }) {
@@ -25,6 +25,19 @@ export default function RoleShow({ role, permissions, isBaseRole }) {
             const next = new Set(prev);
             if (next.has(permission)) next.delete(permission);
             else next.add(permission);
+            return next;
+        });
+    };
+
+    const toggleGroup = (groupPermissions) => {
+        if (isSuperadmin) return;
+        setSelected((prev) => {
+            const next = new Set(prev);
+            const allChecked = groupPermissions.every((p) => next.has(p));
+            groupPermissions.forEach((p) => {
+                if (allChecked) next.delete(p);
+                else next.add(p);
+            });
             return next;
         });
     };
@@ -79,22 +92,13 @@ export default function RoleShow({ role, permissions, isBaseRole }) {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
-                            {permissions.map((permission) => (
-                                <label
-                                    key={permission}
-                                    className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
-                                >
-                                    <Checkbox
-                                        checked={isSuperadmin || selected.has(permission)}
-                                        disabled={isSuperadmin}
-                                        onCheckedChange={() => toggle(permission)}
-                                        aria-label={permission}
-                                    />
-                                    <span className="font-mono text-xs">{permission}</span>
-                                </label>
-                            ))}
-                        </div>
+                        <PermissionGroups
+                            groups={permissions}
+                            selected={selected}
+                            onToggle={toggle}
+                            onToggleGroup={toggleGroup}
+                            disabled={isSuperadmin}
+                        />
                     </CardContent>
                 </Card>
             </motion.div>

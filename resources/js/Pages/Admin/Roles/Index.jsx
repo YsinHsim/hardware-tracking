@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../../Layouts/Layout";
 import PageHeader from "@/components/PageHeader";
+import { PermissionGroups } from "@/components/PermissionGroups";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -18,7 +19,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
     Dialog,
     DialogContent,
@@ -51,6 +51,18 @@ function CreateRoleDialog({ open, onOpenChange, allPermissions }) {
             const next = new Set(prev);
             if (next.has(permission)) next.delete(permission);
             else next.add(permission);
+            return next;
+        });
+    };
+
+    const toggleGroup = (groupPermissions) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            const allChecked = groupPermissions.every((p) => next.has(p));
+            groupPermissions.forEach((p) => {
+                if (allChecked) next.delete(p);
+                else next.add(p);
+            });
             return next;
         });
     };
@@ -95,20 +107,13 @@ function CreateRoleDialog({ open, onOpenChange, allPermissions }) {
                     </div>
                     <div className="space-y-2">
                         <Label>Initial permissions</Label>
-                        <div className="grid max-h-60 grid-cols-1 gap-1 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
-                            {allPermissions.map((permission) => (
-                                <label
-                                    key={permission}
-                                    className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
-                                >
-                                    <Checkbox
-                                        checked={selected.has(permission)}
-                                        onCheckedChange={() => toggle(permission)}
-                                        aria-label={permission}
-                                    />
-                                    <span className="font-mono text-xs">{permission}</span>
-                                </label>
-                            ))}
+                        <div className="max-h-80 overflow-y-auto pr-1">
+                            <PermissionGroups
+                                groups={allPermissions}
+                                selected={selected}
+                                onToggle={toggle}
+                                onToggleGroup={toggleGroup}
+                            />
                         </div>
                     </div>
                     <DialogFooter>
