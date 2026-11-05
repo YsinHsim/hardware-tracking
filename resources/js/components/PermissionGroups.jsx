@@ -13,9 +13,9 @@ const MODULE_META = {
 
 // Module cards with icon headers and toggleable permission pills.
 // `selected` is a Set of permission names.
-export function PermissionGroups({ groups, selected, onToggle, onToggleGroup, disabled = false }) {
+export function PermissionGroups({ groups, selected, onToggle, onToggleGroup, disabled = false, compact = false }) {
     return (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className={cn("grid grid-cols-1 gap-4", !compact && "lg:grid-cols-2")}>
             {Object.entries(groups).map(([module, permissions]) => {
                 const meta = MODULE_META[module] ?? { label: module, icon: ShieldCheck, iconClass: "bg-muted text-muted-foreground" };
                 const Icon = meta.icon;
