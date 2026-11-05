@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LookupSeeder::class,
             BranchSeeder::class,
+            RolePermissionSeeder::class,
         ]);
 
         $name = env('ADMIN_NAME', 'Administrator');
@@ -32,10 +33,11 @@ class DatabaseSeeder extends Seeder
         if (empty($email) || empty($password)) {
             $this->command->warn('ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env to seed the admin account. Skipped.');
         } else {
-            User::updateOrCreate(
+            $admin = User::updateOrCreate(
                 ['email' => $email],
                 ['name' => $name, 'password' => $password]
             );
+            $admin->syncRoles(['superadmin']);
 
             $this->command->info("Admin account seeded for {$email}.");
         }
