@@ -111,7 +111,7 @@ function Navigation({ onNavigate }) {
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
-            <SidebarGroup className="mt-auto">
+            <SidebarGroup>
                 <SidebarGroupLabel>Resources</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
