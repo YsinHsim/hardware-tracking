@@ -9,6 +9,7 @@ use App\Http\Controllers\SystemDataController;
 use App\Http\Controllers\HardwareController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\DeletedHardwareController;
 use Inertia\Inertia;
 
 //Guest Middleware Route Group
@@ -58,6 +59,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/system-data/{type}/{id}/edit', [SystemDataController::class, 'edit'])->name('system-data.edit');
     Route::put('/system-data/{type}/{id}', [SystemDataController::class, 'update']);
     Route::delete('/system-data/{itemType}/{id}', [SystemDataController::class, 'destroy']);
+
+    Route::get('/admin/deleted-hardware', [DeletedHardwareController::class, 'index'])->name('admin.deleted-hardware.index');
+    Route::post('/admin/deleted-hardware/{hardware}/restore', [DeletedHardwareController::class, 'restore'])->withTrashed()->name('admin.deleted-hardware.restore');
+    Route::delete('/admin/deleted-hardware', [DeletedHardwareController::class, 'destroy'])->name('admin.deleted-hardware.destroy');
 
     // Superadmin: role & permission management
     Route::get('/admin/roles', [RoleController::class, 'index'])->name('admin.roles.index');
