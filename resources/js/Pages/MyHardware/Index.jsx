@@ -4,6 +4,7 @@ import { Monitor, Plus } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
 import PageHeader from "@/components/PageHeader";
+import HardwareStatusBadge from "@/components/HardwareStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,7 +68,7 @@ export default function MyHardware({ hardware, hardwareTypes, hardwareStatuses }
                                         <TableCell className="font-mono">{item.hardware_no}</TableCell>
                                         <TableCell className="font-mono">{item.hardware_serial_no}</TableCell>
                                         <TableCell>{item.hardware_type?.hardware_type_name}</TableCell>
-                                        <TableCell>{item.hardware_status?.hardware_status_name}</TableCell>
+                                        <TableCell><HardwareStatusBadge status={item.hardware_status?.hardware_status_name} /></TableCell>
                                         <TableCell><Badge variant={item.verification_status === 'verified' ? 'default' : 'secondary'}>{item.verification_status.replace('_', ' ')}</Badge></TableCell>
                                         <TableCell className="text-right">{item.verification_status === 'changes_requested' && <Button size="sm" variant="outline" onClick={() => openEdit(item)}>Edit & resubmit</Button>}</TableCell>
                                     </TableRow>

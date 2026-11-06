@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
 import PageHeader from "@/components/PageHeader";
+import HardwareStatusBadge from "@/components/HardwareStatusBadge";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -82,7 +83,7 @@ export default function Show({ hardware }) {
                             <div key={detail.label}>
                                 <dt className="text-sm text-muted-foreground">{detail.label}</dt>
                                 <dd className={`mt-1 ${detail.mono ? "font-mono" : ""}`}>
-                                    {detail.badge ? <Badge variant="outline">{detail.value}</Badge> : detail.value}
+                                    {detail.label === "Status" ? <HardwareStatusBadge status={detail.value} /> : detail.badge ? <Badge variant="outline">{detail.value}</Badge> : detail.value}
                                 </dd>
                             </div>
                         ))}

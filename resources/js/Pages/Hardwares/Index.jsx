@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
 import PageHeader from "@/components/PageHeader";
+import HardwareStatusBadge from "@/components/HardwareStatusBadge";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -320,7 +321,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
                                                     {hardware.assigned_user?.user_name || <span className="text-muted-foreground">Unassigned</span>}
                                                 </TableCell>
                                                 <TableCell>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</TableCell>
-                                                <TableCell><Badge variant="outline">{hardware.hardware_status?.hardware_status_name || "Unknown Status"}</Badge></TableCell>
+                                                <TableCell><HardwareStatusBadge status={hardware.hardware_status?.hardware_status_name} /></TableCell>
                                                 <TableCell><Badge variant={hardware.verification_status === 'verified' ? 'default' : 'secondary'}>{hardware.verification_status.replace('_', ' ')}</Badge></TableCell>
                                                 <TableCell>{hardware.assigned_user?.branch?.branch_name || <span className="text-muted-foreground">—</span>}</TableCell>
                                                 <TableCell><HardwareActions hardware={hardware} onDelete={setSelectedHardware} /></TableCell>
