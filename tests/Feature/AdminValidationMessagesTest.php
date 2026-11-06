@@ -4,7 +4,7 @@ use App\Models\Region;
 use App\Models\User;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
 });
 
 it('uses the readable position attribute when completing onboarding without a position', function () {

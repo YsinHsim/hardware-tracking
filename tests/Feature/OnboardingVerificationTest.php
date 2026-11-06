@@ -150,6 +150,7 @@ it('shows reviewer notes and verification history on hardware details', function
         'status' => 'changes_requested',
         'notes' => 'Correct the serial number.',
     ]);
+    $manager->givePermissionTo('hardware.view');
     $this->get("/hardwares/{$hardware->id}")->assertInertia(fn (AssertableInertia $page) => $page
         ->where('hardware.verification_status', 'changes_requested')
         ->where('hardware.verifications.0.notes', 'Correct the serial number.')

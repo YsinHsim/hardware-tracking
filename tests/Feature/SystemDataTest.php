@@ -4,7 +4,7 @@ use App\Models\HardwareType;
 use App\Models\User;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
 });
 
 it('updates a hardware type name', function () {

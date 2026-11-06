@@ -148,6 +148,40 @@ it('denies account status and deletion controls to non-superadmin', function () 
     $this->actingAs($user)->delete("/admin/users/{$target->id}")->assertForbidden();
 });
 
+it('hides revoked modules and shares only granted permissions', function () {
+    $staffRole = Role::findByName('staff');
+    $staffRole->syncPermissions(['users.view']);
+    $user = User::factory()->create()->assignRole('staff');
+
+    $this->actingAs($user)->get('/dashboard')->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
+        ->where('auth.permissions', ['users.view'])
+        ->where('auth.canVerify', false)
+    );
+});
+
+it('blocks revoked module routes even when opened directly', function () {
+    Role::findByName('staff')->syncPermissions(['users.view']);
+    $user = User::factory()->create()->assignRole('staff');
+
+    $this->actingAs($user)->get('/branches')->assertForbidden();
+    $this->actingAs($user)->get('/hardwares')->assertForbidden();
+    $this->actingAs($user)->get('/system-data')->assertForbidden();
+    $this->actingAs($user)->get('/my-hardware')->assertOk();
+});
+
+it('enforces action permissions independently', function () {
+    Role::findByName('staff')->syncPermissions(['hardware.view', 'branches.view', 'system-data.view']);
+    $user = User::factory()->create()->assignRole('staff');
+
+    $this->actingAs($user)->get('/hardwares')->assertOk();
+    $this->actingAs($user)->get('/hardwares/create')->assertForbidden();
+    $this->actingAs($user)->post('/hardwares', [])->assertForbidden();
+    $this->actingAs($user)->get('/branches')->assertOk();
+    $this->actingAs($user)->post('/branches', [])->assertForbidden();
+    $this->actingAs($user)->get('/system-data')->assertOk();
+    $this->actingAs($user)->post('/system-data/hardware_types', [])->assertForbidden();
+});
+
 it('denies the user accounts page to non-superadmin', function () {
     $user = User::factory()->create()->assignRole('staff');
 

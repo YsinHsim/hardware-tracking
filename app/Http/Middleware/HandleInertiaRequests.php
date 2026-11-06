@@ -43,6 +43,7 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $user?->getRoleNames() ?? [],
                 'isSuperadmin' => $user?->hasRole('superadmin') ?? false,
                 'canVerify' => $user?->can('hardware.verify') ?? false,
+                'permissions' => $user?->getAllPermissions()->pluck('name')->values() ?? [],
                 'notifications' => $user ? $user->unreadNotifications()->latest()->limit(10)->get()->map(fn ($notification) => [
                     'id' => $notification->id,
                     ...$notification->data,

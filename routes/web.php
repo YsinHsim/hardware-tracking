@@ -57,19 +57,36 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('About');
     });
 
-    Route::resource('branches', BranchController::class);
-    Route::resource('regions', RegionController::class);
-    Route::resource('hardwares', HardwareController::class);
+    Route::get('/branches', [BranchController::class, 'index'])->name('branches.index')->middleware('permission:branches.view');
+    Route::get('/branches/create', [BranchController::class, 'create'])->name('branches.create')->middleware('permission:branches.create');
+    Route::post('/branches', [BranchController::class, 'store'])->name('branches.store')->middleware('permission:branches.create');
+    Route::get('/branches/{branch}', [BranchController::class, 'show'])->name('branches.show')->middleware('permission:branches.view');
+    Route::get('/branches/{branch}/edit', [BranchController::class, 'edit'])->name('branches.edit')->middleware('permission:branches.edit');
+    Route::match(['put', 'patch'], '/branches/{branch}', [BranchController::class, 'update'])->name('branches.update')->middleware('permission:branches.edit');
+    Route::delete('/branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy')->middleware('permission:branches.delete');
+    Route::resource('regions', RegionController::class)->only(['store'])->middleware('permission:branches.create');
+    Route::resource('regions', RegionController::class)->only(['update'])->middleware('permission:branches.edit');
+    Route::resource('regions', RegionController::class)->only(['destroy'])->middleware('permission:branches.delete');
+    Route::get('/hardwares', [HardwareController::class, 'index'])->name('hardwares.index')->middleware('permission:hardware.view');
+    Route::get('/hardwares/create', [HardwareController::class, 'create'])->name('hardwares.create')->middleware('permission:hardware.create');
+    Route::post('/hardwares', [HardwareController::class, 'store'])->name('hardwares.store')->middleware('permission:hardware.create');
+    Route::get('/hardwares/{hardware}', [HardwareController::class, 'show'])->name('hardwares.show')->middleware('permission:hardware.view');
+    Route::get('/hardwares/{hardware}/edit', [HardwareController::class, 'edit'])->name('hardwares.edit')->middleware('permission:hardware.edit');
+    Route::match(['put', 'patch'], '/hardwares/{hardware}', [HardwareController::class, 'update'])->name('hardwares.update')->middleware('permission:hardware.edit');
+    Route::delete('/hardwares/{hardware}', [HardwareController::class, 'destroy'])->name('hardwares.destroy')->middleware('permission:hardware.delete');
 
-    Route::get('/report/{hardware}' , [HardwareController::class,'report']);
+    Route::get('/report/{hardware}' , [HardwareController::class,'report'])->middleware('permission:hardware.view');
 
     // System Data Route Group
-    Route::resource('system-data', SystemDataController::class);
-    Route::get('/system-data/create/{type}', [SystemDataController::class, 'create']);
-    Route::post('/system-data/{type}', [SystemDataController::class, 'store']);
-    Route::get('/system-data/{type}/{id}/edit', [SystemDataController::class, 'edit'])->name('system-data.edit');
-    Route::put('/system-data/{type}/{id}', [SystemDataController::class, 'update']);
-    Route::delete('/system-data/{itemType}/{id}', [SystemDataController::class, 'destroy']);
+    Route::resource('system-data', SystemDataController::class)->only(['index', 'show'])->middleware('permission:system-data.view');
+    Route::resource('system-data', SystemDataController::class)->only(['store'])->middleware('permission:system-data.create');
+    Route::resource('system-data', SystemDataController::class)->only(['update'])->middleware('permission:system-data.edit');
+    Route::resource('system-data', SystemDataController::class)->only(['destroy'])->middleware('permission:system-data.delete');
+    Route::get('/system-data/create/{type}', [SystemDataController::class, 'create'])->middleware('permission:system-data.create');
+    Route::post('/system-data/{type}', [SystemDataController::class, 'store'])->middleware('permission:system-data.create');
+    Route::get('/system-data/{type}/{id}/edit', [SystemDataController::class, 'edit'])->name('system-data.edit')->middleware('permission:system-data.edit');
+    Route::put('/system-data/{type}/{id}', [SystemDataController::class, 'update'])->middleware('permission:system-data.edit');
+    Route::delete('/system-data/{itemType}/{id}', [SystemDataController::class, 'destroy'])->middleware('permission:system-data.delete');
 
     Route::get('/admin/deleted-hardware', [DeletedHardwareController::class, 'index'])->name('admin.deleted-hardware.index');
     Route::post('/admin/deleted-hardware/{hardware}/restore', [DeletedHardwareController::class, 'restore'])->withTrashed()->name('admin.deleted-hardware.restore');

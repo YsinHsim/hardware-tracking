@@ -54,10 +54,10 @@ import { cn } from "@/lib/utils";
 
 const mainLinks = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, iconClass: "text-primary" },
-    { label: "Hardware", href: "/hardwares", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400" },
+    { label: "Hardware", href: "/hardwares", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400", permission: "hardware.view" },
     { label: "My hardware", href: "/my-hardware", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400" },
-    { label: "Branches", href: "/branches", icon: Building2, iconClass: "text-violet-600 dark:text-violet-400" },
-    { label: "System Data", href: "/system-data", icon: Settings2, iconClass: "text-amber-600 dark:text-amber-400" },
+    { label: "Branches", href: "/branches", icon: Building2, iconClass: "text-violet-600 dark:text-violet-400", permission: "branches.view" },
+    { label: "System Data", href: "/system-data", icon: Settings2, iconClass: "text-amber-600 dark:text-amber-400", permission: "system-data.view" },
 ];
 
 const secondaryLinks = [
@@ -114,6 +114,8 @@ function NavItem({ label, href, icon: Icon, iconClass, onNavigate }) {
 function Navigation({ onNavigate }) {
     const isSuperadmin = usePage().props.auth?.isSuperadmin;
     const canVerify = usePage().props.auth?.canVerify;
+    const permissions = usePage().props.auth?.permissions ?? [];
+    const visibleLinks = mainLinks.filter((item) => isSuperadmin || !item.permission || permissions.includes(item.permission));
 
     return (
         <>
@@ -121,7 +123,7 @@ function Navigation({ onNavigate }) {
                 <SidebarGroupLabel>Menu</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
-                        {mainLinks.map((item) => (
+                        {visibleLinks.map((item) => (
                             <NavItem key={item.href} {...item} onNavigate={onNavigate} />
                         ))}
                         {canVerify && <NavItem label="Verification" href="/verification" icon={ClipboardCheck} iconClass="text-primary" onNavigate={onNavigate} />}

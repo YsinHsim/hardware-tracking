@@ -8,11 +8,22 @@ use App\Models\HardwareType;
 use App\Models\Region;
 use App\Models\UserPosition;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 pest()->extend(Tests\TestCase::class)
     ->use(RefreshDatabase::class)
     ->beforeEach(function () {
         $this->withoutVite();
+        foreach (['hardware', 'branches', 'system-data', 'users'] as $module) {
+            foreach (['view', 'create', 'edit', 'delete'] as $action) {
+                Permission::findOrCreate("{$module}.{$action}", 'web');
+            }
+        }
+        Role::findOrCreate('superadmin', 'web');
+        Role::findOrCreate('staff', 'web');
+        Role::findOrCreate('manager', 'web');
+        Role::findByName('staff')->syncPermissions(['hardware.view', 'hardware.create', 'hardware.edit', 'hardware.delete', 'branches.view', 'branches.create', 'branches.edit', 'branches.delete', 'system-data.view', 'system-data.create', 'system-data.edit', 'system-data.delete']);
     })
     ->in('Feature');
 

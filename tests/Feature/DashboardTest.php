@@ -8,7 +8,7 @@ use App\Models\UpdateRecord;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
     $this->lookups = makeBranchLookups();
 });
 

@@ -7,7 +7,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
 });
 
 it('creates hardware and a creation update record', function () {

@@ -7,7 +7,7 @@ use App\Models\HardwareStatus;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
 });
 
 it('defaults to ten per page, echoes null filters and orders newest first', function () {

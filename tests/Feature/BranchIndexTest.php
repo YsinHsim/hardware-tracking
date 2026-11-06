@@ -6,7 +6,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
 
     $this->westCoast = Region::create(['region_name' => 'West Coast']);
     $this->sandalwood = Region::create(['region_name' => 'Sandalwood']);
