@@ -19,7 +19,9 @@ Web application that tracks and manages IT hardware across all estates.
 7. Run `php artisan db:seed`
 8. Start the application with `php artisan serve` and `npm run dev`
 
-The admin password lives only in `.env` and should be strong.
+The admin password lives only in `.env` and should be strong. `SEED_HARDWARE_COUNT=0` seeds only lookups and the admin. Otherwise, demo accounts use `DEMO_USER_PASSWORD` (default `password`); change it before seeding and never use the demo default outside local development.
+
+To replace a local database and its demo data, run `php artisan migrate:fresh --seed`. **This permanently wipes all tables in the configured database. Back up first and never run it against production.**
 
 ## Tests
 
