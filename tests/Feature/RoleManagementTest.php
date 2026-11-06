@@ -105,6 +105,49 @@ it('shows the user accounts page to superadmin', function () {
     $this->actingAs($admin)->get('/admin/users')->assertOk();
 });
 
+it('suspends and reactivates another account', function () {
+    $admin = User::factory()->create()->assignRole('superadmin');
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)->put("/admin/users/{$user->id}/status", ['status' => 'suspended'])
+        ->assertSessionHas('success');
+    expect($user->fresh()->status)->toBe('suspended');
+
+    $this->actingAs($admin)->put("/admin/users/{$user->id}/status", ['status' => 'active'])
+        ->assertSessionHas('success');
+    expect($user->fresh()->status)->toBe('active');
+});
+
+it('prevents suspending yourself or the last active superadmin', function () {
+    $admin = User::factory()->create()->assignRole('superadmin');
+
+    $this->actingAs($admin)->put("/admin/users/{$admin->id}/status", ['status' => 'suspended'])
+        ->assertSessionHasErrors(['status' => 'You cannot suspend your own account.']);
+    expect($admin->fresh()->status)->toBe('active');
+});
+
+it('deletes only an invited account that has not completed onboarding', function () {
+    $admin = User::factory()->create()->assignRole('superadmin');
+    $invited = User::factory()->create(['status' => 'invited', 'profile_completed_at' => null]);
+    $active = User::factory()->create();
+
+    $this->actingAs($admin)->delete("/admin/users/{$active->id}")
+        ->assertSessionHasErrors(['delete' => 'Only invited accounts that have not completed onboarding can be deleted. Suspend active accounts instead.']);
+    $this->assertDatabaseHas('users', ['id' => $active->id]);
+
+    $this->actingAs($admin)->delete("/admin/users/{$invited->id}")
+        ->assertSessionHas('success');
+    $this->assertDatabaseMissing('users', ['id' => $invited->id]);
+});
+
+it('denies account status and deletion controls to non-superadmin', function () {
+    $user = User::factory()->create()->assignRole('staff');
+    $target = User::factory()->create(['status' => 'invited', 'profile_completed_at' => null]);
+
+    $this->actingAs($user)->put("/admin/users/{$target->id}/status", ['status' => 'active'])->assertForbidden();
+    $this->actingAs($user)->delete("/admin/users/{$target->id}")->assertForbidden();
+});
+
 it('denies the user accounts page to non-superadmin', function () {
     $user = User::factory()->create()->assignRole('staff');
 

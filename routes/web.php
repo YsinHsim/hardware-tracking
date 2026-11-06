@@ -83,6 +83,8 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/users', '/admin/users');
     Route::get('/admin/users', [RoleController::class, 'users'])->name('admin.users.index');
     Route::put('/admin/users/{user}/role', [RoleController::class, 'assignUser'])->name('admin.users.role');
+    Route::put('/admin/users/{user}/status', [RoleController::class, 'updateUserStatus'])->name('admin.users.status');
+    Route::delete('/admin/users/{user}', [RoleController::class, 'destroyUser'])->name('admin.users.destroy');
     Route::post('/admin/invitations', [InvitationController::class, 'store'])->name('admin.invitations.store');
 
 });

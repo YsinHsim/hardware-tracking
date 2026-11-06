@@ -44,6 +44,16 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            if (Auth::user()->status !== 'active') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login')->withErrors([
+                    'email' => 'This account is not active. Contact an administrator.',
+                ])->withInput($request->only('email'));
+            }
+
             $request->session()->regenerate();
 
             return redirect()->intended('/dashboard');

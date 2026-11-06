@@ -57,6 +57,8 @@ class InvitationController extends Controller
             ->whereNull('used_at')->where('expires_at', '>', now())->firstOrFail();
         $validated = $request->validate(['email' => ['required', 'email']]);
 
+        abort_if($invitation->user->status !== 'invited', 403, 'This account is not active. Contact an administrator.');
+
         if (! hash_equals($invitation->user->email, strtolower($validated['email']))) {
             return back()->withErrors(['email' => 'The email does not match this invitation.']);
         }
