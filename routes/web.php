@@ -4,12 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegionController;
-use App\Http\Controllers\AssignedUserController;
 use App\Http\Controllers\SystemDataController;
 use App\Http\Controllers\HardwareController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\DeletedHardwareController;
+use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\MyHardwareController;
+use App\Http\Controllers\VerificationController;
 use Inertia\Inertia;
 
 //Guest Middleware Route Group
@@ -23,6 +26,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::get('/invitation/{token}', [InvitationController::class, 'show'])->name('invitation.show');
+    Route::post('/invitation/{token}', [InvitationController::class, 'accept'])->name('invitation.accept');
 
 });
 
@@ -31,6 +36,12 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
+    Route::put('/onboarding', [OnboardingController::class, 'update'])->name('onboarding.update');
+    Route::get('/my-hardware', [MyHardwareController::class, 'index'])->name('my-hardware.index');
+    Route::post('/my-hardware', [MyHardwareController::class, 'store'])->name('my-hardware.store');
+    Route::get('/verification', [VerificationController::class, 'index'])->name('verification.index');
+    Route::put('/verification/{hardware}', [VerificationController::class, 'update'])->name('verification.update');
 
     Route::get('/settings/password', [AuthController::class, 'showChangePassword'])->name('settings.password.show');
     Route::put('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
@@ -47,7 +58,6 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('branches', BranchController::class);
     Route::resource('regions', RegionController::class);
-    Route::resource('users', AssignedUserController::class);
     Route::resource('hardwares', HardwareController::class);
 
     Route::get('/report/{hardware}' , [HardwareController::class,'report']);
@@ -70,7 +80,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/roles/{role}', [RoleController::class, 'show'])->name('admin.roles.show');
     Route::put('/admin/roles/{role}', [RoleController::class, 'update'])->name('admin.roles.update');
     Route::delete('/admin/roles/{role}', [RoleController::class, 'destroy'])->name('admin.roles.destroy');
+    Route::redirect('/users', '/admin/users');
     Route::get('/admin/users', [RoleController::class, 'users'])->name('admin.users.index');
     Route::put('/admin/users/{user}/role', [RoleController::class, 'assignUser'])->name('admin.users.role');
+    Route::post('/admin/invitations', [InvitationController::class, 'store'])->name('admin.invitations.store');
 
 });

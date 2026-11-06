@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\AssignedUser;
+use App\Models\User;
 use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
@@ -27,8 +27,8 @@ function makeBranchLookups(): array
     $hardwareType = HardwareType::create(['hardware_type_name' => 'Laptop']);
     $hardwareStatus = HardwareStatus::create(['hardware_status_name' => 'Active']);
 
-    $assignedUser = AssignedUser::create([
-        'user_name' => 'Ahmad',
+    $assignedUser = User::factory()->create([
+        'name' => 'Ahmad',
         'user_position_id' => $position->id,
         'branch_id' => $branch->id,
     ]);

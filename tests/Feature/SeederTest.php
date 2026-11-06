@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\AssignedUser;
+use App\Models\User;
 use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
@@ -20,7 +20,7 @@ it('seeds lookups, branches and demo data with hardware count 50', function () {
         ->and(HardwareStatus::count())->toBe(5)
         ->and(UserPosition::count())->toBe(6)
         ->and(Branch::count())->toBe(15)
-        ->and(AssignedUser::count())->toBe(12)
+        ->and(User::count() - 1)->toBe(12)
         ->and(Hardware::withTrashed()->count())->toBe(51)
         ->and(Hardware::onlyTrashed()->count())->toBe(1)
         ->and(Hardware::count() === Hardware::withTrashed()->count())->toBeFalse();
@@ -45,7 +45,7 @@ it('does not duplicate curated rows when seeded twice', function () {
         ->and(HardwareStatus::count())->toBe(5)
         ->and(UserPosition::count())->toBe(6)
         ->and(Branch::count())->toBe(15)
-        ->and(AssignedUser::count())->toBe(24)
+        ->and(User::count() - 1)->toBe(24)
         ->and(Hardware::withTrashed()->count())->toBe(102);
 });
 
@@ -76,7 +76,7 @@ it('skips demo users and hardware when SEED_HARDWARE_COUNT is 0', function () {
 
     expect(Region::count())->toBe(15)
         ->and(Branch::count())->toBe(15)
-        ->and(AssignedUser::count())->toBe(0)
+        ->and(User::count())->toBe(1)
         ->and(Hardware::count())->toBe(0);
 });
 
@@ -99,9 +99,8 @@ it('skips the admin account when ADMIN_EMAIL is not configured', function () {
         }
     }
 
-    expect(\App\Models\User::count())->toBe(0)
-        ->and(Region::count())->toBe(15)
-        ->and(AssignedUser::count())->toBe(12)
+    expect(Region::count())->toBe(15)
+        ->and(User::count())->toBe(12)
         ->and(Hardware::withTrashed()->count())->toBe(51);
 });
 

@@ -56,7 +56,7 @@ it('rejects another hardware serial on update and leaves the row unchanged', fun
     $hardware = makeHardware();
     $other = makeHardware();
 
-    $original = $hardware->getAttributes();
+    $original = $hardware->fresh()->getAttributes();
 
     $this->put("/hardwares/{$hardware->id}", [
         'hardware_no' => $hardware->hardware_no,
@@ -66,7 +66,7 @@ it('rejects another hardware serial on update and leaves the row unchanged', fun
         'hardware_status_id' => $hardware->hardware_status_id,
     ])->assertSessionHasErrors('hardware_serial_no');
 
-    expect($hardware->fresh()->getAttributes())->toEqual(array_merge($original, ['deleted_at' => null]));
+    expect($hardware->fresh()->getAttributes())->toEqual($original);
 });
 
 it('writes a hardware updated record when the status changes', function () {

@@ -31,6 +31,7 @@ class RolePermissionSeeder extends Seeder
         }
 
         Permission::findOrCreate('admin.roles', 'web');
+        Permission::findOrCreate('hardware.verify', 'web');
 
         $superadmin = Role::findOrCreate('superadmin', 'web');
         $manager = Role::findOrCreate('manager', 'web');

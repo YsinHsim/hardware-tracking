@@ -3,6 +3,8 @@ import { Head, Link, router, usePage } from "@inertiajs/react";
 import {
     BookOpen,
     Building2,
+    ClipboardCheck,
+    Bell,
     Database,
     Info,
     KeyRound,
@@ -53,7 +55,7 @@ import { cn } from "@/lib/utils";
 const mainLinks = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, iconClass: "text-primary" },
     { label: "Hardware", href: "/hardwares", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400" },
-    { label: "Users", href: "/users", icon: Users, iconClass: "text-emerald-600 dark:text-emerald-400" },
+    { label: "My hardware", href: "/my-hardware", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400" },
     { label: "Branches", href: "/branches", icon: Building2, iconClass: "text-violet-600 dark:text-violet-400" },
     { label: "System Data", href: "/system-data", icon: Settings2, iconClass: "text-amber-600 dark:text-amber-400" },
 ];
@@ -65,9 +67,14 @@ const secondaryLinks = [
 
 const adminLinks = [
     { label: "Roles & Access", href: "/admin/roles", icon: ShieldCheck, iconClass: "text-red-600 dark:text-red-400" },
-    { label: "User accounts", href: "/admin/users", icon: Users, iconClass: "text-red-600 dark:text-red-400" },
+    { label: "Users", href: "/admin/users", icon: Users, iconClass: "text-red-600 dark:text-red-400" },
     { label: "Deleted hardware", href: "/admin/deleted-hardware", icon: Monitor, iconClass: "text-red-600 dark:text-red-400" },
 ];
+
+function Notifications() {
+    const notifications = usePage().props.auth?.notifications ?? [];
+    return <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Notifications" className="relative"><Bell />{notifications.length > 0 && <span className="absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">{notifications.length}</span>}</Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="w-80"><DropdownMenuLabel>Notifications</DropdownMenuLabel>{notifications.map((notification) => <DropdownMenuItem key={notification.id} asChild><Link href={notification.url} className="block whitespace-normal"><span className="block font-medium">{notification.title}</span><span className="block text-xs text-muted-foreground">{notification.message} · {notification.created_at}</span></Link></DropdownMenuItem>)}{notifications.length === 0 && <p className="p-4 text-center text-sm text-muted-foreground">No new notifications.</p>}</DropdownMenuContent></DropdownMenu>;
+}
 
 function BrandMark({ className }) {
     return (
@@ -106,6 +113,7 @@ function NavItem({ label, href, icon: Icon, iconClass, onNavigate }) {
 
 function Navigation({ onNavigate }) {
     const isSuperadmin = usePage().props.auth?.isSuperadmin;
+    const canVerify = usePage().props.auth?.canVerify;
 
     return (
         <>
@@ -116,6 +124,7 @@ function Navigation({ onNavigate }) {
                         {mainLinks.map((item) => (
                             <NavItem key={item.href} {...item} onNavigate={onNavigate} />
                         ))}
+                        {canVerify && <NavItem label="Verification" href="/verification" icon={ClipboardCheck} iconClass="text-primary" onNavigate={onNavigate} />}
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
@@ -262,7 +271,7 @@ export default function Layout({ children }) {
                 <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-background px-4">
                     <SidebarTrigger aria-label="Toggle sidebar" />
                     <span className="font-heading text-lg font-semibold">AssetHub</span>
-                    <div className="ml-auto"><ThemeToggle /></div>
+                    <div className="ml-auto flex items-center gap-2"><Notifications /><ThemeToggle /></div>
                 </header>
                 <motion.main
                     key={url.split("?")[0]}

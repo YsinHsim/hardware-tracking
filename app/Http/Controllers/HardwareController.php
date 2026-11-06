@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AssignedUser;
 use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
 use App\Models\HardwareType;
 use App\Models\UpdateRecord;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -43,13 +43,14 @@ class HardwareController extends Controller
                 $query->where(function ($query) use ($escapedSearch) {
                     $query->whereRaw("hardware_no LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
                         ->orWhereRaw("hardware_serial_no LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"])
-                        ->orWhereHas('assignedUser', fn ($query) => $query->whereRaw("user_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
+                        ->orWhere('assigned_user_name', 'like', "%{$escapedSearch}%")
+                        ->orWhereHas('assignedUser', fn ($query) => $query->whereRaw("name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
                         ->orWhereHas('assignedUser.branch', fn ($query) => $query->whereRaw("branch_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
                         ->orWhereHas('hardwareType', fn ($query) => $query->whereRaw("hardware_type_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]))
                         ->orWhereHas('hardwareStatus', fn ($query) => $query->whereRaw("hardware_status_name LIKE ? ESCAPE '!'", ["%{$escapedSearch}%"]));
                 });
             })
-            ->when($branchId === 'unassigned', fn ($query) => $query->whereNull('assigned_user_id'))
+            ->when($branchId === 'unassigned', fn ($query) => $query->whereNull('user_id'))
             ->when(is_int($branchId), function ($query) use ($branchId) {
                 $query->whereHas('assignedUser', fn ($query) => $query->where('branch_id', $branchId));
             })
@@ -81,7 +82,7 @@ class HardwareController extends Controller
             'hardwareTypes' => HardwareType::all(),
             'hardwareStatuses' => HardwareStatus::all(),
             'branches' => Branch::all(),
-            'assignedUsers' => AssignedUser::with(['branch', 'userPosition'])->get()->groupBy('branch_id'),
+            'assignedUsers' => User::with(['branch', 'position'])->whereNotNull('profile_completed_at')->get()->groupBy('branch_id'),
         ]);
     }
 
@@ -90,7 +91,7 @@ class HardwareController extends Controller
         $validatedData = $request->validate([
             'hardware_no' => 'required|string|unique:hardwares,hardware_no',
             'hardware_serial_no' => 'required|string|max:255|unique:hardwares,hardware_serial_no',
-            'assigned_user_id' => 'nullable|exists:assigned_users,id',
+            'assigned_user_id' => 'nullable|exists:users,id',
             'hardware_type_id' => 'required|exists:hardware_types,id',
             'hardware_status_id' => 'required|exists:hardware_statuses,id',
         ], [], self::VALIDATION_ATTRIBUTES);
@@ -115,7 +116,7 @@ class HardwareController extends Controller
             'hardwareTypes' => HardwareType::all(),
             'hardwareStatuses' => HardwareStatus::all(),
             'branches' => Branch::all(),
-            'assignedUsers' => AssignedUser::with(['branch', 'userPosition'])->get()->groupBy('branch_id'),
+            'assignedUsers' => User::with(['branch', 'position'])->whereNotNull('profile_completed_at')->get()->groupBy('branch_id'),
         ]);
     }
 
@@ -124,7 +125,7 @@ class HardwareController extends Controller
         $validatedData = $request->validate([
             'hardware_no' => "required|string|unique:hardwares,hardware_no,{$hardware->id}",
             'hardware_serial_no' => "required|string|max:255|unique:hardwares,hardware_serial_no,{$hardware->id}",
-            'assigned_user_id' => 'nullable|exists:assigned_users,id',
+            'assigned_user_id' => 'nullable|exists:users,id',
             'hardware_type_id' => 'required|exists:hardware_types,id',
             'hardware_status_id' => 'required|exists:hardware_statuses,id',
         ], [], self::VALIDATION_ATTRIBUTES);
@@ -185,9 +186,9 @@ class HardwareController extends Controller
                 : (HardwareStatus::find($value)?->hardware_status_name ?? 'Unknown'),
             'assigned_user_id' => $value === null
                 ? 'Unassigned'
-                : ((int) $hardware->assigned_user_id === (int) $value
-                    ? ($hardware->assignedUser?->user_name ?? 'Unknown')
-                    : (AssignedUser::find($value)?->user_name ?? 'Unknown')),
+                : ((int) $hardware->user_id === (int) $value
+                    ? ($hardware->getRelationValue('assignedUser')?->name ?? $hardware->assigned_user_name ?? 'Unknown')
+                    : (User::find($value)?->name ?? 'Unknown')),
             default => (string) $value,
         };
     }
@@ -213,10 +214,10 @@ class HardwareController extends Controller
             'hardware_id' => $hardware->id,
             'hardware_no' => $hardware->hardware_no,
             'hardware_serial_no' => $hardware->hardware_serial_no,
-            'hardware_user' => optional($hardware->assignedUser)->user_name ?? 'Unassigned',
+            'hardware_user' => $hardware->assigned_user['user_name'] ?? 'Unassigned',
             'hardware_type' => optional($hardware->hardwareType)->hardware_type_name ?? 'Unassigned',
             'hardware_status' => optional($hardware->hardwareStatus)->hardware_status_name ?? 'Unassigned',
-            'branch_name' => optional(optional($hardware->assignedUser)->branch)->branch_name ?? 'Unassigned',
+            'branch_name' => $hardware->assigned_user['branch']['branch_name'] ?? 'Unassigned',
         ]);
     }
 }

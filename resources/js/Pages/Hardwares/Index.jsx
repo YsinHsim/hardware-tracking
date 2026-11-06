@@ -317,9 +317,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
                                                     <div className="mt-1 font-mono text-xs text-muted-foreground">{hardware.hardware_serial_no}</div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    {hardware.assigned_user?.id ? (
-                                                        <Link href={`/users/${hardware.assigned_user.id}`} className="hover:underline">{hardware.assigned_user.user_name || "Unknown User"}</Link>
-                                                    ) : <span className="text-muted-foreground">Unassigned</span>}
+                                                    {hardware.assigned_user?.user_name || <span className="text-muted-foreground">Unassigned</span>}
                                                 </TableCell>
                                                 <TableCell>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</TableCell>
                                                 <TableCell><Badge variant="outline">{hardware.hardware_status?.hardware_status_name || "Unknown Status"}</Badge></TableCell>

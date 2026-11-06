@@ -42,6 +42,16 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user ? $user->only('id', 'name', 'email') : null,
                 'roles' => $user?->getRoleNames() ?? [],
                 'isSuperadmin' => $user?->hasRole('superadmin') ?? false,
+                'canVerify' => $user?->can('hardware.verify') ?? false,
+                'notifications' => $user ? $user->unreadNotifications()->latest()->limit(10)->get()->map(fn ($notification) => [
+                    'id' => $notification->id,
+                    ...$notification->data,
+                    'created_at' => $notification->created_at->diffForHumans(),
+                ])->values() : [],
+            ],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'invitationLink' => $request->session()->get('invitationLink'),
             ],
         ]);
     }

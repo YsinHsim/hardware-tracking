@@ -17,6 +17,6 @@ class UserPosition extends Model
 
     public function assignedUsers(): HasMany
     {
-        return $this->hasMany(AssignedUser::class);
+        return $this->hasMany(User::class);
     }
 }

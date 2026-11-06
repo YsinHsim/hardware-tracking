@@ -22,7 +22,26 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'status',
+        'profile_completed_at',
+        'branch_id',
+        'user_position_id',
     ];
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function position()
+    {
+        return $this->belongsTo(UserPosition::class, 'user_position_id');
+    }
+
+    public function invitation()
+    {
+        return $this->hasOne(AccountInvitation::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

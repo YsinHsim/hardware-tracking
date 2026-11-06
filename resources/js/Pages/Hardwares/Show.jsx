@@ -89,9 +89,7 @@ export default function Show({ hardware }) {
                         <div>
                             <dt className="text-sm text-muted-foreground">Assigned user</dt>
                             <dd className="mt-1">
-                                {hardware.assigned_user?.id ? (
-                                    <Link href={`/users/${hardware.assigned_user.id}`} className="hover:underline">{hardware.assigned_user.user_name}</Link>
-                                ) : "Unassigned"}
+                                {hardware.assigned_user?.user_name || "Unassigned"}
                             </dd>
                         </div>
                     </dl>

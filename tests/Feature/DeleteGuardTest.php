@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\AssignedUser;
 use App\Models\Branch;
 use App\Models\HardwareType;
 use App\Models\Region;

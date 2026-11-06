@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\AssignedUser;
 use App\Models\Hardware;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -45,11 +44,14 @@ class DatabaseSeeder extends Seeder
         $hardwareCount = (int) env('SEED_HARDWARE_COUNT', 50);
 
         if ($hardwareCount > 0) {
-            AssignedUser::factory()->count(12)->create();
+            User::factory()->count(12)->create([
+                'branch_id' => fn () => \App\Models\Branch::inRandomOrder()->first()->id,
+                'user_position_id' => fn () => \App\Models\UserPosition::inRandomOrder()->first()->id,
+            ]);
             Hardware::factory()->count($hardwareCount)->create();
             Hardware::factory()->softDeleted()->create();
 
-            $this->command->info("Seeded 12 assigned users, {$hardwareCount} hardware and 1 soft-deleted hardware.");
+            $this->command->info("Seeded 12 user accounts, {$hardwareCount} hardware and 1 soft-deleted hardware.");
         }
     }
 }

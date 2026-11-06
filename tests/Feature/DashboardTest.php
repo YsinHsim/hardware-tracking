@@ -1,11 +1,10 @@
 <?php
 
-use App\Models\AssignedUser;
+use App\Models\User;
 use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
 use App\Models\UpdateRecord;
-use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
@@ -27,8 +26,8 @@ function makeDashboardHardware(array $overrides = []): Hardware
 it('shows stat cards and chart breakdowns', function () {
     $faulty = HardwareStatus::create(['hardware_status_name' => 'Faulty']);
 
-    $assigned = AssignedUser::create([
-        'user_name' => 'Dash User',
+    $assigned = User::factory()->create([
+        'name' => 'Dash User',
         'user_position_id' => $this->lookups['position']->id,
         'branch_id' => $this->lookups['branch']->id,
     ]);

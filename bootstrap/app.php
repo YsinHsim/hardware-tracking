@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             HandleInertiaRequests::class,
+            \App\Http\Middleware\EnsureProfileCompleted::class,
         ]);
         $middleware->redirectUsersTo('/dashboard');
     })

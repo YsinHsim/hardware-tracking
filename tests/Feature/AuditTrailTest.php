@@ -101,7 +101,7 @@ it('writes the previous assigned user name and Unassigned when unassigning', fun
 
     $this->assertDatabaseHas('update_records', [
         'hardware_id' => $hardware->id,
-        'record_desc' => "Hardware (No: {$hardware->hardware_no}) was updated. Assigned user changed from '{$lookups['assignedUser']->user_name}' to 'Unassigned'",
+        'record_desc' => "Hardware (No: {$hardware->hardware_no}) was updated. Assigned user changed from '{$lookups['assignedUser']->name}' to 'Unassigned'",
     ]);
 });
 

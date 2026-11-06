@@ -1,10 +1,9 @@
 <?php
 
-use App\Models\AssignedUser;
+use App\Models\User;
 use App\Models\Branch;
 use App\Models\HardwareType;
 use App\Models\HardwareStatus;
-use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
@@ -171,8 +170,8 @@ it('filters hardware by branch and excludes unassigned hardware', function () {
         'branch_name' => 'Other Branch',
         'region_id' => $lookups['region']->id,
     ]);
-    $otherUser = AssignedUser::create([
-        'user_name' => 'Other User',
+    $otherUser = User::factory()->create([
+        'name' => 'Other User',
         'user_position_id' => $lookups['position']->id,
         'branch_id' => $otherBranch->id,
     ]);

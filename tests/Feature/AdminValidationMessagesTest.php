@@ -7,11 +7,14 @@ beforeEach(function () {
     $this->actingAs(User::factory()->create());
 });
 
-it('uses the readable position attribute when storing a user without a position', function () {
+it('uses the readable position attribute when completing onboarding without a position', function () {
     $lookups = makeBranchLookups();
+    $this->actingAs(User::factory()->create(['profile_completed_at' => null]));
 
-    $this->post('/users', [
-        'user_name' => 'Validation User',
+    $this->put('/onboarding', [
+        'name' => 'Validation User',
+        'password' => 'new-password-123',
+        'password_confirmation' => 'new-password-123',
         'branch_id' => $lookups['branch']->id,
     ])->assertSessionHasErrors([
         'user_position_id' => 'The position field is required.',
