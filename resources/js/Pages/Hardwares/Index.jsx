@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { ChevronDown, Eye, FileText, Filter, HardDrive, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, Eye, Filter, HardDrive, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
@@ -73,14 +73,6 @@ function HardwareActions({ hardware, onDelete }) {
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>Delete</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon-sm" asChild aria-label={`Report for ${hardware.hardware_no}`}>
-                        <Link href={`/report/${hardware.id}`}><FileText /></Link>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>Report</TooltipContent>
             </Tooltip>
         </div>
     );

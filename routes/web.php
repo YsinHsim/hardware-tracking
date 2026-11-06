@@ -75,8 +75,6 @@ Route::middleware('auth')->group(function () {
     Route::match(['put', 'patch'], '/hardwares/{hardware}', [HardwareController::class, 'update'])->name('hardwares.update')->middleware('permission:hardware.edit');
     Route::delete('/hardwares/{hardware}', [HardwareController::class, 'destroy'])->name('hardwares.destroy')->middleware('permission:hardware.delete');
 
-    Route::get('/report/{hardware}' , [HardwareController::class,'report'])->middleware('permission:hardware.view');
-
     // System Data Route Group
     Route::resource('system-data', SystemDataController::class)->only(['index', 'show'])->middleware('permission:system-data.view');
     Route::resource('system-data', SystemDataController::class)->only(['store'])->middleware('permission:system-data.create');

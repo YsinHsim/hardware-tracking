@@ -212,16 +212,4 @@ class HardwareController extends Controller
         return Redirect::route('hardwares.index')->with('success', 'Hardware deleted successfully.');
     }
 
-    public function report(Hardware $hardware)
-    {
-        return Inertia::render('Hardwares/Report', [
-            'hardware_id' => $hardware->id,
-            'hardware_no' => $hardware->hardware_no,
-            'hardware_serial_no' => $hardware->hardware_serial_no,
-            'hardware_user' => $hardware->assigned_user['user_name'] ?? 'Unassigned',
-            'hardware_type' => optional($hardware->hardwareType)->hardware_type_name ?? 'Unassigned',
-            'hardware_status' => optional($hardware->hardwareStatus)->hardware_status_name ?? 'Unassigned',
-            'branch_name' => $hardware->assigned_user['branch']['branch_name'] ?? 'Unassigned',
-        ]);
-    }
 }

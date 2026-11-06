@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { FileSearch, FileText, LayoutGrid, Pencil, Table2, Trash2 } from "lucide-react";
+import { FileSearch, LayoutGrid, Pencil, Table2, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
@@ -72,7 +72,6 @@ export default function Show({ hardware }) {
                     <CardTitle className="font-mono text-xl">{hardware.hardware_no}</CardTitle>
                     <CardDescription>Hardware information</CardDescription>
                     <CardAction className="flex gap-2">
-                        <Button variant="outline" asChild><Link href={`/report/${hardware.id}`}><FileText /> Report</Link></Button>
                         <Button variant="outline" asChild><Link href={`/hardwares/${hardware.id}/edit`}><Pencil /> Edit</Link></Button>
                         <Button variant="destructive" onClick={() => { setDeleteError(""); setShowAlert(true); }}><Trash2 /> Delete</Button>
                     </CardAction>
