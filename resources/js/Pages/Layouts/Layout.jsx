@@ -48,6 +48,7 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { ChevronRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { fadeRise, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -262,6 +263,21 @@ function AppSidebar({ onNavigate }) {
     );
 }
 
+function Breadcrumb() {
+    const pathname = usePage().url.split("?")[0];
+    const current = [...mainLinks, ...secondaryLinks, ...adminLinks, { label: "Verification", href: "/verification" }]
+        .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+        .sort((a, b) => b.href.length - a.href.length)[0];
+    const pageLabel = current?.label ?? (pathname.startsWith("/settings") ? "Settings" : "AssetHub");
+
+    return (
+        <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-sm">
+            <Link href="/dashboard" className="text-muted-foreground transition-colors hover:text-foreground">AssetHub</Link>
+            {pageLabel !== "AssetHub" && <><ChevronRight className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" /><span className="truncate font-medium" aria-current="page">{pageLabel}</span></>}
+        </nav>
+    );
+}
+
 export default function Layout({ children }) {
     const { url } = usePage();
 
@@ -272,7 +288,7 @@ export default function Layout({ children }) {
             <SidebarInset>
                 <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-background px-4">
                     <SidebarTrigger aria-label="Toggle sidebar" />
-                    <span className="font-heading text-lg font-semibold">AssetHub</span>
+                    <Breadcrumb />
                     <div className="ml-auto flex items-center gap-2"><Notifications /><ThemeToggle /></div>
                 </header>
                 <motion.main

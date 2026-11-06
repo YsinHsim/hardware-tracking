@@ -298,7 +298,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
                                         <TableHead>Status</TableHead>
                                         <TableHead>Verification</TableHead>
                                         <TableHead>Branch</TableHead>
-                                        <TableHead><span className="sr-only">Actions</span></TableHead>
+                                        <TableHead className="text-right">Action</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>

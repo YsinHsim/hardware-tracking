@@ -22,6 +22,8 @@ it('creates hardware and a creation update record', function () {
     ])->assertRedirect(route('hardwares.index'));
 
     $hardware = Hardware::where('hardware_serial_no', 'SN-001')->firstOrFail();
+    expect($hardware->assigned_user_id)->toBe($lookups['assignedUser']->id)
+        ->and($hardware->assigned_user['user_name'])->toBe($lookups['assignedUser']->name);
 
     $this->assertDatabaseHas('update_records', [
         'hardware_id' => $hardware->id,

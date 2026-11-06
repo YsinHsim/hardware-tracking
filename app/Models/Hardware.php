@@ -19,11 +19,11 @@ class Hardware extends Model
     protected static function booted(): void
     {
         static::saving(function (Hardware $hardware) {
-            if (! $hardware->isDirty('assigned_user_id')) {
+            if (! $hardware->isDirty('user_id')) {
                 return;
             }
             $user = $hardware->assigned_user_id ? User::with(['branch', 'position'])->find($hardware->assigned_user_id) : null;
-            $hardware->attributes['assigned_user_id'] = null;
+            $hardware->attributes['user_id'] = $user?->id;
             $hardware->assigned_user_name = $user?->name;
             $hardware->assigned_branch_name = $user?->branch?->branch_name;
             $hardware->assigned_position_name = $user?->position?->position_name;
