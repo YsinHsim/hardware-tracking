@@ -33,10 +33,22 @@ it('seeds lookups accounts and the complete hardware verification workflow', fun
     foreach (['pending', 'verified', 'changes_requested', 'rejected'] as $status) {
         expect(Hardware::where('verification_status', $status)->exists())->toBeTrue();
     }
-    expect(Hardware::whereNull('submitted_by')->count())->toBe(0)
+    expect(Hardware::whereNull('user_id')->count())->toBe(0)
+        ->and(Hardware::with('assignedUser')->get()->every(fn ($hardware) => $hardware->assigned_user['user_name'] === $hardware->assignedUser()->first()->name))->toBeTrue()
+        ->and(Hardware::whereNull('submitted_by')->count())->toBe(0)
         ->and(HardwareVerification::where('status', 'verified')->whereNull('notes')->exists())->toBeTrue()
         ->and(HardwareVerification::whereIn('status', ['changes_requested', 'rejected'])->whereNull('notes')->exists())->toBeFalse()
         ->and(Hardware::whereHas('assignedUser', fn ($query) => $query->where('status', 'suspended'))->exists())->toBeFalse();
+});
+
+it('passes seeded account assignees to the hardware page', function () {
+    Artisan::call('db:seed', ['--force' => true]);
+    $this->actingAs(User::role('superadmin')->first());
+
+    $this->get('/hardwares')->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+        ->where('hardwares.data.0.assigned_user.user_name', Hardware::latest('id')->first()->assignedUser()->first()->name)
+        ->where('hardwares.data.0.assigned_user.branch.branch_name', Hardware::latest('id')->first()->assignedUser()->first()->branch->branch_name)
+    );
 });
 
 it('uses the configured demo password without exposing the admin password', function () {

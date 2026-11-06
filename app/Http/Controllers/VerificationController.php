@@ -14,7 +14,7 @@ class VerificationController extends Controller
     {
         Gate::authorize('hardware.verify');
         $query = Hardware::where('verification_status', 'pending')
-            ->with(['assignedUser.branch', 'hardwareType', 'hardwareStatus', 'submitter']);
+            ->with(['assignedUser', 'hardwareType', 'hardwareStatus', 'submitter']);
         if (! $request->user()->hasRole('superadmin')) {
             $query->whereHas('assignedUser', fn ($q) => $q->where('branch_id', $request->user()->branch_id));
         }

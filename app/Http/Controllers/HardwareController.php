@@ -35,7 +35,7 @@ class HardwareController extends Controller
         $perPage = in_array($perPage, [10, 25, 50], true) ? $perPage : 10;
 
         $hardwares = Hardware::with([
-            'assignedUser.branch',
+            'assignedUser',
             'hardwareType',
             'hardwareStatus'
         ])
@@ -116,7 +116,7 @@ class HardwareController extends Controller
     public function edit(Hardware $hardware)
     {
         return Inertia::render('Hardwares/Edit', [
-            'hardware' => $hardware->load(['assignedUser.branch', 'hardwareType', 'hardwareStatus']),
+            'hardware' => $hardware->load(['assignedUser', 'hardwareType', 'hardwareStatus']),
             'hardwareTypes' => HardwareType::all(),
             'hardwareStatuses' => HardwareStatus::all(),
             'branches' => Branch::all(),
@@ -160,7 +160,7 @@ class HardwareController extends Controller
 
     public function show(Hardware $hardware)
     {
-        $hardware->load(['assignedUser.branch', 'hardwareType', 'hardwareStatus', 'updateRecords.user:id,name', 'verifications.reviewer:id,name']);
+        $hardware->load(['assignedUser', 'hardwareType', 'hardwareStatus', 'updateRecords.user:id,name', 'verifications.reviewer:id,name']);
 
         return Inertia::render('Hardwares/Show', [
             'hardware' => $hardware

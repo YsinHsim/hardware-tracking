@@ -59,6 +59,11 @@ class Hardware extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function toArray()
+    {
+        return array_merge(parent::toArray(), ['assigned_user' => $this->getAssignedUserAttribute()]);
+    }
+
     public function getAssignedUserAttribute(): ?array
     {
         $assignee = $this->getRelationValue('assignedUser');

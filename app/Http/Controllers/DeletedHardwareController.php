@@ -20,7 +20,7 @@ class DeletedHardwareController extends Controller
 
         return Inertia::render('Admin/DeletedHardware/Index', [
             'hardware' => Hardware::onlyTrashed()
-                ->with(['assignedUser.branch', 'hardwareType', 'hardwareStatus'])
+                ->with(['assignedUser', 'hardwareType', 'hardwareStatus'])
                 ->latest('deleted_at')
                 ->get()
                 ->map(fn (Hardware $hardware) => [
