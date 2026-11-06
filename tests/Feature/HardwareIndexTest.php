@@ -322,6 +322,19 @@ it('excludes soft deleted hardware from the list', function () {
             ->where('hardwares.data.0.id', $active->id));
 });
 
+it('filters hardware by verification status', function () {
+    $lookups = makeBranchLookups();
+    $pending = makeHardware(['verification_status' => 'pending']);
+    makeHardware(['verification_status' => 'verified']);
+
+    $this->get('/hardwares?verification_status=pending')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('filters.verification_status', 'pending')
+            ->where('total', 1)
+            ->where('hardwares.data.0.id', $pending->id)
+            ->where('hardwares.data.0.verification_status', 'pending'));
+});
+
 it('provides ordered lookup lists for the filter bar', function () {
     $lookups = makeBranchLookups();
     HardwareType::create(['hardware_type_name' => 'A Type']);

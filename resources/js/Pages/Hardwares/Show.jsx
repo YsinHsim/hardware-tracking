@@ -32,6 +32,7 @@ export default function Show({ hardware }) {
         { label: "Serial number", value: hardware.hardware_serial_no, mono: true },
         { label: "Type", value: hardware.hardware_type?.hardware_type_name || "N/A" },
         { label: "Status", value: hardware.hardware_status?.hardware_status_name || "N/A", badge: true },
+        { label: "Verification", value: hardware.verification_status.replace('_', ' '), badge: true },
         { label: "Branch", value: hardware.assigned_user?.branch?.branch_name || "N/A" },
     ];
 
@@ -93,6 +94,19 @@ export default function Show({ hardware }) {
                             </dd>
                         </div>
                     </dl>
+                </CardContent>
+            </Card>
+
+            <Card className="mt-5">
+                <CardHeader><CardTitle className="text-xl">Verification history</CardTitle><CardDescription>Reviews, decisions, and notes for this device.</CardDescription></CardHeader>
+                <CardContent className="space-y-4">
+                    {hardware.verifications?.length > 0 ? hardware.verifications.map((review) => (
+                        <div key={review.id} className="rounded-lg border p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-2"><Badge variant={review.status === 'verified' ? 'default' : 'secondary'}>{review.status.replace('_', ' ')}</Badge><span className="text-sm text-muted-foreground">{new Date(review.created_at).toLocaleString()}</span></div>
+                            <p className="mt-2 text-sm">Reviewed by {review.reviewer?.name ?? 'Unknown'}</p>
+                            {review.notes && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{review.notes}</p>}
+                        </div>
+                    )) : <p className="text-sm text-muted-foreground">No verification reviews recorded.</p>}
                 </CardContent>
             </Card>
 

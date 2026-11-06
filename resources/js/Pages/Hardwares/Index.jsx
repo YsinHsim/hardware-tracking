@@ -100,6 +100,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
         filters.branch_id !== null ||
         filters.hardware_type_id !== null ||
         filters.hardware_status_id !== null ||
+        filters.verification_status !== null ||
         filters.per_page !== 10;
 
     const activeFilters = [
@@ -116,6 +117,10 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
         filters.hardware_status_id !== null && {
             key: "hardware_status_id",
             label: hardwareStatuses.find((status) => status.id === filters.hardware_status_id)?.hardware_status_name ?? "Status",
+        },
+        filters.verification_status !== null && {
+            key: "verification_status",
+            label: `Verification: ${filters.verification_status.replace('_', ' ')}`,
         },
     ].filter(Boolean);
 
@@ -141,6 +146,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
         if (values.branch_id) params.branch_id = values.branch_id;
         if (values.hardware_type_id) params.hardware_type_id = values.hardware_type_id;
         if (values.hardware_status_id) params.hardware_status_id = values.hardware_status_id;
+        if (values.verification_status) params.verification_status = values.verification_status;
         if (Number(values.per_page) !== 10) params.per_page = values.per_page;
         router.get("/hardwares", params, { preserveState: true, preserveScroll: true, replace: true });
     };
@@ -280,6 +286,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
                             ], "All branches")}
                             {filterSelect("hardware_type_id", filters.hardware_type_id, "All types", hardwareTypes.map((type) => ({ value: type.id, label: type.hardware_type_name })), "All types")}
                             {filterSelect("hardware_status_id", filters.hardware_status_id, "All statuses", hardwareStatuses.map((status) => ({ value: status.id, label: status.hardware_status_name })), "All statuses")}
+                            {filterSelect("verification_status", filters.verification_status, "All verification states", ['pending', 'verified', 'changes_requested', 'rejected'].map((status) => ({ value: status, label: status.replace('_', ' ') })), "All verification states")}
                             <div className="flex items-center">
                                 {hasFilters && <Button variant="ghost" onClick={clearFilters}>Clear all</Button>}
                             </div>
@@ -296,6 +303,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
                                         <TableHead>Assigned to</TableHead>
                                         <TableHead>Type</TableHead>
                                         <TableHead>Status</TableHead>
+                                        <TableHead>Verification</TableHead>
                                         <TableHead>Branch</TableHead>
                                         <TableHead><span className="sr-only">Actions</span></TableHead>
                                     </TableRow>
@@ -321,6 +329,7 @@ export default function Index({ hardwares, filters, branches, hardwareTypes, har
                                                 </TableCell>
                                                 <TableCell>{hardware.hardware_type?.hardware_type_name || "Unknown Type"}</TableCell>
                                                 <TableCell><Badge variant="outline">{hardware.hardware_status?.hardware_status_name || "Unknown Status"}</Badge></TableCell>
+                                                <TableCell><Badge variant={hardware.verification_status === 'verified' ? 'default' : 'secondary'}>{hardware.verification_status.replace('_', ' ')}</Badge></TableCell>
                                                 <TableCell>{hardware.assigned_user?.branch?.branch_name || <span className="text-muted-foreground">—</span>}</TableCell>
                                                 <TableCell><HardwareActions hardware={hardware} onDelete={setSelectedHardware} /></TableCell>
                                             </MotionRow>

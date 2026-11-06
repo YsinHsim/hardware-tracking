@@ -93,6 +93,11 @@ class Hardware extends Model
         return $this->hasMany(UpdateRecord::class);
     }
 
+    public function verifications(): HasMany
+    {
+        return $this->hasMany(HardwareVerification::class)->latest();
+    }
+
     public function submitter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by');

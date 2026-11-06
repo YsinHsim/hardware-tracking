@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/onboarding', [OnboardingController::class, 'update'])->name('onboarding.update');
     Route::get('/my-hardware', [MyHardwareController::class, 'index'])->name('my-hardware.index');
     Route::post('/my-hardware', [MyHardwareController::class, 'store'])->name('my-hardware.store');
+    Route::put('/my-hardware/{hardware}', [MyHardwareController::class, 'update'])->name('my-hardware.update');
     Route::get('/verification', [VerificationController::class, 'index'])->name('verification.index');
     Route::put('/verification/{hardware}', [VerificationController::class, 'update'])->name('verification.update');
 

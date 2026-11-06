@@ -29,6 +29,8 @@ class HardwareController extends Controller
         $branchId = $branchId === 'unassigned' ? 'unassigned' : ($request->integer('branch_id') ?: null);
         $hardwareTypeId = $request->integer('hardware_type_id') ?: null;
         $hardwareStatusId = $request->integer('hardware_status_id') ?: null;
+        $verificationStatus = $request->query('verification_status');
+        $verificationStatus = in_array($verificationStatus, ['pending', 'verified', 'changes_requested', 'rejected'], true) ? $verificationStatus : null;
         $perPage = (int) $request->query('per_page', 10);
         $perPage = in_array($perPage, [10, 25, 50], true) ? $perPage : 10;
 
@@ -56,6 +58,7 @@ class HardwareController extends Controller
             })
             ->when($hardwareTypeId, fn ($query) => $query->where('hardware_type_id', $hardwareTypeId))
             ->when($hardwareStatusId, fn ($query) => $query->where('hardware_status_id', $hardwareStatusId))
+            ->when($verificationStatus, fn ($query) => $query->where('verification_status', $verificationStatus))
             ->orderByDesc('id')
             ->paginate($perPage)
             ->withQueryString();
@@ -67,6 +70,7 @@ class HardwareController extends Controller
                 'branch_id' => $branchId,
                 'hardware_type_id' => $hardwareTypeId,
                 'hardware_status_id' => $hardwareStatusId,
+                'verification_status' => $verificationStatus,
                 'per_page' => $perPage,
             ],
             'total' => $hardwares->total(),
@@ -156,7 +160,7 @@ class HardwareController extends Controller
 
     public function show(Hardware $hardware)
     {
-        $hardware->load(['assignedUser.branch', 'hardwareType', 'hardwareStatus', 'updateRecords.user:id,name']);
+        $hardware->load(['assignedUser.branch', 'hardwareType', 'hardwareStatus', 'updateRecords.user:id,name', 'verifications.reviewer:id,name']);
 
         return Inertia::render('Hardwares/Show', [
             'hardware' => $hardware
