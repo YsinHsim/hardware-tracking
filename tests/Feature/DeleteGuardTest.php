@@ -1,13 +1,12 @@
 <?php
 
-use App\Models\AssignedUser;
 use App\Models\Branch;
 use App\Models\HardwareType;
 use App\Models\Region;
 use App\Models\User;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
 });
 
 it('refuses to delete an branch with one assigned user', function () {

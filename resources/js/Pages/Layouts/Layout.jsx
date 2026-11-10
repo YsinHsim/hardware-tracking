@@ -3,6 +3,8 @@ import { Head, Link, router, usePage } from "@inertiajs/react";
 import {
     BookOpen,
     Building2,
+    ClipboardCheck,
+    Bell,
     Database,
     Info,
     KeyRound,
@@ -46,16 +48,18 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { ChevronRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { fadeRise, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const mainLinks = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, iconClass: "text-primary" },
-    { label: "Hardware", href: "/hardwares", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400" },
-    { label: "Users", href: "/users", icon: Users, iconClass: "text-emerald-600 dark:text-emerald-400" },
-    { label: "Branches", href: "/branches", icon: Building2, iconClass: "text-violet-600 dark:text-violet-400" },
-    { label: "System Data", href: "/system-data", icon: Settings2, iconClass: "text-amber-600 dark:text-amber-400" },
+    { label: "Hardware", href: "/hardwares", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400", permission: "hardware.view" },
+    { label: "My hardware", href: "/my-hardware", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400" },
+    { label: "People", href: "/people", icon: Users, iconClass: "text-emerald-600 dark:text-emerald-400", permission: "users.view" },
+    { label: "Branches", href: "/branches", icon: Building2, iconClass: "text-violet-600 dark:text-violet-400", permission: "branches.view" },
+    { label: "System Data", href: "/system-data", icon: Settings2, iconClass: "text-amber-600 dark:text-amber-400", permission: "system-data.view" },
 ];
 
 const secondaryLinks = [
@@ -65,9 +69,14 @@ const secondaryLinks = [
 
 const adminLinks = [
     { label: "Roles & Access", href: "/admin/roles", icon: ShieldCheck, iconClass: "text-red-600 dark:text-red-400" },
-    { label: "User accounts", href: "/admin/users", icon: Users, iconClass: "text-red-600 dark:text-red-400" },
+    { label: "Users", href: "/admin/users", icon: Users, iconClass: "text-red-600 dark:text-red-400" },
     { label: "Deleted hardware", href: "/admin/deleted-hardware", icon: Monitor, iconClass: "text-red-600 dark:text-red-400" },
 ];
+
+function Notifications() {
+    const notifications = usePage().props.auth?.notifications ?? [];
+    return <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Notifications" className="relative"><Bell />{notifications.length > 0 && <span className="absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">{notifications.length}</span>}</Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="w-80"><DropdownMenuLabel>Notifications</DropdownMenuLabel>{notifications.map((notification) => <DropdownMenuItem key={notification.id} asChild><Link href={notification.url} className="block whitespace-normal"><span className="block font-medium">{notification.title}</span><span className="block text-xs text-muted-foreground">{notification.message} · {notification.created_at}</span></Link></DropdownMenuItem>)}{notifications.length === 0 && <p className="p-4 text-center text-sm text-muted-foreground">No new notifications.</p>}</DropdownMenuContent></DropdownMenu>;
+}
 
 function BrandMark({ className }) {
     return (
@@ -106,6 +115,9 @@ function NavItem({ label, href, icon: Icon, iconClass, onNavigate }) {
 
 function Navigation({ onNavigate }) {
     const isSuperadmin = usePage().props.auth?.isSuperadmin;
+    const canVerify = usePage().props.auth?.canVerify;
+    const permissions = usePage().props.auth?.permissions ?? [];
+    const visibleLinks = mainLinks.filter((item) => isSuperadmin || !item.permission || permissions.includes(item.permission));
 
     return (
         <>
@@ -113,9 +125,10 @@ function Navigation({ onNavigate }) {
                 <SidebarGroupLabel>Menu</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
-                        {mainLinks.map((item) => (
+                        {visibleLinks.map((item) => (
                             <NavItem key={item.href} {...item} onNavigate={onNavigate} />
                         ))}
+                        {canVerify && <NavItem label="Verification" href="/verification" icon={ClipboardCheck} iconClass="text-primary" onNavigate={onNavigate} />}
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
@@ -251,6 +264,21 @@ function AppSidebar({ onNavigate }) {
     );
 }
 
+function Breadcrumb() {
+    const pathname = usePage().url.split("?")[0];
+    const current = [...mainLinks, ...secondaryLinks, ...adminLinks, { label: "Verification", href: "/verification" }]
+        .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+        .sort((a, b) => b.href.length - a.href.length)[0];
+    const pageLabel = current?.label ?? (pathname.startsWith("/settings") ? "Settings" : "AssetHub");
+
+    return (
+        <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-sm">
+            <Link href="/dashboard" className="text-muted-foreground transition-colors hover:text-foreground">AssetHub</Link>
+            {pageLabel !== "AssetHub" && <><ChevronRight className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" /><span className="truncate font-medium" aria-current="page">{pageLabel}</span></>}
+        </nav>
+    );
+}
+
 export default function Layout({ children }) {
     const { url } = usePage();
 
@@ -261,8 +289,8 @@ export default function Layout({ children }) {
             <SidebarInset>
                 <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-background px-4">
                     <SidebarTrigger aria-label="Toggle sidebar" />
-                    <span className="font-heading text-lg font-semibold">AssetHub</span>
-                    <div className="ml-auto"><ThemeToggle /></div>
+                    <Breadcrumb />
+                    <div className="ml-auto flex items-center gap-2"><Notifications /><ThemeToggle /></div>
                 </header>
                 <motion.main
                     key={url.split("?")[0]}

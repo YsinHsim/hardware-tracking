@@ -1,14 +1,13 @@
 <?php
 
-use App\Models\AssignedUser;
+use App\Models\User;
 use App\Models\Branch;
 use App\Models\HardwareType;
 use App\Models\HardwareStatus;
-use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
 });
 
 it('defaults to ten per page, echoes null filters and orders newest first', function () {
@@ -171,8 +170,8 @@ it('filters hardware by branch and excludes unassigned hardware', function () {
         'branch_name' => 'Other Branch',
         'region_id' => $lookups['region']->id,
     ]);
-    $otherUser = AssignedUser::create([
-        'user_name' => 'Other User',
+    $otherUser = User::factory()->create([
+        'name' => 'Other User',
         'user_position_id' => $lookups['position']->id,
         'branch_id' => $otherBranch->id,
     ]);
@@ -321,6 +320,19 @@ it('excludes soft deleted hardware from the list', function () {
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('hardwares.total', 1)
             ->where('hardwares.data.0.id', $active->id));
+});
+
+it('filters hardware by verification status', function () {
+    $lookups = makeBranchLookups();
+    $pending = makeHardware(['verification_status' => 'pending']);
+    makeHardware(['verification_status' => 'verified']);
+
+    $this->get('/hardwares?verification_status=pending')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('filters.verification_status', 'pending')
+            ->where('total', 1)
+            ->where('hardwares.data.0.id', $pending->id)
+            ->where('hardwares.data.0.verification_status', 'pending'));
 });
 
 it('provides ordered lookup lists for the filter bar', function () {

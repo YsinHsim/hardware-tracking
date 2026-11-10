@@ -24,9 +24,9 @@ class DashboardController extends Controller
 
         $branchCounts = Branch::query()
             ->selectRaw('branches.branch_name as name, count(hardwares.id) as total')
-            ->leftJoin('assigned_users', 'assigned_users.branch_id', '=', 'branches.id')
+            ->leftJoin('users', 'users.branch_id', '=', 'branches.id')
             ->leftJoin('hardwares', function ($join) {
-                $join->on('hardwares.assigned_user_id', '=', 'assigned_users.id')
+                $join->on('hardwares.user_id', '=', 'users.id')
                     ->whereNull('hardwares.deleted_at');
             })
             ->groupBy('branches.id', 'branches.branch_name')
@@ -34,7 +34,7 @@ class DashboardController extends Controller
             ->get();
 
         $totalHardware = $statusCounts->sum('total');
-        $assignedCount = (int) Hardware::whereNotNull('assigned_user_id')->count();
+        $assignedCount = (int) Hardware::whereNotNull('user_id')->count();
         $faultyCount = (int) Hardware::whereNull('deleted_at')
             ->whereHas('hardwareStatus', fn ($query) => $query->where('hardware_status_name', 'Faulty'))
             ->count();

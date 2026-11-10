@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\AssignedUser;
 use App\Models\Hardware;
+use App\Models\User;
+use App\Models\Branch;
 use App\Models\HardwareStatus;
 use App\Models\HardwareType;
+use App\Models\UserPosition;
 use App\Models\UpdateRecord;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
@@ -28,7 +30,7 @@ class HardwareFactory extends Factory
         return [
             'hardware_no' => sprintf('HW-%04d', $sequence),
             'hardware_serial_no' => 'SN-' . strtoupper(fake()->bothify('??######')),
-            'assigned_user_id' => fn () => AssignedUser::inRandomOrder()->first()?->id ?? AssignedUser::factory()->create()->id,
+            'user_id' => fn () => User::inRandomOrder()->whereNotNull('branch_id')->first()?->id ?? User::factory()->create(['branch_id' => Branch::inRandomOrder()->first()->id, 'user_position_id' => UserPosition::inRandomOrder()->first()->id])->id,
             'hardware_type_id' => fn () => HardwareType::inRandomOrder()->first()->id,
             'hardware_status_id' => fn () => HardwareStatus::inRandomOrder()->first()->id,
         ];

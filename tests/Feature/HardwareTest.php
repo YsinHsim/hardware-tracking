@@ -7,7 +7,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create()->assignRole('staff'));
 });
 
 it('creates hardware and a creation update record', function () {
@@ -22,6 +22,8 @@ it('creates hardware and a creation update record', function () {
     ])->assertRedirect(route('hardwares.index'));
 
     $hardware = Hardware::where('hardware_serial_no', 'SN-001')->firstOrFail();
+    expect($hardware->assigned_user_id)->toBe($lookups['assignedUser']->id)
+        ->and($hardware->assigned_user['user_name'])->toBe($lookups['assignedUser']->name);
 
     $this->assertDatabaseHas('update_records', [
         'hardware_id' => $hardware->id,
@@ -56,7 +58,7 @@ it('rejects another hardware serial on update and leaves the row unchanged', fun
     $hardware = makeHardware();
     $other = makeHardware();
 
-    $original = $hardware->getAttributes();
+    $original = $hardware->fresh()->getAttributes();
 
     $this->put("/hardwares/{$hardware->id}", [
         'hardware_no' => $hardware->hardware_no,
@@ -66,7 +68,7 @@ it('rejects another hardware serial on update and leaves the row unchanged', fun
         'hardware_status_id' => $hardware->hardware_status_id,
     ])->assertSessionHasErrors('hardware_serial_no');
 
-    expect($hardware->fresh()->getAttributes())->toEqual(array_merge($original, ['deleted_at' => null]));
+    expect($hardware->fresh()->getAttributes())->toEqual($original);
 });
 
 it('writes a hardware updated record when the status changes', function () {
@@ -115,31 +117,4 @@ it('soft deletes hardware while preserving its update records', function () {
     expect($deleted)->not->toBeNull()
         ->and($deleted->deleted_at)->not->toBeNull()
         ->and(UpdateRecord::where('hardware_id', $hardware->id)->count())->toBe(3);
-});
-
-it('passes the real hardware id and branch name to the assigned report page', function () {
-    $lookups = makeBranchLookups();
-    $hardware = makeHardware([
-        'assigned_user_id' => $lookups['assignedUser']->id,
-        'hardware_type_id' => $lookups['hardwareType']->id,
-        'hardware_status_id' => $lookups['hardwareStatus']->id,
-    ]);
-
-    $this->get("/report/{$hardware->id}")
-        ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Hardwares/Report')
-            ->where('hardware_id', $hardware->id)
-            ->where('branch_name', $lookups['branch']->branch_name));
-});
-
-it('shows unassigned report details for unassigned hardware', function () {
-    $hardware = makeHardware();
-
-    $this->get("/report/{$hardware->id}")
-        ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Hardwares/Report')
-            ->where('hardware_user', 'Unassigned')
-            ->where('branch_name', 'Unassigned'));
 });

@@ -29,6 +29,31 @@ it('logs in with correct credentials', function () {
     $this->assertAuthenticatedAs($user);
 });
 
+it('blocks suspended users from logging in', function () {
+    $user = User::factory()->create(['password' => 'password', 'status' => 'suspended']);
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect('/login')->assertSessionHasErrors([
+        'email' => 'This account is not active. Contact an administrator.',
+    ]);
+
+    $this->assertGuest();
+});
+
+it('logs out a suspended user with an existing session', function () {
+    $user = User::factory()->create(['status' => 'suspended']);
+
+    $this->actingAs($user)->get('/dashboard')
+        ->assertRedirect('/login')
+        ->assertSessionHasErrors([
+            'email' => 'This account is suspended. Contact an administrator.',
+        ]);
+
+    $this->assertGuest();
+});
+
 it('logs out and redirects to login', function () {
     $user = User::factory()->create();
 

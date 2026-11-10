@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { FileSearch, FileText, LayoutGrid, Pencil, Table2, Trash2 } from "lucide-react";
+import { FileSearch, LayoutGrid, Pencil, Table2, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../Layouts/Layout";
 import PageHeader from "@/components/PageHeader";
+import HardwareStatusBadge from "@/components/HardwareStatusBadge";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -32,6 +33,7 @@ export default function Show({ hardware }) {
         { label: "Serial number", value: hardware.hardware_serial_no, mono: true },
         { label: "Type", value: hardware.hardware_type?.hardware_type_name || "N/A" },
         { label: "Status", value: hardware.hardware_status?.hardware_status_name || "N/A", badge: true },
+        { label: "Verification", value: hardware.verification_status.replace('_', ' '), badge: true },
         { label: "Branch", value: hardware.assigned_user?.branch?.branch_name || "N/A" },
     ];
 
@@ -71,7 +73,6 @@ export default function Show({ hardware }) {
                     <CardTitle className="font-mono text-xl">{hardware.hardware_no}</CardTitle>
                     <CardDescription>Hardware information</CardDescription>
                     <CardAction className="flex gap-2">
-                        <Button variant="outline" asChild><Link href={`/report/${hardware.id}`}><FileText /> Report</Link></Button>
                         <Button variant="outline" asChild><Link href={`/hardwares/${hardware.id}/edit`}><Pencil /> Edit</Link></Button>
                         <Button variant="destructive" onClick={() => { setDeleteError(""); setShowAlert(true); }}><Trash2 /> Delete</Button>
                     </CardAction>
@@ -82,19 +83,30 @@ export default function Show({ hardware }) {
                             <div key={detail.label}>
                                 <dt className="text-sm text-muted-foreground">{detail.label}</dt>
                                 <dd className={`mt-1 ${detail.mono ? "font-mono" : ""}`}>
-                                    {detail.badge ? <Badge variant="outline">{detail.value}</Badge> : detail.value}
+                                    {detail.label === "Status" ? <HardwareStatusBadge status={detail.value} /> : detail.badge ? <Badge variant="outline">{detail.value}</Badge> : detail.value}
                                 </dd>
                             </div>
                         ))}
                         <div>
                             <dt className="text-sm text-muted-foreground">Assigned user</dt>
                             <dd className="mt-1">
-                                {hardware.assigned_user?.id ? (
-                                    <Link href={`/users/${hardware.assigned_user.id}`} className="hover:underline">{hardware.assigned_user.user_name}</Link>
-                                ) : "Unassigned"}
+                                {hardware.assigned_user?.user_name || "Unassigned"}
                             </dd>
                         </div>
                     </dl>
+                </CardContent>
+            </Card>
+
+            <Card className="mt-5">
+                <CardHeader><CardTitle className="text-xl">Verification history</CardTitle><CardDescription>Reviews, decisions, and notes for this device.</CardDescription></CardHeader>
+                <CardContent className="space-y-4">
+                    {hardware.verifications?.length > 0 ? hardware.verifications.map((review) => (
+                        <div key={review.id} className="rounded-lg border p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-2"><Badge variant={review.status === 'verified' ? 'default' : 'secondary'}>{review.status.replace('_', ' ')}</Badge><span className="text-sm text-muted-foreground">{new Date(review.created_at).toLocaleString()}</span></div>
+                            <p className="mt-2 text-sm">Reviewed by {review.reviewer?.name ?? 'Unknown'}</p>
+                            {review.notes && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{review.notes}</p>}
+                        </div>
+                    )) : <p className="text-sm text-muted-foreground">No verification reviews recorded.</p>}
                 </CardContent>
             </Card>
 

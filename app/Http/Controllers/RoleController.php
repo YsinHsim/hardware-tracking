@@ -123,11 +123,12 @@ class RoleController extends Controller
             'users' => User::query()
                 ->with('roles:id,name')
                 ->orderBy('name')
-                ->get(['id', 'name', 'email'])
+                ->get(['id', 'name', 'email', 'status'])
                 ->map(fn (User $user) => [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'status' => $user->status,
                     'role' => $user->roles->first()?->name,
                 ]),
             'roles' => Role::query()->orderBy('id')->pluck('name'),
@@ -153,5 +154,46 @@ class RoleController extends Controller
         $user->syncRoles([$validated['role']]);
 
         return back()->with('success', "{$user->name} is now {$validated['role']}.");
+    }
+
+    public function updateUserStatus(Request $request, User $user): RedirectResponse
+    {
+        Gate::authorize('admin.roles');
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['active', 'suspended'])],
+        ], [], ['status' => 'account status']);
+
+        if ($user->status === 'invited') {
+            return back()->withErrors(['status' => 'An invited account must complete onboarding before it can be suspended.']);
+        }
+
+        if ($user->is($request->user()) && $validated['status'] === 'suspended') {
+            return back()->withErrors(['status' => 'You cannot suspend your own account.']);
+        }
+
+        if ($user->hasRole('superadmin') && $validated['status'] === 'suspended') {
+            $activeSuperadmins = User::role('superadmin')->where('status', 'active')->count();
+            if ($activeSuperadmins <= 1) {
+                return back()->withErrors(['status' => 'Cannot suspend the last active superadmin.']);
+            }
+        }
+
+        $user->update(['status' => $validated['status']]);
+
+        return back()->with('success', "{$user->name} is now {$validated['status']}.");
+    }
+
+    public function destroyUser(User $user): RedirectResponse
+    {
+        Gate::authorize('admin.roles');
+
+        if ($user->status !== 'invited' || $user->profile_completed_at !== null) {
+            return back()->withErrors(['delete' => 'Only invited accounts that have not completed onboarding can be deleted. Suspend active accounts instead.']);
+        }
+
+        $user->delete();
+
+        return back()->with('success', "Invitation for {$user->email} deleted.");
     }
 }

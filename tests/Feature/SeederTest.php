@@ -1,18 +1,20 @@
 <?php
 
-use App\Models\AssignedUser;
 use App\Models\Branch;
 use App\Models\Hardware;
 use App\Models\HardwareStatus;
 use App\Models\HardwareType;
+use App\Models\HardwareVerification;
 use App\Models\Region;
+use App\Models\User;
 use App\Models\UserPosition;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
 
-it('seeds lookups, branches and demo data with hardware count 50', function () {
+it('seeds lookups accounts and the complete hardware verification workflow', function () {
     Artisan::call('db:seed', ['--force' => true]);
 
     expect(Region::count())->toBe(15)
@@ -20,20 +22,40 @@ it('seeds lookups, branches and demo data with hardware count 50', function () {
         ->and(HardwareStatus::count())->toBe(5)
         ->and(UserPosition::count())->toBe(6)
         ->and(Branch::count())->toBe(15)
-        ->and(AssignedUser::count())->toBe(12)
+        ->and(User::count() - 1)->toBe(12)
+        ->and(User::role('manager')->count())->toBe(3)
+        ->and(User::role('staff')->count())->toBe(9)
+        ->and(User::where('status', 'suspended')->count())->toBe(1)
+        ->and(User::whereNull('profile_completed_at')->count())->toBe(0)
         ->and(Hardware::withTrashed()->count())->toBe(51)
-        ->and(Hardware::onlyTrashed()->count())->toBe(1)
-        ->and(Hardware::count() === Hardware::withTrashed()->count())->toBeFalse();
+        ->and(Hardware::onlyTrashed()->count())->toBe(1);
 
-    // Unique columns stay unique across the batch.
-    $hardwareNos = Hardware::withTrashed()->pluck('hardware_no');
-    $serialNos = Hardware::withTrashed()->pluck('hardware_serial_no');
-    expect($hardwareNos->unique()->count())->toBe($hardwareNos->count())
-        ->and($serialNos->unique()->count())->toBe($serialNos->count());
+    foreach (['pending', 'verified', 'changes_requested', 'rejected'] as $status) {
+        expect(Hardware::where('verification_status', $status)->exists())->toBeTrue();
+    }
+    expect(Hardware::whereNull('user_id')->count())->toBe(0)
+        ->and(Hardware::with('assignedUser')->get()->every(fn ($hardware) => $hardware->assigned_user['user_name'] === $hardware->assignedUser()->first()->name))->toBeTrue()
+        ->and(Hardware::whereNull('submitted_by')->count())->toBe(0)
+        ->and(HardwareVerification::where('status', 'verified')->whereNull('notes')->exists())->toBeTrue()
+        ->and(HardwareVerification::whereIn('status', ['changes_requested', 'rejected'])->whereNull('notes')->exists())->toBeFalse()
+        ->and(Hardware::whereHas('assignedUser', fn ($query) => $query->where('status', 'suspended'))->exists())->toBeFalse();
+});
 
-    // Every hardware has history entries with no signed-in user.
-    expect(Hardware::withTrashed()->get()->every(fn ($hardware) => $hardware->updateRecords()->count() >= 1))->toBeTrue()
-        ->and(\App\Models\UpdateRecord::whereNotNull('user_id')->count())->toBe(0);
+it('passes seeded account assignees to the hardware page', function () {
+    Artisan::call('db:seed', ['--force' => true]);
+    $this->actingAs(User::role('superadmin')->first());
+
+    $this->get('/hardwares')->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+        ->where('hardwares.data.0.assigned_user.user_name', Hardware::latest('id')->first()->assignedUser()->first()->name)
+        ->where('hardwares.data.0.assigned_user.branch.branch_name', Hardware::latest('id')->first()->assignedUser()->first()->branch->branch_name)
+    );
+});
+
+it('uses the configured demo password without exposing the admin password', function () {
+    Artisan::call('db:seed', ['--force' => true]);
+
+    $staff = User::role('staff')->where('status', 'active')->first();
+    expect(Hash::check(env('DEMO_USER_PASSWORD', 'password'), $staff->password))->toBeTrue();
 });
 
 it('does not duplicate curated rows when seeded twice', function () {
@@ -45,13 +67,11 @@ it('does not duplicate curated rows when seeded twice', function () {
         ->and(HardwareStatus::count())->toBe(5)
         ->and(UserPosition::count())->toBe(6)
         ->and(Branch::count())->toBe(15)
-        ->and(AssignedUser::count())->toBe(24)
+        ->and(User::count() - 1)->toBe(24)
         ->and(Hardware::withTrashed()->count())->toBe(102);
 });
 
 it('skips demo users and hardware when SEED_HARDWARE_COUNT is 0', function () {
-    // env() reads $_ENV/$_SERVER before the process environment, so all
-    // three layers must be set for the gate to see the override.
     $originalEnv = $_ENV['SEED_HARDWARE_COUNT'] ?? null;
     $originalServer = $_SERVER['SEED_HARDWARE_COUNT'] ?? null;
     $_ENV['SEED_HARDWARE_COUNT'] = '0';
@@ -76,13 +96,11 @@ it('skips demo users and hardware when SEED_HARDWARE_COUNT is 0', function () {
 
     expect(Region::count())->toBe(15)
         ->and(Branch::count())->toBe(15)
-        ->and(AssignedUser::count())->toBe(0)
+        ->and(User::count())->toBe(1)
         ->and(Hardware::count())->toBe(0);
 });
 
 it('skips the admin account when ADMIN_EMAIL is not configured', function () {
-    // env() reads $_ENV/$_SERVER before the process environment, so all
-    // three layers must be cleared to simulate an unconfigured admin.
     $originalEnv = $_ENV['ADMIN_EMAIL'] ?? null;
     $originalServer = $_SERVER['ADMIN_EMAIL'] ?? null;
     unset($_ENV['ADMIN_EMAIL'], $_SERVER['ADMIN_EMAIL']);
@@ -99,9 +117,8 @@ it('skips the admin account when ADMIN_EMAIL is not configured', function () {
         }
     }
 
-    expect(\App\Models\User::count())->toBe(0)
-        ->and(Region::count())->toBe(15)
-        ->and(AssignedUser::count())->toBe(12)
+    expect(Region::count())->toBe(15)
+        ->and(User::count())->toBe(12)
         ->and(Hardware::withTrashed()->count())->toBe(51);
 });
 

@@ -21,7 +21,7 @@ export function AssignedUserCombobox({ value, branches, assignedUsers, onChange,
     const selected = users.find((user) => String(user.id) === String(value));
     const query = search.trim().toLowerCase();
     const filtered = query
-        ? users.filter((user) => [user.user_name, user.user_position?.position_name, user.branch_name]
+        ? users.filter((user) => [user.name, user.position?.position_name, user.branch_name]
             .some((text) => text?.toLowerCase().includes(query)))
         : users;
     const groups = branches
@@ -79,9 +79,9 @@ export function AssignedUserCombobox({ value, branches, assignedUsers, onChange,
                             <UserRound className="shrink-0 text-muted-foreground" />
                             {selected ? (
                                 <span className="min-w-0">
-                                    <span className="block truncate">{selected.user_name}</span>
+                                    <span className="block truncate">{selected.name}</span>
                                     <span className="block truncate text-xs text-muted-foreground">
-                                        {[selected.user_position?.position_name, selected.branch_name].filter(Boolean).join(" · ")}
+                                        {[selected.position?.position_name, selected.branch_name].filter(Boolean).join(" · ")}
                                     </span>
                                 </span>
                             ) : (
@@ -138,9 +138,9 @@ export function AssignedUserCombobox({ value, branches, assignedUsers, onChange,
                                             )}
                                         >
                                             <span className="min-w-0">
-                                                <span className="block truncate">{user.user_name}</span>
+                                                <span className="block truncate">{user.name}</span>
                                                 <span className="block truncate text-xs text-muted-foreground">
-                                                    {user.user_position?.position_name || "No position"}
+                                                    {user.position?.position_name || "No position"}
                                                 </span>
                                             </span>
                                             {String(value) === String(user.id) && <Check className="size-4 shrink-0" />}
