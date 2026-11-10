@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -41,6 +42,14 @@ class User extends Authenticatable
     public function invitation()
     {
         return $this->hasOne(AccountInvitation::class);
+    }
+
+    /**
+     * Hardware currently assigned to this account.
+     */
+    public function hardware(): HasMany
+    {
+        return $this->hasMany(Hardware::class, 'user_id');
     }
 
     /**

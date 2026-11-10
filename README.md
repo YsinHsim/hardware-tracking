@@ -23,6 +23,33 @@ The admin password lives only in `.env` and should be strong. `SEED_HARDWARE_COU
 
 To replace a local database and its demo data, run `php artisan migrate:fresh --seed`. **This permanently wipes all tables in the configured database. Back up first and never run it against production.**
 
+## Deployment checklist
+
+For a fresh server or a release that includes the invited-onboarding / hardware-verification work:
+
+1. **Back up** the existing database before any migration.
+2. `composer install --no-dev --optimize-autoloader`
+3. `npm ci && npm run build`
+4. Set production `.env`:
+   - `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://…`
+   - Strong `ADMIN_PASSWORD` (superadmin bootstrap)
+   - `SEED_HARDWARE_COUNT=0` — never seed demo accounts or demo hardware in production
+   - Real `MAIL_*` settings so invitation emails and verification notifications actually send
+   - Real `DB_*` credentials
+5. `php artisan key:generate` (first deploy only)
+6. `php artisan migrate --force` — runs all pending migrations including:
+   - `2026_11_05_120000_add_invitations_and_hardware_verification.php`
+   - `2026_11_06_120000_assign_hardware_to_user_accounts.php`
+7. `php artisan db:seed --force` — seeds lookups, branches, roles/permissions, and the superadmin. Skipped if `SEED_HARDWARE_COUNT=0` only controls demo rows.
+8. `php artisan config:cache && php artisan route:cache && php artisan view:cache`
+9. Point the web server at `public/` and verify:
+   - Login as the seeded superadmin
+   - Invite a user from **Admin → Users** and confirm the email arrives and the link works
+   - Submit hardware from **My Hardware**, then review it from **Verification** as a manager in the same branch
+10. Smoke-test the full onboarding flow once in production (invitation → password set → profile completion → first login).
+
+**Never** run `php artisan migrate:fresh` against production. It drops every table.
+
 ## Tests
 
 Run the full suite before every commit. `phpunit.xml` forces SQLite `:memory:`, so tests never touch MySQL:

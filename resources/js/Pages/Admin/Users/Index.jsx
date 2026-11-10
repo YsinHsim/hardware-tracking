@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Head, router, usePage } from "@inertiajs/react";
-import { UsersRound, Copy, Plus, Trash2 } from "lucide-react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
+import { UsersRound, Copy, Plus, Trash2, Eye } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import Layout from "../../Layouts/Layout";
@@ -126,6 +126,11 @@ export default function AdminUsersIndex({ users, roles }) {
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex justify-end gap-2">
+                                                <Button size="sm" variant="outline" asChild>
+                                                    <Link href={`/people/${user.id}`}>
+                                                        <Eye className="size-4" aria-hidden="true" /> View
+                                                    </Link>
+                                                </Button>
                                                 <Button
                                                     size="sm"
                                                     variant="outline"

@@ -57,6 +57,7 @@ const mainLinks = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, iconClass: "text-primary" },
     { label: "Hardware", href: "/hardwares", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400", permission: "hardware.view" },
     { label: "My hardware", href: "/my-hardware", icon: Monitor, iconClass: "text-sky-600 dark:text-sky-400" },
+    { label: "People", href: "/people", icon: Users, iconClass: "text-emerald-600 dark:text-emerald-400", permission: "users.view" },
     { label: "Branches", href: "/branches", icon: Building2, iconClass: "text-violet-600 dark:text-violet-400", permission: "branches.view" },
     { label: "System Data", href: "/system-data", icon: Settings2, iconClass: "text-amber-600 dark:text-amber-400", permission: "system-data.view" },
 ];

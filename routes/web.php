@@ -13,6 +13,7 @@ use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\MyHardwareController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\PeopleController;
 use Inertia\Inertia;
 
 //Guest Middleware Route Group
@@ -48,6 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // People directory: read-only profiles + assigned hardware.
+    Route::get('/people', [PeopleController::class, 'index'])->name('people.index')->middleware('permission:users.view');
+    Route::get('/people/{user}', [PeopleController::class, 'show'])->name('people.show');
 
     Route::get('/documentation', function() {
         return Inertia::render('Documentation');
